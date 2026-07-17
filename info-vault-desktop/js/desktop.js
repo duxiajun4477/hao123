@@ -81,6 +81,9 @@ var InfoVaultApp = {
       document.getElementById('unlockPwd').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') this.unlock();
       });
+      // 绑定重置按钮
+      const resetBtn = document.getElementById('btnResetPwd');
+      if (resetBtn) resetBtn.addEventListener('click', () => this.resetMasterPassword());
     } else {
       this._afterUnlock();
     }
@@ -248,8 +251,30 @@ var InfoVaultApp = {
   },
 
   async resetMasterPassword() {
-    if (!confirm('⚠️ 确定要重置应用吗？\n\n这将清除所有本地数据（包括主密码和所有存储的条目）。\n\n如果配置过 GitHub 同步，可以从其他已同步的设备恢复数据。')) return;
-    if (!confirm('再次确认：所有数据将被永久删除！')) return;
+    this._showModal('⚠️ 重置应用', `
+      <div style="text-align:center;padding:12px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">🗑️</div>
+        <h3 style="font-size:18px;font-weight:600;color:var(--color-neutral-900);margin-bottom:8px;">确定要重置所有数据吗？</h3>
+        <p style="font-size:var(--text-sm);color:var(--color-neutral-500);line-height:1.6;margin-bottom:8px;">
+          此操作将永久删除所有本地数据：<br>
+          主密码 · 所有条目 · 同步配置
+        </p>
+        <p style="font-size:var(--text-xs);color:var(--state-warning);">
+          💡 如果配置过 GitHub 同步，重置后重新连接即可恢复数据
+        </p>
+      </div>
+      <div class="form-actions" style="margin-top:20px;">
+        <button class="btn btn-secondary" onclick="InfoVaultApp.closeModal()">取消</button>
+        <button class="btn btn-danger" onclick="InfoVaultApp.confirmReset()">确认重置</button>
+      </div>
+    `);
+  },
+
+  async confirmReset() {
+    this.closeModal();
+    // 显示正在重置的提示
+    const overlay = document.getElementById('unlockOverlay');
+    if (overlay) overlay.innerHTML = '<div class="unlock-dialog" style="text-align:center;"><div style="font-size:48px;margin-bottom:16px;">⏳</div><h2 style="font-size:24px;font-weight:700;color:var(--color-neutral-900);">正在重置...</h2></div>';
     // 清除所有数据
     const db = await InfoVaultDB.open();
     const tx = db.transaction('entries', 'readwrite');
@@ -259,16 +284,14 @@ var InfoVaultApp = {
       req.onsuccess = () => resolve();
       req.onerror = (e) => reject(e.target.error);
     });
-    // 清除主密码和同步设置
+    // 清除设置
     await InfoVaultDB.setSetting('master_password_hash', '');
     await InfoVaultDB.setSetting('github_token', '');
     await InfoVaultDB.setSetting('github_repo', '');
     await InfoVaultDB.setSetting('last_sync_time', '');
-    // 清除加密密钥
     InfoVaultDB.setEncryptionKey(null);
-    // 重新加载页面
-    this.toast('已重置，即将刷新页面');
-    setTimeout(() => location.reload(), 1000);
+    // 刷新页面
+    setTimeout(() => location.reload(), 500);
   },
 
   // ====== 导航 ======

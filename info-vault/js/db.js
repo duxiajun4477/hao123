@@ -14,7 +14,10 @@ const InfoVaultDB = {
     IDENTITY: 'identity',
     IMAGE: 'image',
     NOTE: 'note',
-    BOOKMARK: 'bookmark'
+    BOOKMARK: 'bookmark',
+    EMAIL: 'email',
+    CRYPTO: 'crypto',
+    FILE: 'file'
   },
 
   // 分类标签
@@ -22,6 +25,8 @@ const InfoVaultDB = {
     password: ['社交', '购物', '金融', '工作', '娱乐', '教育', '其他'],
     wallet: ['支付宝', '微信支付', '银行卡', '加密货币', '其他'],
     identity: ['身份证', '护照', '驾驶证', '社保卡', '学生证', '其他'],
+    email: ['个人', '工作', '学校', '其他'],
+    crypto: ['ETH', 'BTC', 'SOL', 'USDT', 'BSC', '其他'],
   },
 
   _db: null,

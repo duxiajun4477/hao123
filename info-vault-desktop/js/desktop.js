@@ -718,31 +718,61 @@ var InfoVaultApp = {
             r.onerror = function(){ rej(r.error); };
             r.readAsDataURL(files[i]);
           });
-          var entry = {
+          var now = new Date().toISOString();
+          var uid = 'f_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substr(2,6);
+          // 直接构造存储对象，不依赖 _prepareForStore
+          var stored = {
+            id: uid,
             type: type,
             name: files[i].name.replace(/\.[^.]+$/, ''),
             filename: files[i].name,
             fileSize: (files[i].size/1024).toFixed(1) + ' KB',
             mimeType: files[i].type || 'application/octet-stream',
-            category: category
+            category: category,
+            createdAt: now,
+            updatedAt: now,
+            deletedAt: null,
+            favorite: false
           };
-          if(type === 'image'){ entry.dataUrl = dataUrl; entry.gradient = self._randomGradient(); }
-          else { entry.fileData = dataUrl; }
-          await InfoVaultDB.add(entry);
+          if(type === 'image'){
+            stored.dataUrl = dataUrl;
+            stored.gradient = self._randomGradient();
+          } else {
+            stored.fileData = dataUrl;
+          }
+          // 直接用 IndexedDB 的 put
+          var db = await InfoVaultDB.open();
+          var tx = db.transaction('entries', 'readwrite');
+          var store = tx.objectStore('entries');
+          await new Promise(function(res, rej){
+            var req = store.put(stored);
+            req.onsuccess = function(){ res(); };
+            req.onerror = function(){ rej(req.error); };
+          });
           ok++;
-        } catch(err) { console.error('Upload error:', err); }
+        } catch(err) {
+          console.error('Upload file error:', err, err.message);
+        }
       }
       self.toast('✅ 上传完成: ' + ok + '/' + files.length);
-      // 验证数据是否真的写入了
-      var check = await InfoVaultDB.exportAll();
-      var found = check.filter(function(e){ return e.type === type; });
-      if (found.length > 0) {
-        console.log('验证通过，找到 ' + found.length + ' 条 ' + type + ' 类型数据');
-      } else {
-        console.error('警告：exportAll 没找到刚写入的数据！');
-        // 尝试用 getAll 再查一次
-        var check2 = await InfoVaultDB.getAll(type);
-        console.error('getAll 结果:', check2 ? check2.length : 'null');
+      if(ok > 0){
+        // 验证写入
+        try {
+          var db2 = await InfoVaultDB.open();
+          var tx2 = db2.transaction('entries', 'readonly');
+          var s2 = tx2.objectStore('entries');
+          var total = await new Promise(function(res, rej){
+            var c = 0;
+            var req = s2.openCursor();
+            req.onsuccess = function(e){
+              var cur = e.target.result;
+              if(cur){ c++; cur.continue(); }
+              else res(c);
+            };
+            req.onerror = function(){ rej(0); };
+          });
+          console.log('IndexedDB 总条目数:', total);
+        } catch(e) { console.error('Verify error:', e); }
       }
       location.reload();
     };

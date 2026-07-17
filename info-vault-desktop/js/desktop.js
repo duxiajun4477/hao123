@@ -247,6 +247,19 @@ var InfoVaultApp = {
     document.getElementById('contentArea').innerHTML = '';
   },
 
+  async diagnosticDump() {
+    try {
+      const all = await InfoVaultDB.exportAll();
+      const byType = {};
+      for (const e of all) byType[e.type] = (byType[e.type] || 0) + 1;
+      let h = '<div style="font-size:12px;line-height:1.8;"><h3>📋 数据库诊断</h3><div style="background:rgba(26,32,53,0.4);padding:12px;border-radius:8px;margin:8px 0;">';
+      h += '<div>总条目: <b>' + all.length + '</b></div>';
+      for (const [t,c] of Object.entries(byType)) h += '<div>' + t + ': ' + c + '</div>';
+      h += '</div><button class="btn btn-secondary btn-sm" onclick="InfoVaultApp.closeModal()">关闭</button></div>';
+      this._showModal('诊断', h);
+    } catch(e) { this.toast('诊断失败: ' + e.message, 'error'); }
+  },
+
   // ====== 导航 ======
   navigateTo(view) {
     this.currentView = view;
@@ -337,7 +350,15 @@ var InfoVaultApp = {
   // ====== 密码管理 ======
   async renderPasswords(area) {
     const entries = await InfoVaultDB.getAll('password');
-    area.innerHTML = `
+    // 调试信息：始终显示条目数量
+    const debugInfo = `<div style="font-size:11px;color:var(--color-neutral-500);padding:6px 12px;margin-bottom:8px;background:rgba(59,110,246,0.05);border-radius:6px;border:1px solid rgba(59,110,246,0.1);display:flex;justify-content:space-between;align-items:center;">
+      <span>📊 数据库: 共 <b style="color:var(--color-neutral-900);">${entries.length}</b> 条密码记录</span>
+      <span>
+        <button class="btn btn-ghost btn-sm" onclick="InfoVaultApp.renderView('passwords')">🔄 刷新</button>
+        <button class="btn btn-ghost btn-sm" onclick="InfoVaultApp.diagnosticDump()">📋 诊断</button>
+      </span>
+    </div>`;
+    area.innerHTML = debugInfo + `
       <div class="toolbar">
         <div class="search-box" style="width: 260px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--color-neutral-500); flex-shrink: 0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>

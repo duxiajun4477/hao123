@@ -247,19 +247,6 @@ var InfoVaultApp = {
     document.getElementById('contentArea').innerHTML = '';
   },
 
-  async diagnosticDump() {
-    try {
-      const all = await InfoVaultDB.exportAll();
-      const byType = {};
-      for (const e of all) byType[e.type] = (byType[e.type] || 0) + 1;
-      let h = '<div style="font-size:12px;line-height:1.8;"><h3>📋 数据库诊断</h3><div style="background:rgba(26,32,53,0.4);padding:12px;border-radius:8px;margin:8px 0;">';
-      h += '<div>总条目: <b>' + all.length + '</b></div>';
-      for (const [t,c] of Object.entries(byType)) h += '<div>' + t + ': ' + c + '</div>';
-      h += '</div><button class="btn btn-secondary btn-sm" onclick="InfoVaultApp.closeModal()">关闭</button></div>';
-      this._showModal('诊断', h);
-    } catch(e) { this.toast('诊断失败: ' + e.message, 'error'); }
-  },
-
   // ====== 导航 ======
   navigateTo(view) {
     this.currentView = view;
@@ -350,15 +337,7 @@ var InfoVaultApp = {
   // ====== 密码管理 ======
   async renderPasswords(area) {
     const entries = await InfoVaultDB.getAll('password');
-    // 调试信息：始终显示条目数量
-    const debugInfo = `<div style="font-size:11px;color:var(--color-neutral-500);padding:6px 12px;margin-bottom:8px;background:rgba(59,110,246,0.05);border-radius:6px;border:1px solid rgba(59,110,246,0.1);display:flex;justify-content:space-between;align-items:center;">
-      <span>📊 数据库: 共 <b style="color:var(--color-neutral-900);">${entries.length}</b> 条密码记录</span>
-      <span>
-        <button class="btn btn-ghost btn-sm" onclick="InfoVaultApp.renderView('passwords')">🔄 刷新</button>
-        <button class="btn btn-ghost btn-sm" onclick="InfoVaultApp.diagnosticDump()">📋 诊断</button>
-      </span>
-    </div>`;
-    area.innerHTML = debugInfo + `
+    area.innerHTML = `
       <div class="toolbar">
         <div class="search-box" style="width: 260px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--color-neutral-500); flex-shrink: 0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -390,19 +369,18 @@ var InfoVaultApp = {
   _passwordRow(e) {
     const strength = InfoVaultCrypto.evaluateStrength(e.password);
     const pwEnc = this._escape(e.password);
-    const unEnc = this._escape(e.username);
-    return `<tr class="hover:bg-muted/30 transition-colors group" data-pwid="${e.id}" style="cursor:pointer;" ondblclick="InfoVaultApp.copyToClipboard('${pwEnc}','密码已复制')">
+    return `<tr class="hover:bg-muted/30 transition-colors group" data-pwid="${e.id}">
       <td style="width:30px"><input type="checkbox" class="pw-checkbox" data-id="${e.id}" onchange="InfoVaultApp._updateBatchDeleteBtn()" style="accent-color:var(--color-primary-500);"></td>
       <td><div style="display:flex;align-items:center;gap:10px;">
         <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${e.color || '#3b6ef6'};color:white;font-size:12px;font-weight:700;flex-shrink:0;">${(e.name||'?')[0].toUpperCase()}</div>
         <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.name)}</span>
         <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.toggleFavorite('${e.id}')" title="${e.favorite ? '取消收藏' : '收藏'}" style="color:${e.favorite ? '#f59e0b' : 'var(--color-neutral-400)'};">${e.favorite ? '★' : '☆'}</button>
       </div></td>
-      <td style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-neutral-500);cursor:pointer;" ondblclick="InfoVaultApp.copyToClipboard('${unEnc}','用户名已复制')" title="双击复制用户名">${this._escape(this._maskStr(e.username, 6))} <button class="btn btn-icon btn-ghost" onclick="event.stopPropagation();InfoVaultApp.copyToClipboard('${unEnc}','用户名已复制')" title="复制用户名" style="opacity:0.6;display:inline-flex;">${this.icons.copy}</button></td>
-      <td><div style="display:flex;align-items:center;gap:4px;">
+      <td style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-neutral-500);">${this._escape(this._maskStr(e.username, 6))}</td>
+      <td><div style="display:flex;align-items:center;gap:6px;">
         <span class="pw-dots" data-pw="${pwEnc}" data-pwlen="${Math.min(12, Math.max(6, (e.password||'').length))}" data-showing="false" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-neutral-500);letter-spacing:2px;">${'•'.repeat(Math.min(12, Math.max(6, (e.password||'').length)))}</span>
-        <button class="btn btn-icon" onclick="InfoVaultApp.copyToClipboardFromAttr(this)" data-copy="${pwEnc}" title="复制密码" style="background:rgba(59,110,246,0.1);color:var(--color-primary-500);width:28px;height:28px;">${this.icons.copy}</button>
-        <button class="btn btn-icon btn-ghost toggle-pw" onclick="InfoVaultApp.togglePassword(this)" title="显示密码" style="width:28px;height:28px;">${this.icons.eye}</button>
+        <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboardFromAttr(this)" data-copy="${pwEnc}" title="复制密码">${this.icons.copy}</button>
+        <button class="btn btn-icon btn-ghost toggle-pw" onclick="InfoVaultApp.togglePassword(this)" title="显示密码">${this.icons.eye}</button>
       </div></td>
       <td><span class="badge ${this._badgeClass(e.category)}">${e.category || '未分类'}</span></td>
       <td><div style="display:flex;align-items:center;gap:6px;">
@@ -563,17 +541,11 @@ var InfoVaultApp = {
   // ====== 邮箱账号 ======
   async renderEmails(area) {
     const entries = await InfoVaultDB.getAll('email');
-    const categories = InfoVaultDB.CATEGORIES.email || ['Gmail', 'QQ邮箱', '其他'];
     area.innerHTML = `
       <div class="toolbar">
         <div class="search-box" style="width:260px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" placeholder="搜索邮箱..." oninput="InfoVaultApp.filterGeneric(this.value, '#emailTable tbody tr')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
-        </div>
-        <div class="filter-group" id="emailFilterGroup">
-          <button class="filter-btn active" data-filter="all" onclick="InfoVaultApp.filterEmails('all')">全部</button>
-          ${categories.map(c => `<button class="filter-btn" data-filter="${c}" onclick="InfoVaultApp.filterEmails('${c}')">${c}</button>`).join('')}
-          <button class="filter-btn" onclick="InfoVaultApp.addEmailCategory()">+</button>
         </div>
         <div style="flex:1"></div>
         <button class="btn btn-primary" onclick="InfoVaultApp.showAddEmail()" style="background:#22c55e;">${this.icons.plus} 添加邮箱</button>
@@ -583,13 +555,13 @@ var InfoVaultApp = {
         <div class="table-wrap">
           <table id="emailTable">
             <thead><tr><th>邮箱</th><th>用户名</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr data-category="${e.category || '其他'}">
+            <tbody>${entries.map(e => `<tr>
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,0.12);color:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.note}</div>
                 <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.email || e.name)}</span>
               </div></td>
               <td style="color:var(--color-neutral-600);font-size:var(--text-xs);">${this._escape(e.username || '')}</td>
-              <td><span class="badge badge-green">${this._escape(e.category || '其他')}</span></td>
+              <td><span class="badge badge-green">${this._escape(e.category || '个人')}</span></td>
               <td style="font-size:var(--text-xs);color:var(--color-neutral-500);font-family:var(--font-mono);">${e.smtpHost ? e.smtpHost + ':' + e.smtpPort : '-'}</td>
               <td style="font-size:var(--text-xs);color:var(--color-neutral-500);">${this._timeAgo(e.updatedAt)}</td>
               <td style="text-align:right;"><div style="display:flex;gap:4px;justify-content:flex-end;">
@@ -641,17 +613,11 @@ var InfoVaultApp = {
   // ====== 文件管理 ======
   async renderFiles(area) {
     const entries = await InfoVaultDB.getAll('file');
-    const categories = InfoVaultDB.CATEGORIES.file || ['文档', 'PDF', '其他'];
     area.innerHTML = `
       <div class="toolbar">
         <div class="search-box" style="width:260px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" placeholder="搜索文件名..." oninput="InfoVaultApp.filterGeneric(this.value, '#fileGrid .file-card')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
-        </div>
-        <div class="filter-group" id="fileFilterGroup">
-          <button class="filter-btn active" data-filter="all" onclick="InfoVaultApp.filterFiles('all')">全部</button>
-          ${categories.map(c => `<button class="filter-btn" data-filter="${c}" onclick="InfoVaultApp.filterFiles('${c}')">${c}</button>`).join('')}
-          <button class="filter-btn" onclick="InfoVaultApp.addFileCategory()">+</button>
         </div>
         <div style="flex:1"></div>
         <button class="btn btn-primary" onclick="InfoVaultApp.uploadFile()">${this.icons.plus} 上传文件</button>
@@ -659,12 +625,12 @@ var InfoVaultApp = {
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有文件</h3><p>上传文档、PDF、压缩包等任意文件，加密存储</p></div>' : `
       <div class="stat-grid" id="fileGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
         ${entries.map(e => `
-          <div class="card file-card" data-category="${e.category || '其他'}" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
+          <div class="card file-card" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
             <div style="display:flex;align-items:center;gap:12px;">
               <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.1);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.download}</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-weight:500;color:var(--color-neutral-900);font-size:var(--text-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(e.name)}</div>
-                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}${e.category ? ' · ' + e.category : ''}</div>
+                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}</div>
               </div>
             </div>
             <div style="font-size:10px;color:var(--color-neutral-500);margin-top:8px;">${this._timeAgo(e.updatedAt)}</div>
@@ -673,34 +639,13 @@ var InfoVaultApp = {
       </div>`}
     `;
   },
-
-  filterFiles(cat) {
-    document.querySelectorAll('#fileFilterGroup .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === cat));
-    document.querySelectorAll('#fileGrid .file-card').forEach(el => {
-      el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
-    });
-  },
-
-  addFileCategory() {
-    const c = prompt('输入新文件分类名称：');
-    if (c && c.trim()) {
-      const cats = InfoVaultDB.CATEGORIES.file || ['文档', 'PDF', '其他'];
-      if (!cats.includes(c.trim())) { cats.push(c.trim()); this.renderView(this.currentView); }
-    }
-  },
   async renderImages(area) {
     const entries = await InfoVaultDB.getAll('image');
-    const categories = InfoVaultDB.CATEGORIES.image || ['身份证', '银行卡', '其他'];
     area.innerHTML = `
       <div class="toolbar">
         <div class="search-box" style="width:260px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" placeholder="搜索图片名称..." oninput="InfoVaultApp.filterGeneric(this.value, '#imgGrid .image-card')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
-        </div>
-        <div class="filter-group" id="imgFilterGroup">
-          <button class="filter-btn active" data-filter="all" onclick="InfoVaultApp.filterImages('all')">全部</button>
-          ${categories.map(c => `<button class="filter-btn" data-filter="${c}" onclick="InfoVaultApp.filterImages('${c}')">${c}</button>`).join('')}
-          <button class="filter-btn" onclick="InfoVaultApp.addImageCategory()">+</button>
         </div>
         <div style="flex:1"></div>
         <button class="btn btn-primary" onclick="InfoVaultApp.uploadImage()">${this.icons.plus} 上传图片</button>
@@ -708,10 +653,9 @@ var InfoVaultApp = {
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有图片</h3><p>点击上传按钮添加图片</p></div>' : `
       <div class="image-grid" id="imgGrid">
         ${entries.map(e => `
-          <div class="image-card" data-category="${e.category || '其他'}" onclick="InfoVaultApp.openItem('${e.id}')">
-            <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;flex-direction:column;">
+          <div class="image-card" onclick="InfoVaultApp.openItem('${e.id}')">
+            <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-              ${e.category ? `<span style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:4px;">${e.category}</span>` : ''}
             </div>
             <div class="image-card-hover">
               <button class="btn btn-icon" style="background:rgba(255,255,255,0.2);color:white;backdrop-filter:blur(4px);" onclick="event.stopPropagation();InfoVaultApp.downloadImage('${e.id}')">${this.icons.download}</button>
@@ -727,56 +671,66 @@ var InfoVaultApp = {
     `;
   },
 
-  filterImages(cat) {
-    document.querySelectorAll('#imgFilterGroup .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === cat));
-    document.querySelectorAll('#imgGrid .image-card').forEach(el => {
-      el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
-    });
-  },
-
-  filterEmails(cat) {
-    document.querySelectorAll('#emailFilterGroup .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === cat));
-    document.querySelectorAll('#emailTable tbody tr').forEach(el => {
-      el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
-    });
-  },
-
-  addImageCategory() {
-    const custom = prompt('输入新图片分类名称：');
-    if (custom && custom.trim()) {
-      const cats = InfoVaultDB.CATEGORIES.image || ['身份证', '银行卡', '其他'];
-      if (!cats.includes(custom.trim())) {
-        cats.push(custom.trim());
-        this.renderView(this.currentView);
-      }
-    }
-  },
-
-  addEmailCategory() {
-    const c = prompt('输入新邮箱分类名称：');
-    if (c && c.trim()) {
-      const cats = InfoVaultDB.CATEGORIES.email || ['Gmail', 'QQ邮箱', '其他'];
-      if (!cats.includes(c.trim())) { cats.push(c.trim()); this.renderView(this.currentView); }
-    }
-  },
-
   async uploadImage() {
-    // 先让用户选择分类
     const cats = InfoVaultDB.CATEGORIES.image || ['身份证', '银行卡', '其他'];
-    this._showModal('选择分类', `
-      <p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-bottom:16px;">为要上传的图片选择分类：</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        ${cats.map(c => `<button class="btn btn-secondary" onclick="InfoVaultApp.doUploadImage('${c}')" style="padding:12px;">${c}</button>`).join('')}
-      </div>
-      <button class="btn btn-ghost" style="margin-top:8px;width:100%;" onclick="InfoVaultApp.addImageCategory()">+ 自定义分类</button>
-    `);
+    const catStr = cats.map((c, i) => i+1+'.'+c).join(' ');
+    const input = prompt('选择图片分类 (输入数字或自定义名称):\n'+catStr+'\n直接回车选「其他」');
+    let category = '其他';
+    if (input !== null && input.trim()) {
+      const num = parseInt(input);
+      if (num > 0 && num <= cats.length) category = cats[num-1];
+      else category = input.trim();
+    }
+    await this._doUpload('image', category, 'image/*');
   },
 
-  async doUploadImage(category) {
-    this.closeModal();
+  async uploadFile() {
+    const cats = InfoVaultDB.CATEGORIES.file || ['文档', 'PDF', '其他'];
+    const catStr = cats.map((c, i) => i+1+'.'+c).join(' ');
+    const input = prompt('选择文件分类 (输入数字或自定义名称):\n'+catStr+'\n直接回车选「其他」');
+    let category = '其他';
+    if (input !== null && input.trim()) {
+      const num = parseInt(input);
+      if (num > 0 && num <= cats.length) category = cats[num-1];
+      else category = input.trim();
+    }
+    await this._doUpload('file', category);
+  },
+
+  async _doUpload(type, category, accept) {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    if (accept) input.accept = accept;
+    input.multiple = true;
+    input.onchange = async (e) => {
+      const files = Array.from(e.target.files);
+      let completed = 0;
+      for (const file of files) {
+        try {
+          const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+          });
+          const name = file.name.replace(/\.[^.]+$/, '');
+          const entry = { type, name, filename: file.name, fileSize: (file.size/1024).toFixed(1)+' KB', mimeType: file.type||'application/octet-stream', category };
+          if (type === 'image') { entry.dataUrl = dataUrl; entry.gradient = this._randomGradient(); }
+          else { entry.fileData = dataUrl; }
+          await InfoVaultDB.add(entry);
+          completed++;
+        } catch(err) { console.error('Upload error:', err); }
+      }
+      this.toast('✅ 已上传 '+completed+'/'+files.length+' 个'+(type==='image'?'图片':'文件')+'到「'+category+'」');
+      this.renderView(this.currentView);
+      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
+    };
+    input.click();
+  },
+
+async uploadFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
     input.multiple = true;
     input.onchange = async (e) => {
       let count = 0;
@@ -786,655 +740,19 @@ var InfoVaultApp = {
           const dataUrl = ev.target.result;
           const name = file.name.replace(/\.[^.]+$/, '');
           await InfoVaultDB.add({
-            type: 'image',
+            type: 'file',
             name: name,
             filename: file.name,
             fileSize: (file.size / 1024).toFixed(1) + ' KB',
-            mimeType: file.type,
-            dataUrl: dataUrl,
-            gradient: this._randomGradient(),
-            category: category
+            mimeType: file.type || 'application/octet-stream',
+            fileData: dataUrl
           });
           count++;
         };
         reader.readAsDataURL(file);
       }
       setTimeout(() => {
-        this.toast(`已上传 ${e.target.files.length} 张图片到「${category}」`);
-        this.renderView(this.currentView);
-        if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      }, 500);
-    };
-    input.click();
-  },
-
-  _randomGradient() {
-    const gradients = [
-      'linear-gradient(135deg, #3b6ef6, #8db1ff)',
-      'linear-gradient(135deg, #22c55e, #6ee7b7)',
-      'linear-gradient(135deg, #f59e0b, #fbbf24)',
-      'linear-gradient(135deg, #a855f7, #c084fc)',
-      'linear-gradient(135deg, #ec4899, #f472b6)',
-      'linear-gradient(135deg, #ef4444, #f87171)',
-      'linear-gradient(135deg, #06b6d4, #67e8f9)',
-      'linear-gradient(135deg, #6366f1, #a5b4fc)',
-    ];
-    return gradients[Math.floor(Math.random() * gradients.length)];
-  },
-
-  async downloadImage(id) {
-    const entry = await InfoVaultDB.get(id);
-    if (!entry || !entry.dataUrl) return;
-    const a = document.createElement('a');
-    a.href = entry.dataUrl;
-    a.download = entry.filename || 'image.png';
-    a.click();
-    this.toast('已下载');
-  },
-
-  // ====== 回收站 ======
-  async renderTrash(area) {
-    const all = await InfoVaultDB.exportAll();
-    const deleted = all.filter(e => e.deletedAt);
-    area.innerHTML = `
-      <div class="toolbar">
-        <div style="flex:1"></div>
-        <span style="font-size:var(--text-sm);color:var(--color-neutral-500);">${deleted.length} 个已删除条目</span>
-        ${deleted.length > 0 ? `<button class="btn btn-danger" onclick="InfoVaultApp.emptyTrash()">清空回收站</button>` : ''}
-      </div>
-      ${deleted.length === 0 ? '<div class="empty-state"><h3>回收站为空</h3><p>删除的条目会出现在这里</p></div>' : `
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>名称</th><th>类型</th><th>删除时间</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${deleted.map(e => `<tr>
-              <td><div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${this.typeColors[e.type]}20;color:${this.typeColors[e.type]};">${this.icons[e.type === 'bookmark' ? 'bookmark' : e.type === 'password' ? 'key' : e.type]}</div>
-                <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.name)}</span>
-              </div></td>
-              <td><span class="badge ${this._badgeClass(e.type)}">${this.typeNames[e.type]}</span></td>
-              <td style="font-size:var(--text-xs);color:var(--color-neutral-500);">${new Date(e.deletedAt).toLocaleString()}</td>
-              <td style="text-align:right;"><div style="display:flex;gap:4px;justify-content:flex-end;">
-                <button class="btn btn-sm btn-secondary" onclick="InfoVaultApp.restoreEntry('${e.id}')">恢复</button>
-                <button class="btn btn-sm btn-danger" onclick="InfoVaultApp.deleteEntryPermanent('${e.id}')">永久删除</button>
-              </div></td>
-            </tr>`).join('')}</tbody>
-          </table>
-        </div>`}
-    `;
-  },
-
-  async restoreEntry(id) {
-    await InfoVaultDB.restore(id);
-    this.toast('已恢复');
-    this.renderView(this.currentView);
-    if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-  },
-
-  async deleteEntryPermanent(id) {
-    if (!confirm('永久删除此条目？不可恢复！')) return;
-    await InfoVaultDB.delete(id, true);
-    this.toast('已永久删除');
-    this.renderView(this.currentView);
-  },
-
-  async emptyTrash() {
-    if (!confirm('清空回收站所有条目？不可恢复！')) return;
-    const all = await InfoVaultDB.exportAll();
-    const deleted = all.filter(e => e.deletedAt);
-    for (const e of deleted) {
-      await InfoVaultDB.delete(e.id, true);
-    }
-    this.toast('回收站已清空');
-    this.renderView(this.currentView);
-  },
-
-  // ====== 演示数据 ======
-  async seedDemoData() {
-    const existing = await InfoVaultDB.getAllActive();
-    if (existing.length > 0) {
-      if (!confirm('已有数据，确定添加演示数据吗？')) return;
-    }
-    const demos = [
-      { type: 'password', name: 'GitHub', url: 'https://github.com', username: 'developer@example.com', password: 'Gh@2024Secure!', category: '工作', color: '#24292e', notes: '个人 GitHub 账号' },
-      { type: 'password', name: '微信', username: 'wx_user_001', password: 'WeChat@2024!', category: '社交', color: '#07c160', notes: '个人微信' },
-      { type: 'password', name: '支付宝', url: 'https://alipay.com', username: 'alipay@example.com', password: 'AliPay@2024!', category: '金融', color: '#1677ff', notes: '支付宝账号' },
-      { type: 'password', name: '哔哩哔哩', url: 'https://bilibili.com', username: 'bili_fan', password: 'Bili@2024!!', category: '娱乐', color: '#fb7299', notes: 'B站大会员' },
-      { type: 'password', name: 'Google', url: 'https://google.com', username: 'user@gmail.com', password: 'G00gle@2024!', category: '工作', color: '#4285f4', notes: 'Google 账号' },
-      { type: 'wallet', name: '支付宝', platform: '支付宝', accountName: '张三', accountNumber: '138****8888', balance: '12800.50', currency: 'CNY' },
-      { type: 'wallet', name: '微信钱包', platform: '微信支付', accountName: '张三', balance: '3560.00', currency: 'CNY' },
-      { type: 'wallet', name: '工商银行', platform: '银行卡', accountName: '张三', accountNumber: '6222 **** **** 8888', balance: '56800.00', currency: 'CNY' },
-      { type: 'identity', identityType: '身份证', realName: '张三', idNumber: '110101199001011234', issuingAuthority: '北京市公安局', expiryDate: '2030-01-01' },
-      { type: 'identity', identityType: '护照', realName: 'Zhang San', idNumber: 'E12345678', issuingAuthority: '中国外交部', expiryDate: '2028-06-15' },
-      { type: 'note', title: '重要备忘', content: '服务器 SSH 登录方式：\n1. ssh root@example.com -p 2222\n2. 使用密钥登录\n3. 禁止密码登录已开启', tags: ['技术', '服务器'] },
-      { type: 'note', title: 'WiFi 密码', content: '家里 WiFi:\nSSID: MyHome_5G\n密码: Home@2024!\n访客网络: MyHome_Guest / Guest@2024', tags: ['生活', '网络'] },
-      { type: 'bookmark', name: 'InfoVault', url: 'https://github.com', title: 'InfoVault 项目', description: '个人信息管理工具', tags: ['技术', '项目'] },
-      { type: 'bookmark', name: 'TailwindCSS', url: 'https://tailwindcss.com', title: 'Tailwind CSS', description: 'Utility-first CSS framework', tags: ['前端', 'CSS'] },
-      { type: 'bookmark', name: 'React文档', url: 'https://react.dev', title: 'React', description: '用于构建用户界面的 JavaScript 库', tags: ['前端', '框架'] },
-      // 邮箱
-      { type: 'email', name: 'Gmail', email: 'user@gmail.com', username: 'user', password: 'Gmail@2024!', smtpHost: 'smtp.gmail.com', smtpPort: '587', imapHost: 'imap.gmail.com', imapPort: '993', category: '个人' },
-      { type: 'email', name: '公司邮箱', email: 'zhangsan@company.com', username: 'zhangsan', password: 'Work@2024!', smtpHost: 'smtp.company.com', smtpPort: '465', imapHost: 'imap.company.com', imapPort: '993', category: '工作' },
-      // 加密货币
-      { type: 'crypto', name: '主钱包', chain: 'ETH', address: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18', privateKey: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', seedPhrase: 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about', password: 'Wallet@2024!' },
-      { type: 'crypto', name: 'Solana钱包', chain: 'SOL', address: '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLvBf', privateKey: '5B3X1VqFQgKQjFGhqf...', password: 'Sol@2024!' },
-    ];
-    for (const demo of demos) {
-      await InfoVaultDB.add(demo);
-    }
-    this.toast(`已添加 ${demos.length} 条演示数据`);
-    this.renderView(this.currentView);
-  },
-  async renderSettings(area) {
-    const syncStatus = InfoVaultSync.getStatus();
-    const githubRepo = await InfoVaultDB.getSetting('github_repo') || 'duxiajun4477/hao123';
-    // 缓存到实例供导航切换使用
-    this._cachedSyncStatus = syncStatus;
-    this._cachedRepo = githubRepo;
-    
-    let activeSection = 'account';
-    const renderSection = () => {
-      switch(activeSection) {
-        case 'account': return this._settingsAccount();
-        case 'sync': return this._settingsSync(syncStatus, githubRepo);
-        case 'data': return this._settingsData();
-        case 'appearance': return this._settingsAppearance();
-        case 'about': return this._settingsAbout();
-        default: return '';
-      }
-    };
-
-    area.innerHTML = `
-      <div class="settings-layout">
-        <nav class="settings-nav">
-          <button class="settings-nav-item active" data-ssec="account">账户安全</button>
-          <button class="settings-nav-item" data-ssec="sync">同步设置</button>
-          <button class="settings-nav-item" data-ssec="data">数据管理</button>
-          <button class="settings-nav-item" data-ssec="appearance">外观</button>
-          <button class="settings-nav-item" data-ssec="about">关于</button>
-        </nav>
-        <div class="settings-content" id="settingsContent">${renderSection()}</div>
-      </div>
-    `;
-    area.querySelectorAll('.settings-nav-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        area.querySelectorAll('.settings-nav-item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeSection = btn.dataset.ssec;
-        document.getElementById('settingsContent').innerHTML = this['_settings' + activeSection.charAt(0).toUpperCase() + activeSection.slice(1)]();
-        this._bindSettingsEvents(area);
-      });
-    });
-    this._bindSettingsEvents(area);
-  },
-
-  _settingsAccount() {
-    return `
-      <div class="settings-section">
-        <h3 class="settings-section-title">账户安全</h3>
-        <div class="settings-item">
-          <div class="settings-item-info"><div class="settings-item-title">主密码</div><div class="settings-item-desc">用于加密同步数据，设置后修改需要旧密码</div></div>
-          <div class="settings-item-action">
-            <button class="btn btn-secondary btn-sm" onclick="InfoVaultApp.showMasterPasswordDialog()">设置主密码</button>
-            <button class="btn btn-ghost btn-sm" onclick="InfoVaultApp.clearMasterPassword()" style="color:#ef4444;margin-left:4px;">清除</button>
-          </div>
-        </div>
-        <div class="settings-item">
-          <div class="settings-item-info"><div class="settings-item-title">自动锁定</div><div class="settings-item-desc">离开一段时间后自动锁定应用，需刷新页面重新输入密码</div></div>
-          <div class="settings-item-action"><label class="switch"><input type="checkbox" id="autoLock" onchange="InfoVaultApp.toggleAutoLock(this.checked)"><span class="switch-slider"></span></label></div>
-        </div>
-      </div>
-      <div class="settings-section">
-        <h3 class="settings-section-title">快捷键</h3>
-        <div class="card" style="padding:16px;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--color-neutral-100);border-radius:6px;"><span style="font-size:var(--text-sm);color:var(--color-neutral-800);">全局搜索</span><kbd style="padding:2px 8px;background:var(--color-neutral-200);border-radius:4px;font-size:11px;font-family:var(--font-mono);">Ctrl+K</kbd></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--color-neutral-100);border-radius:6px;"><span style="font-size:var(--text-sm);color:var(--color-neutral-800);">关闭弹窗/搜索</span><kbd style="padding:2px 8px;background:var(--color-neutral-200);border-radius:4px;font-size:11px;font-family:var(--font-mono);">Esc</kbd></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--color-neutral-100);border-radius:6px;"><span style="font-size:var(--text-sm);color:var(--color-neutral-800);">快速搜索</span><kbd style="padding:2px 8px;background:var(--color-neutral-200);border-radius:4px;font-size:11px;font-family:var(--font-mono);">/</kbd></div>
-          </div>
-        </div>
-      </div>
-    `;
-  },
-
-  showMasterPasswordDialog() {
-    this._showModal('设置主密码', `
-      <div class="form-group">
-        <label class="form-label">新主密码</label>
-        <input type="password" class="form-input" id="mp_new" placeholder="至少6位" style="font-family:var(--font-mono);">
-        <div class="strength-bar" style="margin-top:8px;"><div class="strength-fill" id="mpStrength" style="width:0%;background:var(--color-neutral-400);"></div></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">确认密码</label>
-        <input type="password" class="form-input" id="mp_confirm" placeholder="再次输入" style="font-family:var(--font-mono);">
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-secondary" onclick="InfoVaultApp.closeModal()">取消</button>
-        <button class="btn btn-primary" onclick="InfoVaultApp.saveMasterPassword()">保存</button>
-      </div>
-    `);
-    // 密码强度监听
-    setTimeout(() => {
-      document.getElementById('mp_new')?.addEventListener('input', function() {
-        const s = InfoVaultCrypto.evaluateStrength(this.value);
-        const fill = document.getElementById('mpStrength');
-        if (fill) { fill.style.width = s.score+'%'; fill.style.background = s.color; }
-      });
-    }, 100);
-  },
-
-  async saveMasterPassword() {
-    const pwd = document.getElementById('mp_new')?.value;
-    const confirm = document.getElementById('mp_confirm')?.value;
-    if (!pwd || pwd.length < 6) { this.toast('密码至少6位', 'error'); return; }
-    if (pwd !== confirm) { this.toast('两次密码不一致', 'error'); return; }
-    // 检查是否已有主密码
-    const existing = await InfoVaultDB.getSetting('master_password_hash');
-    if (existing) {
-      const old = prompt('请输入当前主密码：');
-      if (!old) return;
-      const oldHash = await this._hashPassword(old);
-      if (oldHash !== existing) { this.toast('旧密码错误', 'error'); return; }
-    }
-    const hash = await this._hashPassword(pwd);
-    await InfoVaultDB.setSetting('master_password_hash', hash);
-    this.toast('主密码已设置');
-    this.closeModal();
-    this.renderView(this.currentView);
-  },
-
-  async clearMasterPassword() {
-    if (!confirm('确定清除主密码？同步数据将不再加密。')) return;
-    await InfoVaultDB.setSetting('master_password_hash', '');
-    this.toast('主密码已清除');
-    this.renderView(this.currentView);
-  },
-
-  toggleAutoLock(checked) {
-    if (checked) {
-      this.toast('自动锁定已开启（需设置主密码才有效）', 'info');
-    }
-  },
-
-  _settingsSync(syncStatus, repo) {
-    // 如果没传参（导航切换时），从缓存或实时获取
-    if (!syncStatus) syncStatus = this._cachedSyncStatus || InfoVaultSync.getStatus();
-    if (!repo) repo = this._cachedRepo || (InfoVaultSync.getStatus().repo) || 'duxiajun4477/hao123';
-    return `
-      <div class="settings-section">
-        <h3 class="settings-section-title">GitHub 同步</h3>
-        <div class="settings-item">
-          <div class="settings-item-info">
-            <div class="settings-item-title">同步状态</div>
-            <div class="settings-item-desc">${syncStatus.configured ? `已配置 · 仓库: ${repo} · 上次同步: ${syncStatus.lastSync ? new Date(syncStatus.lastSync).toLocaleString() : '从未'}` : '未配置 GitHub 同步'}</div>
-          </div>
-          <div class="settings-item-action">${syncStatus.configured ? `<span class="badge badge-green">已连接</span>` : `<span class="badge badge-gray">未连接</span>`}</div>
-        </div>
-        <div class="card" style="margin-top:16px;">
-          <div class="form-group">
-            <label class="form-label">Personal Access Token (GitHub)</label>
-            <input type="password" class="form-input" id="githubToken" value="" placeholder="${syncStatus.configured ? '已配置，留空则保持不变' : 'ghp_xxxxxxxxxxxx'}">
-            ${syncStatus.configured ? '<p style="font-size:11px;color:var(--color-neutral-500);margin-top:4px;">✅ 已配置 Token，如需修改请直接输入新值</p>' : ''}
-          </div>
-          <div class="form-group">
-            <label class="form-label">仓库地址 (owner/repo)</label>
-            <input type="text" class="form-input" id="githubRepo" value="${this._escape(repo || 'duxiajun4477/hao123')}" placeholder="username/repo">
-          </div>
-          <div class="form-group">
-            <label class="form-label">同步指引</label>
-            <div style="font-size:12px;color:var(--color-neutral-500);line-height:1.8;background:var(--color-neutral-100);padding:12px;border-radius:8px;">
-              <div>1. 去 <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--color-primary-500);">GitHub Token 设置页</a></div>
-              <div>2. 点 "Generate new token (classic)"</div>
-              <div>3. 勾选 <code style="background:var(--color-neutral-200);padding:1px 6px;border-radius:3px;">repo</code> 权限</div>
-              <div>4. 生成后复制 Token 粘贴到上方输入框</div>
-              <div>5. 点 "连接" 完成配置</div>
-            </div>
-          </div>
-          <div class="form-actions" style="border:none;padding:0;margin-top:16px;">
-            <button class="btn btn-primary" onclick="InfoVaultApp.saveSyncConfig()">${syncStatus.configured ? '更新配置' : '连接'}</button>
-            ${syncStatus.configured ? `<button class="btn btn-danger" onclick="InfoVaultApp.disconnectSync()">断开连接</button>` : ''}
-            <button class="btn btn-secondary" onclick="InfoVaultApp.handleSync()">立即同步</button>
-            <button class="btn btn-secondary" onclick="InfoVaultApp.testSyncConnection()">测试连接</button>
-          </div>
-        </div>
-      </div>
-    `;
-  },
-
-  _settingsData() {
-    return `
-      <div class="settings-section">
-        <h3 class="settings-section-title">数据管理</h3>
-        <div class="settings-item">
-          <div class="settings-item-info"><div class="settings-item-title">导出数据</div><div class="settings-item-desc">将所有数据导出为加密 JSON 文件</div></div>
-          <div class="settings-item-action"><button class="btn btn-secondary btn-sm" onclick="InfoVaultApp.exportData()">${this.icons.download} 导出</button></div>
-        </div>
-        <div class="settings-item">
-          <div class="settings-item-info"><div class="settings-item-title">导入数据</div><div class="settings-item-desc">从 JSON 文件导入数据</div></div>
-          <div class="settings-item-action"><button class="btn btn-secondary btn-sm" onclick="InfoVaultApp.importData()">${this.icons.upload} 导入</button></div>
-        </div>
-        <div class="settings-item" style="border-color: rgba(239,68,68,0.3);">
-          <div class="settings-item-info"><div class="settings-item-title" style="color:#ef4444;">清除所有数据</div><div class="settings-item-desc">⚠ 此操作不可恢复</div></div>
-          <div class="settings-item-action"><button class="btn btn-danger btn-sm" onclick="InfoVaultApp.clearAllData()">清除全部</button></div>
-        </div>
-      </div>
-    `;
-  },
-
-  async testSyncConnection() {
-    if (!InfoVaultSync.isConfigured()) { this.toast('请先填写 Token 和仓库地址', 'info'); return; }
-    this.toast('正在测试连接...', 'info');
-    const result = await InfoVaultSync.testConnection();
-    if (result.success) {
-      this.toast('✅ 连接成功！GitHub 仓库可访问');
-    } else {
-      this.toast('❌ 连接失败: ' + (result.error || '未知错误'), 'error');
-    }
-  },
-
-  _settingsAppearance() {
-    return `
-      <div class="settings-section">
-        <h3 class="settings-section-title">外观设置</h3>
-        <div class="settings-item">
-          <div class="settings-item-info"><div class="settings-item-title">主题模式</div><div class="settings-item-desc">目前仅支持深色科技蓝主题</div></div>
-          <div class="settings-item-action"><span class="badge badge-blue">深色模式</span></div>
-        </div>
-        <div class="settings-item">
-          <div class="settings-item-info"><div class="settings-item-title">字体大小</div><div class="settings-item-desc">调整界面文字大小</div></div>
-          <div class="settings-item-action">
-            <select class="form-select" id="fontSizeSelect" onchange="InfoVaultApp.changeFontSize(this.value)" style="width:120px;padding:6px 10px;">
-              <option value="small">小</option>
-              <option value="medium" selected>中</option>
-              <option value="large">大</option>
-            </select>
-          </div>
-        </div>
-        <div class="settings-item">
-          <div class="settings-item-info"><div class="settings-item-title">侧边栏折叠</div><div class="settings-item-desc">在小屏幕下自动折叠</div></div>
-          <div class="settings-item-action"><label class="switch"><input type="checkbox" id="sidebarCollapse" checked><span class="switch-slider"></span></label></div>
-        </div>
-      </div>
-    `;
-  },
-
-  changeFontSize(size) {
-    const sizes = { small: '13px', medium: '14px', large: '16px' };
-    document.documentElement.style.fontSize = sizes[size] || '14px';
-    this.toast('字体大小已更改');
-  },
-
-  _settingsAbout() {
-    return `
-      <div class="settings-section">
-        <h3 class="settings-section-title">关于 InfoVault</h3>
-        <div class="card" style="text-align:center;padding:40px;">
-          <div style="width:64px;height:64px;border-radius:16px;background:var(--color-primary-500);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <h2 style="font-size:24px;font-weight:700;color:var(--color-neutral-900);margin-bottom:4px;">InfoVault</h2>
-          <p style="color:var(--color-neutral-500);font-size:var(--text-sm);">信息金库 v2.0</p>
-          <p style="color:var(--color-neutral-500);font-size:var(--text-xs);margin-top:16px;">个人信息安全管理 · 端到端加密 · GitHub 同步</p>
-          <p style="color:var(--color-neutral-500);font-size:var(--text-xs);margin-top:4px;">数据仅存储在本地和你的私有 GitHub 仓库</p>
-          <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--color-neutral-300);text-align:left;">
-            <p style="font-size:var(--text-xs);color:var(--color-neutral-500);margin-bottom:8px;font-weight:600;">📡 部署到 GitHub Pages（免费）：</p>
-            <ol style="font-size:var(--text-xs);color:var(--color-neutral-500);padding-left:20px;line-height:1.8;">
-              <li>将本项目推送到 GitHub 仓库</li>
-              <li>仓库 Settings → Pages → 选择 main 分支</li>
-              <li>在"Custom domain"可选填自己的域名</li>
-              <li>几分钟后即可通过 https://用户名.github.io/仓库名 访问</li>
-            </ol>
-            <p style="font-size:var(--text-xs);color:var(--color-neutral-500);margin-top:8px;">手机浏览器访问同一地址即可使用移动版</p>
-          </div>
-        </div>
-      </div>
-    `;
-  },
-
-  _bindSettingsEvents(area) {},
-
-  // ====== 帮助页 ======
-  renderHelp(area) {
-    area.innerHTML = `
-      <div class="card" style="max-width:600px;margin:0 auto;">
-        <h2 style="font-size:20px;font-weight:700;color:var(--color-neutral-900);margin-bottom:20px;">使用帮助</h2>
-        <div style="display:flex;flex-direction:column;gap:16px;">
-          <div><h3 style="font-weight:600;color:var(--color-neutral-900);margin-bottom:4px;">⌨️ 快捷键</h3>
-            <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">Ctrl+K / ⌘K — 全局搜索</p>
-          </div>
-          <div><h3 style="font-weight:600;color:var(--color-neutral-900);margin-bottom:4px;">🔐 数据安全</h3>
-            <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">所有数据使用 AES-256-GCM 加密存储在浏览器 IndexedDB 中。同步到 GitHub 时同样加密。</p>
-          </div>
-          <div><h3 style="font-weight:600;color:var(--color-neutral-900);margin-bottom:4px;">🔄 多设备同步</h3>
-            <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">在设置中配置 GitHub Personal Access Token 和仓库地址，数据将自动同步到所有设备。</p>
-          </div>
-          <div><h3 style="font-weight:600;color:var(--color-neutral-900);margin-bottom:4px;">📱 移动端</h3>
-            <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">在手机上打开 info-vault-mobile/index.html 即可使用移动端版本，数据通过 GitHub 同步。</p>
-          </div>
-        </div>
-      </div>
-    `;
-  },
-
-  // ====== 添加/编辑弹窗 ======
-  showAddPassword(entry) {
-    const isEdit = !!entry;
-    this._showForm('密码', isEdit, `
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">网站名称 *</label><input class="form-input" id="f_name" value="${this._escape(entry?.name || '')}" placeholder="例如: GitHub"></div>
-        <div class="form-group"><label class="form-label">网站 URL</label><input class="form-input" id="f_url" value="${this._escape(entry?.url || '')}" placeholder="https://github.com"></div>
-      </div>
-      <div class="form-group"><label class="form-label">用户名/邮箱 *</label><input class="form-input" id="f_username" value="${this._escape(entry?.username || '')}" placeholder="user@example.com"></div>
-      <div class="form-group"><label class="form-label">密码</label>
-        <div style="display:flex;gap:8px;">
-          <input class="form-input" id="f_password" type="text" value="${this._escape(entry?.password || '')}" placeholder="输入或生成密码" style="flex:1;font-family:var(--font-mono);">
-          <button class="btn btn-secondary" onclick="InfoVaultApp.generatePasswordField()" title="生成密码">${this.icons.sparkles}</button>
-        </div>
-        <div class="strength-bar" id="pwStrengthBar"><div class="strength-fill" id="pwStrengthFill" style="width:0%;background:var(--color-neutral-400);"></div></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">分类</label><select class="form-select" id="f_category">${InfoVaultDB.CATEGORIES.password.map(c => `<option value="${c}" ${entry?.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
-        <div class="form-group"><label class="form-label">图标颜色</label><input class="form-input" id="f_color" type="color" value="${entry?.color || '#3b6ef6'}" style="height:40px;padding:4px;"></div>
-      </div>
-      <div class="form-group"><label class="form-label">备注</label><textarea class="form-textarea" id="f_notes" placeholder="备注信息...">${this._escape(entry?.notes || '')}</textarea></div>
-    `, async () => {
-      const data = this._gatherForm(['name', 'url', 'username', 'password', 'category', 'color', 'notes']);
-      if (!data.name || !data.username) { this.toast('请填写网站名称和用户名', 'error'); return false; }
-      if (isEdit) {
-        await InfoVaultDB.update(entry.id, { ...data, type: 'password' });
-        this.toast('密码已更新');
-      } else {
-        await InfoVaultDB.add({ ...data, type: 'password' });
-        this.toast('密码已添加');
-      }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 200);
-      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      return true;
-    });
-    // 密码强度实时监控
-    const pwInput = document.getElementById('f_password');
-    if (pwInput) pwInput.addEventListener('input', () => this._updateStrength(pwInput.value));
-  },
-
-  showAddWallet(entry) {
-    const isEdit = !!entry;
-    this._showForm('钱包', isEdit, `
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">名称 *</label><input class="form-input" id="f_name" value="${this._escape(entry?.name || '')}" placeholder="支付宝"></div>
-        <div class="form-group"><label class="form-label">平台</label><select class="form-select" id="f_platform">${(InfoVaultDB.CATEGORIES.wallet || []).map(c => `<option value="${c}" ${entry?.platform === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
-      </div>
-      <div class="form-group"><label class="form-label">账户名称</label><input class="form-input" id="f_accountName" value="${this._escape(entry?.accountName || '')}" placeholder="账户昵称"></div>
-      <div class="form-group"><label class="form-label">账号/卡号</label><input class="form-input" id="f_accountNumber" value="${this._escape(entry?.accountNumber || '')}" placeholder="账号或卡号"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">余额</label><input class="form-input" id="f_balance" type="number" step="0.01" value="${entry?.balance || ''}" placeholder="0.00"></div>
-        <div class="form-group"><label class="form-label">货币</label><select class="form-select" id="f_currency"><option value="CNY" ${entry?.currency === 'CNY' ? 'selected' : ''}>CNY 人民币</option><option value="USD" ${entry?.currency === 'USD' ? 'selected' : ''}>USD 美元</option><option value="HKD" ${entry?.currency === 'HKD' ? 'selected' : ''}>HKD 港币</option></select></div>
-      </div>
-      <div class="form-group"><label class="form-label">备注</label><textarea class="form-textarea" id="f_notes">${this._escape(entry?.notes || '')}</textarea></div>
-    `, async () => {
-      const data = this._gatherForm(['name', 'platform', 'accountName', 'accountNumber', 'balance', 'currency', 'notes']);
-      if (!data.name) { this.toast('请填写名称', 'error'); return false; }
-      if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'wallet' }); this.toast('钱包已更新'); }
-      else { await InfoVaultDB.add({ ...data, type: 'wallet' }); this.toast('钱包已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 200);
-      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      return true;
-    });
-  },
-
-  showAddIdentity(entry) {
-    const isEdit = !!entry;
-    this._showForm('证件', isEdit, `
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">证件类型</label><select class="form-select" id="f_identityType">${(InfoVaultDB.CATEGORIES.identity || []).map(c => `<option value="${c}" ${entry?.identityType === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
-        <div class="form-group"><label class="form-label">真实姓名 *</label><input class="form-input" id="f_realName" value="${this._escape(entry?.realName || '')}" placeholder="姓名"></div>
-      </div>
-      <div class="form-group"><label class="form-label">证件号码 *</label><input class="form-input" id="f_idNumber" value="${this._escape(entry?.idNumber || '')}" placeholder="证件号码"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">发证机关</label><input class="form-input" id="f_issuingAuthority" value="${this._escape(entry?.issuingAuthority || '')}"></div>
-        <div class="form-group"><label class="form-label">有效期至</label><input class="form-input" id="f_expiryDate" type="date" value="${entry?.expiryDate || ''}"></div>
-      </div>
-      <div class="form-group"><label class="form-label">备注</label><textarea class="form-textarea" id="f_notes">${this._escape(entry?.notes || '')}</textarea></div>
-    `, async () => {
-      const data = this._gatherForm(['identityType', 'realName', 'idNumber', 'issuingAuthority', 'expiryDate', 'notes']);
-      if (!data.realName || !data.idNumber) { this.toast('请填写姓名和证件号码', 'error'); return false; }
-      if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'identity' }); this.toast('证件已更新'); }
-      else { await InfoVaultDB.add({ ...data, type: 'identity' }); this.toast('证件已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 200);
-      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      return true;
-    });
-  },
-
-  showAddNote(entry) {
-    const isEdit = !!entry;
-    this._showForm('笔记', isEdit, `
-      <div class="form-group"><label class="form-label">标题</label><input class="form-input" id="f_title" value="${this._escape(entry?.title || '')}" placeholder="笔记标题"></div>
-      <div class="form-group"><label class="form-label">内容</label><textarea class="form-textarea" id="f_content" style="min-height:200px;" placeholder="开始记录...">${this._escape(entry?.content || '')}</textarea></div>
-      <div class="form-group"><label class="form-label">标签（逗号分隔）</label><input class="form-input" id="f_tags" value="${this._escape((entry?.tags || []).join(', '))}" placeholder="标签1, 标签2"></div>
-    `, async () => {
-      const data = this._gatherForm(['title', 'content', 'tags']);
-      if (!data.content) { this.toast('请填写内容', 'error'); return false; }
-      data.tags = data.tags ? data.tags.split(/[,，]/).map(t => t.trim()).filter(Boolean) : [];
-      if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, name: data.title || '无标题', type: 'note' }); this.toast('笔记已更新'); }
-      else { await InfoVaultDB.add({ ...data, name: data.title || '无标题', type: 'note' }); this.toast('笔记已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 200);
-      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      return true;
-    });
-  },
-
-  showAddBookmark(entry) {
-    const isEdit = !!entry;
-    this._showForm('收藏', isEdit, `
-      <div class="form-group"><label class="form-label">URL *</label><input class="form-input" id="f_url" value="${this._escape(entry?.url || '')}" placeholder="https://example.com"></div>
-      <div class="form-group"><label class="form-label">标题</label><input class="form-input" id="f_title" value="${this._escape(entry?.title || '')}" placeholder="页面标题"></div>
-      <div class="form-group"><label class="form-label">描述</label><textarea class="form-textarea" id="f_description" placeholder="简短描述...">${this._escape(entry?.description || '')}</textarea></div>
-      <div class="form-group"><label class="form-label">标签（逗号分隔）</label><input class="form-input" id="f_tags" value="${this._escape((entry?.tags || []).join(', '))}" placeholder="技术, 博客"></div>
-    `, async () => {
-      const data = this._gatherForm(['url', 'title', 'description', 'tags']);
-      if (!data.url) { this.toast('请填写 URL', 'error'); return false; }
-      data.tags = data.tags ? data.tags.split(/[,，]/).map(t => t.trim()).filter(Boolean) : [];
-      data.name = data.title || data.url;
-      if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'bookmark' }); this.toast('收藏已更新'); }
-      else { await InfoVaultDB.add({ ...data, type: 'bookmark' }); this.toast('收藏已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 200);
-      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      return true;
-    });
-  },
-
-  // ====== 邮箱表单 ======
-  showAddEmail(entry) {
-    const isEdit = !!entry;
-    this._showForm('邮箱', isEdit, `
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">邮箱地址 *</label><input class="form-input" id="f_email" value="${this._escape(entry?.email || '')}" placeholder="user@example.com"></div>
-        <div class="form-group"><label class="form-label">用户名</label><input class="form-input" id="f_username" value="${this._escape(entry?.username || '')}"></div>
-      </div>
-      <div class="form-group"><label class="form-label">密码</label><input class="form-input" id="f_password" type="text" value="${this._escape(entry?.password || '')}" placeholder="邮箱密码" style="font-family:var(--font-mono);"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">SMTP 服务器</label><input class="form-input" id="f_smtpHost" value="${this._escape(entry?.smtpHost || '')}" placeholder="smtp.example.com"></div>
-        <div class="form-group"><label class="form-label">SMTP 端口</label><input class="form-input" id="f_smtpPort" value="${entry?.smtpPort || '465'}" placeholder="465"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">IMAP 服务器</label><input class="form-input" id="f_imapHost" value="${this._escape(entry?.imapHost || '')}" placeholder="imap.example.com"></div>
-        <div class="form-group"><label class="form-label">IMAP 端口</label><input class="form-input" id="f_imapPort" value="${entry?.imapPort || '993'}" placeholder="993"></div>
-      </div>
-      <div class="form-group"><label class="form-label">分类</label><select class="form-select" id="f_category">${InfoVaultDB.CATEGORIES.email.map(c => `<option value="${c}" ${entry?.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
-    `, async () => {
-      const data = this._gatherForm(['email', 'username', 'password', 'smtpHost', 'smtpPort', 'imapHost', 'imapPort', 'category']);
-      if (!data.email) { this.toast('请填写邮箱地址', 'error'); return false; }
-      data.name = data.email;
-      if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'email' }); this.toast('邮箱已更新'); }
-      else { await InfoVaultDB.add({ ...data, type: 'email' }); this.toast('邮箱已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 200);
-      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      return true;
-    });
-  },
-
-  // ====== 加密货币表单 ======
-  showAddCrypto(entry) {
-    const isEdit = !!entry;
-    this._showForm('加密货币钱包', isEdit, `
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">名称 *</label><input class="form-input" id="f_name" value="${this._escape(entry?.name || '')}" placeholder="我的ETH钱包"></div>
-        <div class="form-group"><label class="form-label">链/网络</label><select class="form-select" id="f_chain"><option value="ETH" ${entry?.chain === 'ETH' ? 'selected' : ''}>以太坊 (ETH)</option><option value="BSC" ${entry?.chain === 'BSC' ? 'selected' : ''}>币安链 (BSC)</option><option value="SOL" ${entry?.chain === 'SOL' ? 'selected' : ''}>Solana (SOL)</option><option value="BTC" ${entry?.chain === 'BTC' ? 'selected' : ''}>比特币 (BTC)</option><option value="TRON" ${entry?.chain === 'TRON' ? 'selected' : ''}>波场 (TRON)</option><option value="其他" ${entry?.chain === '其他' ? 'selected' : ''}>其他</option></select></div>
-      </div>
-      <div class="form-group"><label class="form-label">钱包地址</label><input class="form-input" id="f_address" value="${this._escape(entry?.address || '')}" placeholder="0x..." style="font-family:var(--font-mono);font-size:12px;"></div>
-      <div class="form-group"><label class="form-label">私钥 (Private Key)</label>
-        <div style="display:flex;gap:8px;">
-          <input class="form-input" id="f_privateKey" type="password" value="${this._escape(entry?.privateKey || '')}" placeholder="0x..." style="flex:1;font-family:var(--font-mono);font-size:12px;">
-          <button class="btn btn-ghost btn-icon" onclick="const el=document.getElementById('f_privateKey');el.type=el.type==='password'?'text':'password'">${this.icons.eye}</button>
-        </div>
-      </div>
-      <div class="form-group"><label class="form-label">助记词 (Seed Phrase)</label><textarea class="form-textarea" id="f_seedPhrase" style="font-family:var(--font-mono);font-size:12px;min-height:60px;" placeholder="word1 word2 word3 ...">${this._escape(entry?.seedPhrase || '')}</textarea></div>
-      <div class="form-group"><label class="form-label">Keystore JSON</label><textarea class="form-textarea" id="f_keystore" style="font-family:var(--font-mono);font-size:11px;min-height:80px;" placeholder='{"address":"...","crypto":{...}}'>${this._escape(entry?.keystore || '')}</textarea></div>
-      <div class="form-group"><label class="form-label">密码（钱包密码）</label><input class="form-input" id="f_password" type="text" value="${this._escape(entry?.password || '')}" style="font-family:var(--font-mono);"></div>
-    `, async () => {
-      const data = this._gatherForm(['name', 'chain', 'address', 'privateKey', 'seedPhrase', 'keystore', 'password']);
-      if (!data.name) { this.toast('请填写名称', 'error'); return false; }
-      if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'crypto' }); this.toast('钱包已更新'); }
-      else { await InfoVaultDB.add({ ...data, type: 'crypto' }); this.toast('钱包已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 200);
-      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      return true;
-    });
-  },
-
-  // ====== 文件上传/下载 ======
-  async uploadFile() {
-    const cats = InfoVaultDB.CATEGORIES.file || ['文档', 'PDF', '其他'];
-    this._showModal('选择文件分类', `
-      <p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-bottom:16px;">为要上传的文件选择分类：</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        ${cats.map(c => `<button class="btn btn-secondary" onclick="InfoVaultApp.doUploadFile('${c}')" style="padding:12px;">${c}</button>`).join('')}
-      </div>
-      <button class="btn btn-ghost" style="margin-top:8px;width:100%;" onclick="InfoVaultApp.addFileCategory()">+ 自定义分类</button>
-    `);
-  },
-
-  async doUploadFile(category) {
-    this.closeModal();
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = true;
-    input.onchange = async (e) => {
-      for (const file of e.target.files) {
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-          const dataUrl = ev.target.result;
-          const name = file.name.replace(/\.[^.]+$/, '');
-          await InfoVaultDB.add({
-            type: 'file', name, filename: file.name,
-            fileSize: (file.size / 1024).toFixed(1) + ' KB',
-            mimeType: file.type || 'application/octet-stream',
-            fileData: dataUrl, category
-          });
-        };
-        reader.readAsDataURL(file);
-      }
-      setTimeout(() => {
-        this.toast(`已上传 ${e.target.files.length} 个文件到「${category}」`);
+        this.toast(`已上传 ${e.target.files.length} 个文件`);
         this.renderView(this.currentView);
         if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       }, 500);
@@ -1923,4 +1241,4 @@ var InfoVaultApp = {
 };
 
 // 启动应用
-document.addEventListener('DOMContentLoaded', async () => { try { await InfoVaultApp.init(); } catch(e) { document.body.innerHTML = `<!DOCTYPE html><html><body style="background:#0a0e1a;color:#ef4444;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;"><div style="text-align:center;max-width:500px;"><h2 style="font-size:20px;">⚠️ 加载失败</h2><p style="color:#9aa3b4;font-size:14px;word-break:break-all;">${e.message}</p><button onclick="location.reload()" style="margin-top:16px;padding:10px 24px;background:#3b6ef6;color:white;border:none;border-radius:8px;cursor:pointer;">重新加载</button></div></body></html>`; throw e; } });
+document.addEventListener('DOMContentLoaded', () => InfoVaultApp.init());

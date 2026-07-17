@@ -206,26 +206,51 @@ const InfoVaultDB = {
     await this.open();
     const tx = this._db.transaction('entries', 'readonly');
     const store = tx.objectStore('entries');
-    const index = store.index('type_deleted');
     
-    const range = IDBKeyRange.bound([type], [type + '\uffff']);
-    // 先同步读取所有原始数据（避免异步导致事务关闭）
-    const rawResults = await new Promise((resolve, reject) => {
-      const results = [];
-      const req = index.openCursor(range);
-      req.onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          if (includeDeleted || !cursor.value.deletedAt) {
-            results.push(cursor.value);
-          }
-          cursor.continue();
-        } else {
-          resolve(results);
-        }
-      };
-      req.onerror = (e) => reject(e.target.error);
-    });
+    // 先尝试用 type_deleted 复合索引查询
+    let rawResults = [];
+    try {
+      const index = store.index('type_deleted');
+      const range = IDBKeyRange.bound([type], [type + '\uffff']);
+      rawResults = await new Promise((resolve, reject) => {
+        const results = [];
+        const req = index.openCursor(range);
+        req.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            if (includeDeleted || !cursor.value.deletedAt) results.push(cursor.value);
+            cursor.continue();
+          } else { resolve(results); }
+        };
+        req.onerror = (e) => reject(e.target.error);
+      });
+    } catch(e) {
+      // 复合索引失败，回退到 type 索引
+      console.warn('type_deleted index failed, falling back to type:', e);
+    }
+    
+    // 如果复合索引返回空，用 type 索引再试
+    if (rawResults.length === 0) {
+      try {
+        const index = store.index('type');
+        const range = IDBKeyRange.only(type);
+        rawResults = await new Promise((resolve, reject) => {
+          const results = [];
+          const req = index.openCursor(range);
+          req.onsuccess = (e) => {
+            const cursor = e.target.result;
+            if (cursor) {
+              if (includeDeleted || !cursor.value.deletedAt) results.push(cursor.value);
+              cursor.continue();
+            } else { resolve(results); }
+          };
+          req.onerror = (e) => reject(e.target.error);
+        });
+      } catch(e) {
+        console.warn('type index also failed:', e);
+      }
+    }
+    
     // 批量解密
     const finalResults = [];
     for (const stored of rawResults) {

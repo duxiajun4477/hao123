@@ -77,8 +77,9 @@ async function run() {
       setStep('step4', '❌ 第4步：按ID读取失败', 'fail');
     }
     
-    // 按类型读取
-    const allPasswords = await InfoVaultDB.getAll('password');
+    // 按类型读取（先用全量导出+JS过滤绕过索引问题）
+    const allData = await InfoVaultDB.exportAll();
+    const allPasswords = allData.filter(e => e.type === 'password' && !e.deletedAt);
     if (allPasswords.length > 0) {
       setStep('step5', '✅ 第5步：按类型查询成功 - 找到 ' + allPasswords.length + ' 条密码', 'done');
     } else {

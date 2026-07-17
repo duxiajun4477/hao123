@@ -1503,6 +1503,38 @@ var InfoVaultApp = {
     el.innerHTML = `${pw} <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard(document.getElementById('detailPw').dataset.pw,'密码已复制')">${copyIcon}</button>`;
   },
 
+  viewImage(id){
+    var entry = this._currentDetailEntry;
+    if(!entry||!entry.dataUrl)return;
+    this.closeModal();
+    this._showImageViewer(entry.dataUrl, id);
+  },
+
+  async viewImageDirect(id){
+    var entry = await InfoVaultDB.get(id);
+    if(!entry||!entry.dataUrl)return;
+    this._showImageViewer(entry.dataUrl, id);
+  },
+
+  _showImageViewer(dataUrl, id){
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
+    ov.onclick = function(e){if(e.target===ov)document.body.removeChild(ov);};
+    var img = document.createElement('img');
+    img.src = dataUrl;
+    img.style.cssText = 'max-width:92vw;max-height:88vh;object-fit:contain;border-radius:10px;box-shadow:0 0 80px rgba(0,0,0,0.6);transition:transform 0.1s;';
+    var scale = 1;
+    ov.onwheel = function(e){e.preventDefault();scale+=e.deltaY>0?-0.15:0.15;scale=Math.max(0.3,Math.min(4,scale));img.style.transform='scale('+scale+')';};
+    ov.appendChild(img);
+    var bar = document.createElement('div');
+    bar.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10000;';
+    bar.innerHTML = '<button style="padding:8px 18px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;font-size:13px;" onclick="this.parentElement.previousElementSibling.style.transform=\'scale(1)\'">\u21bb \u91cd\u7f6e</button>' +
+      '<button style="padding:8px 18px;background:rgba(59,110,246,0.3);color:#fff;border:1px solid rgba(59,110,246,0.4);border-radius:8px;cursor:pointer;font-size:13px;" onclick="InfoVaultApp.downloadImage(\''+id+'\')">\u2b07 \u4e0b\u8f7d</button>' +
+      '<button style="padding:8px 18px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;font-size:13px;" onclick="document.body.removeChild(this.parentElement.parentElement)">\u2715 \u5173\u95ed</button>';
+    ov.appendChild(bar);
+    document.body.appendChild(ov);
+  },
+
   // ====== 编辑/删除 ======
   async editEntry(id) {
     const entry = await InfoVaultDB.get(id);

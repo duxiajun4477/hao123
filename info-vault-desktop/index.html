@@ -373,10 +373,15 @@
     .switch input:checked + .switch-slider::before { transform: translateX(18px); }
 
     /* Scrollbar */
-    .content-area::-webkit-scrollbar { width: 6px; }
+    .sidebar-nav::-webkit-scrollbar { width: 3px; }
+    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(59,110,246,0.2); border-radius: 2px; }
+    .sidebar-nav::-webkit-scrollbar-thumb:hover { background: rgba(59,110,246,0.4); }
+    .content-area::-webkit-scrollbar { width: 4px; }
     .content-area::-webkit-scrollbar-track { background: transparent; }
-    .content-area::-webkit-scrollbar-thumb { background: var(--color-neutral-300); border-radius: 3px; }
+    .content-area::-webkit-scrollbar-thumb { background: var(--color-neutral-300); border-radius: 2px; }
     .content-area::-webkit-scrollbar-thumb:hover { background: var(--color-neutral-400); }
+    * { scrollbar-width: thin; scrollbar-color: rgba(59,110,246,0.2) transparent; }
 
     /* Responsive */
     @media (max-width: 900px) {

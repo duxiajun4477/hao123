@@ -1511,9 +1511,19 @@ var InfoVaultApp = {
   },
 
   async viewImageDirect(id){
-    var entry = await InfoVaultDB.get(id);
-    if(!entry||!entry.dataUrl)return;
-    this._showImageViewer(entry.dataUrl, id);
+    try {
+      var entry = await InfoVaultDB.get(id);
+      if(!entry){this.toast('找不到图片数据','error');return;}
+      if(!entry.dataUrl){
+        // 如果没有 dataUrl，回退到详情查看
+        this.openItem(id);
+        return;
+      }
+      this._showImageViewer(entry.dataUrl, id);
+    } catch(e) {
+      this.toast('加载图片失败: '+e.message,'error');
+      console.error('viewImageDirect error:', e);
+    }
   },
 
   _showImageViewer(dataUrl, id){

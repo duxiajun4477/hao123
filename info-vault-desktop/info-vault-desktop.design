@@ -1,0 +1,74 @@
+{
+  "data": [
+    {
+      "id": "page-dashboard",
+      "title": "仪表盘",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1784255804000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/dashboard.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-passwords",
+      "title": "密码管理",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1784255805000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/passwords.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-collectibles",
+      "title": "收藏管理",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1784255806000,
+      "canvasData": {
+        "x": 1240,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/collectibles.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-settings",
+      "title": "设置",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1784255807000,
+      "canvasData": {
+        "x": 1860,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/settings.html",
+        "interactions": []
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "projectName": "InfoVault 信息金库（桌面端）",
+    "designLibrary": null
+  }
+}

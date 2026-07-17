@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 - InfoVault</title>
+    <style id="theme-vars">
+/* ============================================
+   InfoVault - Personal Information Manager
+   Brand CSS: Deep Tech Blue
+   ============================================ */
+
+:root {
+  /* ---- Brand Primary (Cool Blue) ---- */
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dae6ff;
+  --color-primary-200: #b8d0ff;
+  --color-primary-300: #8db1ff;
+  --color-primary-400: #5f8fff;
+  --color-primary-500: #3b6ef6;
+  --color-primary-600: #2550e8;
+  --color-primary-700: #1d3dc7;
+  --color-primary-800: #1a33a3;
+  --color-primary-900: #1b2f87;
+  --color-primary-950: #142157;
+
+  /* ---- Neutral Scale (Cool Gray for dark UI) ---- */
+  --color-neutral-0: #0a0e1a;
+  --color-neutral-50: #111827;
+  --color-neutral-100: #1a2035;
+  --color-neutral-200: #222a3e;
+  --color-neutral-300: #2d3650;
+  --color-neutral-400: #3f4a63;
+  --color-neutral-500: #5a6580;
+  --color-neutral-600: #7a8599;
+  --color-neutral-700: #9aa3b4;
+  --color-neutral-800: #c1c7d4;
+  --color-neutral-900: #e5e8ee;
+  --color-neutral-950: #f3f4f8;
+
+  /* ---- State Colors ---- */
+  --state-success: #22c55e;
+  --state-warning: #f59e0b;
+  --state-error: #ef4444;
+  --state-info: #3b82f6;
+
+  /* ---- Semantic Aliases (Light) ---- */
+  --info-vault-background: #0a0e1a;
+  --info-vault-foreground: #e5e8ee;
+  --info-vault-card: #1a2035;
+  --info-vault-card-foreground: #e5e8ee;
+  --info-vault-popover: #222a3e;
+  --info-vault-popover-foreground: #e5e8ee;
+  --info-vault-primary: #3b6ef6;
+  --info-vault-primary-foreground: #ffffff;
+  --info-vault-muted: #2d3650;
+  --info-vault-muted-foreground: #9aa3b4;
+  --info-vault-border: #2d3650;
+  --info-vault-input: #1a2035;
+  --info-vault-ring: #3b6ef6;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* ---- Radius Semantic Aliases ---- */
+  --info-vault-radius-sm: var(--radius-sm);
+  --info-vault-radius-md: var(--radius-md);
+  --info-vault-radius-lg: var(--radius-lg);
+
+  /* ---- Typography ---- */
+  --font-display: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* ---- Typography Classes ---- */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-xs { font-size: var(--text-xs); line-height: var(--leading-normal); }
+.text-sm { font-size: var(--text-sm); line-height: var(--leading-normal); }
+.text-base { font-size: var(--text-base); line-height: var(--leading-normal); }
+.text-lg { font-size: var(--text-lg); line-height: var(--leading-tight); }
+.text-xl { font-size: var(--text-xl); line-height: var(--leading-tight); }
+.text-2xl { font-size: var(--text-2xl); line-height: var(--leading-tight); }
+.text-3xl { font-size: var(--text-3xl); line-height: var(--leading-tight); }
+.text-4xl { font-size: var(--text-4xl); line-height: var(--leading-tight); }
+
+.font-light { font-weight: var(--font-light); }
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+.leading-tight { line-height: var(--leading-tight); }
+.leading-normal { line-height: var(--leading-normal); }
+.leading-relaxed { line-height: var(--leading-relaxed); }
+
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide { letter-spacing: 0.025em; }
+
+/* ---- Spacing Scale ---- */
+.space-1 { margin: 0.25rem; }
+.space-2 { margin: 0.5rem; }
+.space-3 { margin: 0.75rem; }
+.space-4 { margin: 1rem; }
+.space-6 { margin: 1.5rem; }
+.space-8 { margin: 2rem; }
+.space-10 { margin: 2.5rem; }
+.space-12 { margin: 3rem; }
+.space-16 { margin: 4rem; }
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+/* ---- Shadow / Depth (Static surfaces use border, floating layers use subtle shadow) ---- */
+.shadow-card {
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-md);
+}
+.shadow-float {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Animation ---- */
+.transition-base {
+  transition: all 0.2s ease;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--info-vault-background);
+    --color-foreground: var(--info-vault-foreground);
+    --color-card: var(--info-vault-card);
+    --color-card-foreground: var(--info-vault-card-foreground);
+    --color-popover: var(--info-vault-popover);
+    --color-popover-foreground: var(--info-vault-popover-foreground);
+    --color-primary: var(--info-vault-primary);
+    --color-primary-foreground: var(--info-vault-primary-foreground);
+    --color-muted: var(--info-vault-muted);
+    --color-muted-foreground: var(--info-vault-muted-foreground);
+    --color-border: var(--info-vault-border);
+    --color-input: var(--info-vault-input);
+    --color-ring: var(--info-vault-ring);
+    --radius-sm: var(--info-vault-radius-sm);
+    --radius-md: var(--info-vault-radius-md);
+    --radius-lg: var(--info-vault-radius-lg);
+  }
+  @layer base {
+    body { background: var(--info-vault-background); color: var(--info-vault-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--info-vault-background); }
+      .text-background { color: var(--info-vault-background); }
+      .border-background { border-color: var(--info-vault-background); }
+      .ring-background { --tw-ring-color: var(--info-vault-background); }
+      .bg-foreground { background-color: var(--info-vault-foreground); }
+      .text-foreground { color: var(--info-vault-foreground); }
+      .border-foreground { border-color: var(--info-vault-foreground); }
+      .ring-foreground { --tw-ring-color: var(--info-vault-foreground); }
+      .bg-card { background-color: var(--info-vault-card); }
+      .text-card { color: var(--info-vault-card); }
+      .border-card { border-color: var(--info-vault-card); }
+      .ring-card { --tw-ring-color: var(--info-vault-card); }
+      .bg-card-foreground { background-color: var(--info-vault-card-foreground); }
+      .text-card-foreground { color: var(--info-vault-card-foreground); }
+      .border-card-foreground { border-color: var(--info-vault-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--info-vault-card-foreground); }
+      .bg-popover { background-color: var(--info-vault-popover); }
+      .text-popover { color: var(--info-vault-popover); }
+      .border-popover { border-color: var(--info-vault-popover); }
+      .ring-popover { --tw-ring-color: var(--info-vault-popover); }
+      .bg-popover-foreground { background-color: var(--info-vault-popover-foreground); }
+      .text-popover-foreground { color: var(--info-vault-popover-foreground); }
+      .border-popover-foreground { border-color: var(--info-vault-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--info-vault-popover-foreground); }
+      .bg-primary { background-color: var(--info-vault-primary); }
+      .text-primary { color: var(--info-vault-primary); }
+      .border-primary { border-color: var(--info-vault-primary); }
+      .ring-primary { --tw-ring-color: var(--info-vault-primary); }
+      .bg-primary-foreground { background-color: var(--info-vault-primary-foreground); }
+      .text-primary-foreground { color: var(--info-vault-primary-foreground); }
+      .border-primary-foreground { border-color: var(--info-vault-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--info-vault-primary-foreground); }
+      .bg-muted { background-color: var(--info-vault-muted); }
+      .text-muted { color: var(--info-vault-muted); }
+      .border-muted { border-color: var(--info-vault-muted); }
+      .ring-muted { --tw-ring-color: var(--info-vault-muted); }
+      .bg-muted-foreground { background-color: var(--info-vault-muted-foreground); }
+      .text-muted-foreground { color: var(--info-vault-muted-foreground); }
+      .border-muted-foreground { border-color: var(--info-vault-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--info-vault-muted-foreground); }
+      .bg-border { background-color: var(--info-vault-border); }
+      .text-border { color: var(--info-vault-border); }
+      .border-border { border-color: var(--info-vault-border); }
+      .ring-border { --tw-ring-color: var(--info-vault-border); }
+      .bg-input { background-color: var(--info-vault-input); }
+      .text-input { color: var(--info-vault-input); }
+      .border-input { border-color: var(--info-vault-input); }
+      .ring-input { --tw-ring-color: var(--info-vault-input); }
+      .bg-ring { background-color: var(--info-vault-ring); }
+      .text-ring { color: var(--info-vault-ring); }
+      .border-ring { border-color: var(--info-vault-ring); }
+      .ring-ring { --tw-ring-color: var(--info-vault-ring); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="min-h-screen pb-24 bg-[#0a0e1a]">
+      <!-- Header -->
+      <header class="sticky top-0 z-10 bg-[#0a0e1a]/90 backdrop-blur-md border-b border-[#2d3650] px-5 py-4">
+        <h1 class="text-xl font-semibold text-[#e5e8ee]">我的</h1>
+      </header>
+
+      <div class="px-4 pt-5 space-y-4">
+
+        <!-- 1. User Card -->
+        <div class="bg-[#1a2035] rounded-2xl p-5 border border-[#2d3650]">
+          <div class="flex items-center gap-4">
+            <!-- Avatar -->
+            <div class="w-16 h-16 rounded-full bg-[#3b6ef6] flex items-center justify-center shrink-0">
+              <span class="text-2xl font-bold text-white">U</span>
+            </div>
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h2 class="text-lg font-semibold text-[#e5e8ee]">用户名</h2>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#3b6ef6]/20 text-[#5f8fff] border border-[#3b6ef6]/30">Pro 会员</span>
+              </div>
+              <p class="text-sm text-[#9aa3b4] mt-1 truncate">user@example.com</p>
+            </div>
+            <!-- Chevron -->
+            <i data-lucide="chevron-right" class="w-5 h-5 text-[#5a6580] shrink-0"></i>
+          </div>
+        </div>
+
+        <!-- 2. Sync Status Card -->
+        <div class="bg-[#1a2035] rounded-2xl p-5 border border-[#2d3650]">
+          <h3 class="text-sm font-medium text-[#9aa3b4] mb-3">同步状态</h3>
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
+            <span class="text-sm font-medium text-[#22c55e]">所有设备已同步</span>
+          </div>
+          <p class="text-xs text-[#5a6580] mb-4">上次同步: 3分钟前</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#222a3e] border border-[#2d3650] text-xs text-[#9aa3b4]">
+              <i data-lucide="laptop" class="w-3.5 h-3.5"></i>MacBook Pro
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#222a3e] border border-[#2d3650] text-xs text-[#9aa3b4]">
+              <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>iPhone 15
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#222a3e] border border-[#2d3650] text-xs text-[#9aa3b4]">
+              <i data-lucide="tablet" class="w-3.5 h-3.5"></i>iPad Air
+            </span>
+          </div>
+        </div>
+
+        <!-- 3. Settings Menu -->
+
+        <!-- Group 1: 安全 -->
+        <div class="space-y-1">
+          <p class="text-xs font-medium text-[#5a6580] uppercase tracking-wider px-1 mb-2">安全</p>
+          <div class="bg-[#1a2035] rounded-2xl border border-[#2d3650] overflow-hidden divide-y divide-[#2d3650]">
+            <!-- 指纹/面容解锁 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#3b6ef6]/15 flex items-center justify-center">
+                  <i data-lucide="scan-face" class="w-4 h-4 text-[#5f8fff]"></i>
+                </div>
+                <span class="text-sm font-medium text-[#e5e8ee]">指纹/面容解锁</span>
+              </div>
+              <!-- Toggle ON -->
+              <button class="relative w-11 h-6 rounded-full bg-[#3b6ef6] transition-colors" aria-checked="true">
+                <span class="absolute top-0.5 right-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"></span>
+              </button>
+            </div>
+            <!-- 自动锁定 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#3b6ef6]/15 flex items-center justify-center">
+                  <i data-lucide="lock" class="w-4 h-4 text-[#5f8fff]"></i>
+                </div>
+                <span class="text-sm font-medium text-[#e5e8ee]">自动锁定</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm text-[#5a6580]">5分钟</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-[#5a6580]"></i>
+              </div>
+            </div>
+            <!-- 两步验证 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#3b6ef6]/15 flex items-center justify-center">
+                  <i data-lucide="shield-check" class="w-4 h-4 text-[#5f8fff]"></i>
+                </div>
+                <span class="text-sm font-medium text-[#e5e8ee]">两步验证</span>
+              </div>
+              <!-- Toggle ON -->
+              <button class="relative w-11 h-6 rounded-full bg-[#3b6ef6] transition-colors" aria-checked="true">
+                <span class="absolute top-0.5 right-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Group 2: 数据 -->
+        <div class="space-y-1">
+          <p class="text-xs font-medium text-[#5a6580] uppercase tracking-wider px-1 mb-2">数据</p>
+          <div class="bg-[#1a2035] rounded-2xl border border-[#2d3650] overflow-hidden divide-y divide-[#2d3650]">
+            <!-- 数据导出 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#22c55e]/15 flex items-center justify-center">
+                  <i data-lucide="download" class="w-4 h-4 text-[#22c55e]"></i>
+                </div>
+                <span class="text-sm font-medium text-[#e5e8ee]">数据导出</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-[#5a6580]"></i>
+            </div>
+            <!-- 数据备份 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#f59e0b]/15 flex items-center justify-center">
+                  <i data-lucide="hard-drive-upload" class="w-4 h-4 text-[#f59e0b]"></i>
+                </div>
+                <span class="text-sm font-medium text-[#e5e8ee]">数据备份</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-[#5a6580]"></i>
+            </div>
+            <!-- 存储空间 -->
+            <div class="px-4 py-3.5">
+              <div class="flex items-center justify-between mb-2.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-[#a78bfa]/15 flex items-center justify-center">
+                    <i data-lucide="database" class="w-4 h-4 text-[#a78bfa]"></i>
+                  </div>
+                  <span class="text-sm font-medium text-[#e5e8ee]">存储空间</span>
+                </div>
+                <span class="text-xs text-[#5a6580]">已用 1.2GB / 5GB</span>
+              </div>
+              <div class="ml-11">
+                <div class="w-full h-1.5 rounded-full bg-[#2d3650] overflow-hidden">
+                  <div class="h-full rounded-full bg-[#3b6ef6]" style="width: 24%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Group 3: 关于 -->
+        <div class="space-y-1">
+          <p class="text-xs font-medium text-[#5a6580] uppercase tracking-wider px-1 mb-2">关于</p>
+          <div class="bg-[#1a2035] rounded-2xl border border-[#2d3650] overflow-hidden divide-y divide-[#2d3650]">
+            <!-- 帮助与反馈 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#3b82f6]/15 flex items-center justify-center">
+                  <i data-lucide="message-circle-question" class="w-4 h-4 text-[#3b82f6]"></i>
+                </div>
+                <span class="text-sm font-medium text-[#e5e8ee]">帮助与反馈</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-[#5a6580]"></i>
+            </div>
+            <!-- 隐私政策 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#2d3650] flex items-center justify-center">
+                  <i data-lucide="file-text" class="w-4 h-4 text-[#9aa3b4]"></i>
+                </div>
+                <span class="text-sm font-medium text-[#e5e8ee]">隐私政策</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-[#5a6580]"></i>
+            </div>
+            <!-- 版本 -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#2d3650] flex items-center justify-center">
+                  <i data-lucide="info" class="w-4 h-4 text-[#9aa3b4]"></i>
+                </div>
+                <span class="text-sm font-medium text-[#e5e8ee]">版本</span>
+              </div>
+              <span class="text-sm text-[#5a6580]">v2.4.1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom spacer -->
+        <div class="h-4"></div>
+      </div>
+
+      <!-- Bottom Tab Bar -->
+      <nav class="fixed bottom-0 left-0 right-0 z-20 bg-[#111827]/95 backdrop-blur-md border-t border-[#2d3650]">
+        <div class="flex items-center justify-around h-16 max-w-lg mx-auto">
+          <!-- 首页 -->
+          <a href="home.html" class="flex flex-col items-center gap-1 px-3 py-1.5 text-[#5a6580] transition-colors" data-active="false">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-[10px] font-medium">首页</span>
+          </a>
+          <!-- 资料库 -->
+          <a href="vault.html" class="flex flex-col items-center gap-1 px-3 py-1.5 text-[#5a6580] transition-colors" data-active="false">
+            <i data-lucide="lock-keyhole" class="w-5 h-5"></i>
+            <span class="text-[10px] font-medium">资料库</span>
+          </a>
+          <!-- 收藏 -->
+          <a href="collection.html" class="flex flex-col items-center gap-1 px-3 py-1.5 text-[#5a6580] transition-colors" data-active="false">
+            <i data-lucide="bookmark" class="w-5 h-5"></i>
+            <span class="text-[10px] font-medium">收藏</span>
+          </a>
+          <!-- 我的 (active) -->
+          <a href="profile.html" class="flex flex-col items-center gap-1 px-3 py-1.5 text-[#3b6ef6] transition-colors" data-active="true">
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span class="text-[10px] font-medium">我的</span>
+          </a>
+        </div>
+      </nav>
+    </main>
+
+    <script>
+      lucide.createIcons();
+    </script>
+</body>
+</html>

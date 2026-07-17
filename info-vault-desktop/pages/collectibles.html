@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收藏管理 - InfoVault</title>
+    <style id="theme-vars">
+/* ============================================
+   InfoVault - Personal Information Manager
+   Brand CSS: Deep Tech Blue
+   ============================================ */
+
+:root {
+  /* ---- Brand Primary (Cool Blue) ---- */
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dae6ff;
+  --color-primary-200: #b8d0ff;
+  --color-primary-300: #8db1ff;
+  --color-primary-400: #5f8fff;
+  --color-primary-500: #3b6ef6;
+  --color-primary-600: #2550e8;
+  --color-primary-700: #1d3dc7;
+  --color-primary-800: #1a33a3;
+  --color-primary-900: #1b2f87;
+  --color-primary-950: #142157;
+
+  /* ---- Neutral Scale (Cool Gray for dark UI) ---- */
+  --color-neutral-0: #0a0e1a;
+  --color-neutral-50: #111827;
+  --color-neutral-100: #1a2035;
+  --color-neutral-200: #222a3e;
+  --color-neutral-300: #2d3650;
+  --color-neutral-400: #3f4a63;
+  --color-neutral-500: #5a6580;
+  --color-neutral-600: #7a8599;
+  --color-neutral-700: #9aa3b4;
+  --color-neutral-800: #c1c7d4;
+  --color-neutral-900: #e5e8ee;
+  --color-neutral-950: #f3f4f8;
+
+  /* ---- State Colors ---- */
+  --state-success: #22c55e;
+  --state-warning: #f59e0b;
+  --state-error: #ef4444;
+  --state-info: #3b82f6;
+
+  /* ---- Semantic Aliases (Light) ---- */
+  --info-vault-background: #0a0e1a;
+  --info-vault-foreground: #e5e8ee;
+  --info-vault-card: #1a2035;
+  --info-vault-card-foreground: #e5e8ee;
+  --info-vault-popover: #222a3e;
+  --info-vault-popover-foreground: #e5e8ee;
+  --info-vault-primary: #3b6ef6;
+  --info-vault-primary-foreground: #ffffff;
+  --info-vault-muted: #2d3650;
+  --info-vault-muted-foreground: #9aa3b4;
+  --info-vault-border: #2d3650;
+  --info-vault-input: #1a2035;
+  --info-vault-ring: #3b6ef6;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* ---- Radius Semantic Aliases ---- */
+  --info-vault-radius-sm: var(--radius-sm);
+  --info-vault-radius-md: var(--radius-md);
+  --info-vault-radius-lg: var(--radius-lg);
+
+  /* ---- Typography ---- */
+  --font-display: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* ---- Typography Classes ---- */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-xs { font-size: var(--text-xs); line-height: var(--leading-normal); }
+.text-sm { font-size: var(--text-sm); line-height: var(--leading-normal); }
+.text-base { font-size: var(--text-base); line-height: var(--leading-normal); }
+.text-lg { font-size: var(--text-lg); line-height: var(--leading-tight); }
+.text-xl { font-size: var(--text-xl); line-height: var(--leading-tight); }
+.text-2xl { font-size: var(--text-2xl); line-height: var(--leading-tight); }
+.text-3xl { font-size: var(--text-3xl); line-height: var(--leading-tight); }
+.text-4xl { font-size: var(--text-4xl); line-height: var(--leading-tight); }
+
+.font-light { font-weight: var(--font-light); }
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+.leading-tight { line-height: var(--leading-tight); }
+.leading-normal { line-height: var(--leading-normal); }
+.leading-relaxed { line-height: var(--leading-relaxed); }
+
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide { letter-spacing: 0.025em; }
+
+/* ---- Spacing Scale ---- */
+.space-1 { margin: 0.25rem; }
+.space-2 { margin: 0.5rem; }
+.space-3 { margin: 0.75rem; }
+.space-4 { margin: 1rem; }
+.space-6 { margin: 1.5rem; }
+.space-8 { margin: 2rem; }
+.space-10 { margin: 2.5rem; }
+.space-12 { margin: 3rem; }
+.space-16 { margin: 4rem; }
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+/* ---- Shadow / Depth (Static surfaces use border, floating layers use subtle shadow) ---- */
+.shadow-card {
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-md);
+}
+.shadow-float {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Animation ---- */
+.transition-base {
+  transition: all 0.2s ease;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--info-vault-background);
+    --color-foreground: var(--info-vault-foreground);
+    --color-card: var(--info-vault-card);
+    --color-card-foreground: var(--info-vault-card-foreground);
+    --color-popover: var(--info-vault-popover);
+    --color-popover-foreground: var(--info-vault-popover-foreground);
+    --color-primary: var(--info-vault-primary);
+    --color-primary-foreground: var(--info-vault-primary-foreground);
+    --color-muted: var(--info-vault-muted);
+    --color-muted-foreground: var(--info-vault-muted-foreground);
+    --color-border: var(--info-vault-border);
+    --color-input: var(--info-vault-input);
+    --color-ring: var(--info-vault-ring);
+    --radius-sm: var(--info-vault-radius-sm);
+    --radius-md: var(--info-vault-radius-md);
+    --radius-lg: var(--info-vault-radius-lg);
+  }
+  @layer base {
+    body { background: var(--info-vault-background); color: var(--info-vault-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--info-vault-background); }
+      .text-background { color: var(--info-vault-background); }
+      .border-background { border-color: var(--info-vault-background); }
+      .ring-background { --tw-ring-color: var(--info-vault-background); }
+      .bg-foreground { background-color: var(--info-vault-foreground); }
+      .text-foreground { color: var(--info-vault-foreground); }
+      .border-foreground { border-color: var(--info-vault-foreground); }
+      .ring-foreground { --tw-ring-color: var(--info-vault-foreground); }
+      .bg-card { background-color: var(--info-vault-card); }
+      .text-card { color: var(--info-vault-card); }
+      .border-card { border-color: var(--info-vault-card); }
+      .ring-card { --tw-ring-color: var(--info-vault-card); }
+      .bg-card-foreground { background-color: var(--info-vault-card-foreground); }
+      .text-card-foreground { color: var(--info-vault-card-foreground); }
+      .border-card-foreground { border-color: var(--info-vault-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--info-vault-card-foreground); }
+      .bg-popover { background-color: var(--info-vault-popover); }
+      .text-popover { color: var(--info-vault-popover); }
+      .border-popover { border-color: var(--info-vault-popover); }
+      .ring-popover { --tw-ring-color: var(--info-vault-popover); }
+      .bg-popover-foreground { background-color: var(--info-vault-popover-foreground); }
+      .text-popover-foreground { color: var(--info-vault-popover-foreground); }
+      .border-popover-foreground { border-color: var(--info-vault-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--info-vault-popover-foreground); }
+      .bg-primary { background-color: var(--info-vault-primary); }
+      .text-primary { color: var(--info-vault-primary); }
+      .border-primary { border-color: var(--info-vault-primary); }
+      .ring-primary { --tw-ring-color: var(--info-vault-primary); }
+      .bg-primary-foreground { background-color: var(--info-vault-primary-foreground); }
+      .text-primary-foreground { color: var(--info-vault-primary-foreground); }
+      .border-primary-foreground { border-color: var(--info-vault-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--info-vault-primary-foreground); }
+      .bg-muted { background-color: var(--info-vault-muted); }
+      .text-muted { color: var(--info-vault-muted); }
+      .border-muted { border-color: var(--info-vault-muted); }
+      .ring-muted { --tw-ring-color: var(--info-vault-muted); }
+      .bg-muted-foreground { background-color: var(--info-vault-muted-foreground); }
+      .text-muted-foreground { color: var(--info-vault-muted-foreground); }
+      .border-muted-foreground { border-color: var(--info-vault-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--info-vault-muted-foreground); }
+      .bg-border { background-color: var(--info-vault-border); }
+      .text-border { color: var(--info-vault-border); }
+      .border-border { border-color: var(--info-vault-border); }
+      .ring-border { --tw-ring-color: var(--info-vault-border); }
+      .bg-input { background-color: var(--info-vault-input); }
+      .text-input { color: var(--info-vault-input); }
+      .border-input { border-color: var(--info-vault-input); }
+      .ring-input { --tw-ring-color: var(--info-vault-input); }
+      .bg-ring { background-color: var(--info-vault-ring); }
+      .text-ring { color: var(--info-vault-ring); }
+      .border-ring { border-color: var(--info-vault-ring); }
+      .ring-ring { --tw-ring-color: var(--info-vault-ring); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
+      <!-- Sidebar -->
+      <aside class="w-60 flex-shrink-0 bg-card border-r border-border flex flex-col">
+        <!-- Logo -->
+        <div class="h-14 flex items-center gap-2.5 px-5 border-b border-border">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5 text-primary-foreground"></i>
+          </div>
+          <span class="text-base font-semibold tracking-tight text-foreground">InfoVault</span>
+        </div>
+
+        <!-- Nav -->
+        <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto no-scrollbar">
+          <a href="dashboard.html" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-base cursor-pointer">
+            <i data-lucide="layout-dashboard" class="w-[18px] h-[18px]"></i>
+            <span>仪表盘</span>
+          </a>
+          <a href="passwords.html" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-base cursor-pointer">
+            <i data-lucide="key-round" class="w-[18px] h-[18px]"></i>
+            <span>密码管理</span>
+          </a>
+          <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm bg-primary/10 text-primary font-medium cursor-pointer" data-active="true">
+            <i data-lucide="heart" class="w-[18px] h-[18px]"></i>
+            <span>收藏管理</span>
+          </a>
+          <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-base cursor-pointer">
+            <i data-lucide="file-text" class="w-[18px] h-[18px]"></i>
+            <span>笔记</span>
+          </a>
+          <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-base cursor-pointer">
+            <i data-lucide="credit-card" class="w-[18px] h-[18px]"></i>
+            <span>银行卡</span>
+          </a>
+          <a href="settings.html" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-base cursor-pointer">
+            <i data-lucide="settings" class="w-[18px] h-[18px]"></i>
+            <span>设置</span>
+          </a>
+        </nav>
+
+        <!-- User -->
+        <div class="border-t border-border px-4 py-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary">A</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium text-foreground truncate">Admin</div>
+            <div class="text-xs text-muted-foreground truncate">admin@infovault.com</div>
+          </div>
+          <i data-lucide="log-out" class="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-base"></i>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Toolbar -->
+        <header class="h-14 flex-shrink-0 border-b border-border flex items-center justify-between px-6">
+          <div class="flex items-center gap-4">
+            <h1 class="text-xl font-semibold tracking-tight text-foreground">收藏管理</h1>
+            <!-- View Toggle -->
+            <div class="flex items-center bg-muted rounded-lg p-0.5">
+              <button class="view-btn p-1.5 rounded-md bg-card text-foreground shadow-sm" data-view="grid" title="网格视图">
+                <i data-lucide="grid-3x3" class="w-4 h-4"></i>
+              </button>
+              <button class="view-btn p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-base" data-view="list" title="列表视图">
+                <i data-lucide="list" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <!-- Filter -->
+            <div class="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+              <button class="filter-btn px-3 py-1 rounded-md text-xs font-medium bg-card text-foreground shadow-sm" data-filter="all">全部</button>
+              <button class="filter-btn px-3 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground transition-base" data-filter="image">图片</button>
+              <button class="filter-btn px-3 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground transition-base" data-filter="doc">证件</button>
+              <button class="filter-btn px-3 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground transition-base" data-filter="wallet">钱包</button>
+            </div>
+          </div>
+          <button class="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-base">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+            <span>上传</span>
+          </button>
+        </header>
+
+        <!-- Tabs -->
+        <div class="flex-shrink-0 border-b border-border px-6">
+          <div class="flex gap-6">
+            <button class="tab-btn pt-3 pb-2.5 text-sm font-medium border-b-2 border-primary text-primary" data-tab="images">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="image" class="w-4 h-4"></i>
+                图片库
+              </span>
+            </button>
+            <button class="tab-btn pt-3 pb-2.5 text-sm font-medium border-b-2 border-transparent text-muted-foreground hover:text-foreground transition-base" data-tab="docs">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="file-badge" class="w-4 h-4"></i>
+                证件管理
+              </span>
+            </button>
+            <button class="tab-btn pt-3 pb-2.5 text-sm font-medium border-b-2 border-transparent text-muted-foreground hover:text-foreground transition-base" data-tab="wallets">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+                钱包管理
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="flex-1 overflow-y-auto no-scrollbar p-6">
+
+          <!-- Images Tab -->
+          <div id="tab-images" class="tab-content">
+            <div class="grid grid-cols-4 gap-4">
+              <!-- Image Card 1 -->
+              <div class="group relative rounded-xl overflow-hidden cursor-pointer" style="aspect-ratio:4/3;">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/80 via-indigo-500/60 to-purple-600/70"></div>
+                <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                  <i data-lucide="image" class="w-16 h-16 text-white"></i>
+                </div>
+                <!-- Hover Overlay -->
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="查看"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="下载"><i data-lucide="download" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-red-400 hover:bg-red-500/30 transition-base" title="删除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+                <!-- Info Overlay (bottom) -->
+                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                  <div class="text-xs font-medium text-white truncate">风景照片_01.jpg</div>
+                  <div class="flex items-center justify-between mt-1">
+                    <span class="text-[10px] text-white/60">2.4 MB</span>
+                    <span class="text-[10px] text-white/60">2026-07-15</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/40 text-blue-200">JPG</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Card 2 -->
+              <div class="group relative rounded-xl overflow-hidden cursor-pointer" style="aspect-ratio:4/3;">
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/80 via-teal-500/60 to-cyan-600/70"></div>
+                <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                  <i data-lucide="image" class="w-16 h-16 text-white"></i>
+                </div>
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="查看"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="下载"><i data-lucide="download" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-red-400 hover:bg-red-500/30 transition-base" title="删除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                  <div class="text-xs font-medium text-white truncate">设计素材_v2.png</div>
+                  <div class="flex items-center justify-between mt-1">
+                    <span class="text-[10px] text-white/60">5.1 MB</span>
+                    <span class="text-[10px] text-white/60">2026-07-14</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/40 text-emerald-200">PNG</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Card 3 -->
+              <div class="group relative rounded-xl overflow-hidden cursor-pointer" style="aspect-ratio:4/3;">
+                <div class="absolute inset-0 bg-gradient-to-br from-orange-600/80 via-amber-500/60 to-yellow-500/70"></div>
+                <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                  <i data-lucide="image" class="w-16 h-16 text-white"></i>
+                </div>
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="查看"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="下载"><i data-lucide="download" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-red-400 hover:bg-red-500/30 transition-base" title="删除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                  <div class="text-xs font-medium text-white truncate">截图_20260712.png</div>
+                  <div class="flex items-center justify-between mt-1">
+                    <span class="text-[10px] text-white/60">1.8 MB</span>
+                    <span class="text-[10px] text-white/60">2026-07-12</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/40 text-orange-200">PNG</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Card 4 -->
+              <div class="group relative rounded-xl overflow-hidden cursor-pointer" style="aspect-ratio:4/3;">
+                <div class="absolute inset-0 bg-gradient-to-br from-rose-600/80 via-pink-500/60 to-fuchsia-600/70"></div>
+                <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                  <i data-lucide="image" class="w-16 h-16 text-white"></i>
+                </div>
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="查看"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="下载"><i data-lucide="download" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-red-400 hover:bg-red-500/30 transition-base" title="删除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                  <div class="text-xs font-medium text-white truncate">头像_final.jpg</div>
+                  <div class="flex items-center justify-between mt-1">
+                    <span class="text-[10px] text-white/60">0.8 MB</span>
+                    <span class="text-[10px] text-white/60">2026-07-10</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/40 text-rose-200">JPG</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Card 5 -->
+              <div class="group relative rounded-xl overflow-hidden cursor-pointer" style="aspect-ratio:4/3;">
+                <div class="absolute inset-0 bg-gradient-to-br from-slate-600/80 via-gray-500/60 to-zinc-600/70"></div>
+                <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                  <i data-lucide="image" class="w-16 h-16 text-white"></i>
+                </div>
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="查看"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="下载"><i data-lucide="download" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-red-400 hover:bg-red-500/30 transition-base" title="删除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                  <div class="text-xs font-medium text-white truncate">文档扫描件.pdf</div>
+                  <div class="flex items-center justify-between mt-1">
+                    <span class="text-[10px] text-white/60">3.2 MB</span>
+                    <span class="text-[10px] text-white/60">2026-07-08</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-400/40 text-slate-200">PDF</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Card 6 -->
+              <div class="group relative rounded-xl overflow-hidden cursor-pointer" style="aspect-ratio:4/3;">
+                <div class="absolute inset-0 bg-gradient-to-br from-sky-600/80 via-blue-400/60 to-indigo-500/70"></div>
+                <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                  <i data-lucide="image" class="w-16 h-16 text-white"></i>
+                </div>
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="查看"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-base" title="下载"><i data-lucide="download" class="w-4 h-4"></i></button>
+                  <button class="p-2 bg-white/20 backdrop-blur-sm rounded-lg text-red-400 hover:bg-red-500/30 transition-base" title="删除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                  <div class="text-xs font-medium text-white truncate">壁纸_collection.webp</div>
+                  <div class="flex items-center justify-between mt-1">
+                    <span class="text-[10px] text-white/60">4.6 MB</span>
+                    <span class="text-[10px] text-white/60">2026-07-05</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/40 text-sky-200">WEBP</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Docs Tab -->
+          <div id="tab-docs" class="tab-content hidden">
+            <div class="max-w-3xl">
+              <div class="rounded-xl border border-border overflow-hidden">
+                <!-- Doc Item 1 -->
+                <div class="flex items-center gap-4 p-4 border-b border-border hover:bg-muted/50 transition-base cursor-pointer">
+                  <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="id-card" class="w-6 h-6 text-blue-400"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-foreground">身份证正面</div>
+                    <div class="text-xs text-muted-foreground mt-0.5">2026-06-20 上传</div>
+                  </div>
+                  <div class="text-xs text-muted-foreground flex-shrink-0">1.2 MB</div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground flex-shrink-0"></i>
+                </div>
+                <!-- Doc Item 2 -->
+                <div class="flex items-center gap-4 p-4 border-b border-border hover:bg-muted/50 transition-base cursor-pointer">
+                  <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="id-card" class="w-6 h-6 text-blue-400"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-foreground">身份证反面</div>
+                    <div class="text-xs text-muted-foreground mt-0.5">2026-06-20 上传</div>
+                  </div>
+                  <div class="text-xs text-muted-foreground flex-shrink-0">1.1 MB</div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground flex-shrink-0"></i>
+                </div>
+                <!-- Doc Item 3 -->
+                <div class="flex items-center gap-4 p-4 border-b border-border hover:bg-muted/50 transition-base cursor-pointer">
+                  <div class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="book-open" class="w-6 h-6 text-emerald-400"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-foreground">护照</div>
+                    <div class="text-xs text-muted-foreground mt-0.5">2026-05-15 上传</div>
+                  </div>
+                  <div class="text-xs text-muted-foreground flex-shrink-0">2.8 MB</div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground flex-shrink-0"></i>
+                </div>
+                <!-- Doc Item 4 -->
+                <div class="flex items-center gap-4 p-4 border-b border-border hover:bg-muted/50 transition-base cursor-pointer">
+                  <div class="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="car" class="w-6 h-6 text-amber-400"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-foreground">驾驶证</div>
+                    <div class="text-xs text-muted-foreground mt-0.5">2026-04-10 上传</div>
+                  </div>
+                  <div class="text-xs text-muted-foreground flex-shrink-0">1.5 MB</div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground flex-shrink-0"></i>
+                </div>
+                <!-- Doc Item 5 -->
+                <div class="flex items-center gap-4 p-4 hover:bg-muted/50 transition-base cursor-pointer">
+                  <div class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="home" class="w-6 h-6 text-purple-400"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-foreground">房产证</div>
+                    <div class="text-xs text-muted-foreground mt-0.5">2026-03-22 上传</div>
+                  </div>
+                  <div class="text-xs text-muted-foreground flex-shrink-0">3.7 MB</div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground flex-shrink-0"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wallets Tab -->
+          <div id="tab-wallets" class="tab-content hidden">
+            <div class="grid grid-cols-3 gap-6 max-w-5xl">
+              <!-- Alipay Card -->
+              <div class="relative rounded-2xl overflow-hidden cursor-pointer group" style="aspect-ratio:1.586/1;">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600"></div>
+                <div class="absolute inset-0 opacity-10">
+                  <div class="absolute top-4 right-4 w-32 h-32 rounded-full border-2 border-white/20"></div>
+                  <div class="absolute -bottom-8 -left-8 w-40 h-40 rounded-full border-2 border-white/10"></div>
+                </div>
+                <div class="relative h-full p-5 flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <i data-lucide="banknote" class="w-5 h-5 text-white"></i>="0 0 24 24" class="w-5 h-5 text-white" fill="currentColor"><path d="M21.422 15.358c-3.31.68-6.8-1.058-7.554-4.358-.42-1.842.484-3.856 2.1-4.8 1.62-.944 3.794-.802 5.332.264a4.91 4.91 0 0 1 1.998 5.042l-.06.244c-.228.876-.596 1.706-1.076 2.462-.014.024-.028.046-.044.068.024-.004.046-.014.07-.02.348-.078.704-.124 1.06-.136.4-.016.798.024 1.186.1.078.016.15.034.22.054-.058-.04-.118-.076-.178-.11-.822-.446-1.506-1.134-1.97-1.964a5.36 5.36 0 0 1-.49-2.7c.004-.05.01-.1.018-.148.01-.064.022-.126.038-.188.01-.044.024-.088.036-.132.05-.166.116-.33.198-.484.26-.468.66-.854 1.136-1.1.49-.25 1.04-.382 1.598-.388.01 0 .018 0 .028-.002h.012c.558.01 1.108.142 1.596.392.476.246.876.632 1.136 1.1.082.154.148.318.198.484.012.044.026.088.036.132.016.062.028.124.038.188.008.048.014.098.018.148.054.93-.134 1.86-.544 2.698-.464.832-1.15 1.52-1.97 1.964a4.9 4.9 0 0 1-.178.11c.418-.068.846-.094 1.274-.074.35.016.698.072 1.032.166.01.002.018.006.028.008-.01-.004-.022-.008-.032-.012a.61.61 0 0 0-.04-.014c-.074-.024-.15-.046-.226-.064l-.008-.002H22.5c-.028-.006-.056-.01-.084-.014l-.004-.002-.01-.002-.004-.002c-.05-.01-.1-.016-.15-.022l-.008-.002-.016-.002-.008-.002-.01-.002h-.01l-.016-.002h-.008l-.012-.002h-.018l-.01-.002H22.1l-.012-.002H22.07l-.008-.002H22.05h-.02l-.006-.002h-.028c-.052 0-.104.002-.156.006l-.014.002h-.008l-.012.002h-.01l-.014.002h-.008l-.014.004h-.01l-.014.004h-.008c-.05.008-.1.018-.148.03l-.008.004-.014.004h-.008l-.014.006-.01.004-.012.004h-.01l-.014.006h-.006l-.014.008h-.008l-.012.006-.012.006h-.01l-.012.008h-.008l-.012.008-.012.006h-.01l-.01.008h-.012l-.01.008h-.008l-.01.01-.012.006-.01.008h-.01l-.01.01-.01.008h-.012l-.01.01-.01.006-.01.01h-.01l-.01.01-.01.008-.01.01h-.01l-.01.01h-.01l-.01.01-.01.008-.01.01h-.01l-.01.01-.01.01-.01.008-.01.01-.008.01-.01.01-.01.008-.01.01-.008.01-.01.01-.01.01-.008.01-.01.01-.008.01-.01.01-.008.01-.01.01-.008.012-.008.01-.01.01-.008.01-.008.012-.008.01-.01.01-.008.012-.008.01-.008.012-.008.01-.008.012-.008.01-.008.012-.008.01-.008.012-.008.01-.006.012-.008.012-.006.01-.008.012-.006.012-.008.012-.006.01-.006.012-.008.012-.006.012-.006.01-.006.012-.008.012-.006.012-.006.012-.006.012-.006.012-.006.012-.006.012-.006.012-.006.012-.006.012-.004.012-.006.012-.006.014-.004.012-.006.012-.004.014-.006.012-.004.014-.006.012-.004.014-.004.012-.006.014-.004.012-.004.014-.006.012-.004.014-.004.014-.004.012-.006.014-.004.014-.004.014-.004.014-.004.012-.004.014-.004.016-.004.014-.004.014-.004.016-.002.014-.004.014-.004.016-.002.014-.004.016-.002.014-.004.016-.002.016-.004.014-.002.016-.002.014-.004.016-.002.016-.002.016-.002.014-.004.016-.002.016-.002.016-.002.016-.002.018-.002.016-.002.016-.002.016-.002.018-.002.016-.002.018-.002.016-.002.018-.002.016-.002.018-.002.016-.002.018-.002.018-.002.016-.002.018-.002.018-.002.016-.002.018-.002.018-.002.018-.002.02-.002.018-.002.018-.002.02-.002.018-.002.02-.002.018v.002l-.002.018-.002.02-.002.018-.002.02-.002.02-.002.018-.002.02-.002.02-.002.02-.002.02-.002.02-.002.022-.002.02-.002.02-.002.022-.002.02-.002.022-.002.02-.002.022-.002.022-.002.02-.002.022-.002.022-.002.022-.002.022-.002.022-.002.022-.002.024-.002.022-.002.022-.002.024-.002.022-.002.024-.002.022-.002.024-.002.024-.002.022-.002.024-.002.024-.002.024-.002.024-.002.024-.002.024-.002.026-.002.024-.002.024-.002.026-.002.024-.002.026-.002.026-.002.024-.002.026-.002.026-.002.026-.002.024-.002.026-.002.028-.002.026-.002.026-.002.028-.002.026-.002.028-.002.026-.002.028-.002.028-.002.026-.002.028-.002.028-.002.03-.002.028-.002.028-.002.03-.002.028-.002.03-.002.028-.002.03-.002.03-.002.03-.002.028-.002.03-.002.032-.002.03-.002.03-.002.032-.002.03-.002.032-.002.032-.002.03-.002.032-.002.032-.002.034-.002.032-.002.032-.002.034-.002.032-.002.034-.002.032-.002.034-.002.034-.002.032-.002.034-.002.036-.002.034-.002.034-.002.036-.002.034-.002.036-.002.034-.002.036-.002.036-.002.036-.002.034-.002.036-.002.038-.002.036-.002.036-.002.038-.002.036-.002.038-.002.036-.002.038-.002.038-.002.036-.002.038-.002.04-.002.038-.002.038-.002.04-.002.038-.002.04-.002.04-.002.038-.002.04-.002.042-.002.04-.002.04-.002.042-.002.04-.002.042-.002.042-.002.04-.002.042-.002.044-.002.042-.002.042-.002.044-.002.042-.002.044-.002.044-.002.042-.002.044-.002.044-.002.046-.002.044-.002.044-.002.046-.002.044-.002.046-.002.046-.002.044-.002.046-.002.048-.002.046-.002.046-.002.048-.002.046-.002.048-.002.046-.002.048-.002.048-.002.048-.002.046-.002.048-.002.05-.002.048-.002.048-.002.05-.002.048-.002.05-.002.05-.002.048-.002.05-.002.052-.002.05-.002.05-.002.052-.002.05-.002.052-.002.052-.002.05-.002.052-.002.054-.002.052-.002.052-.002.054-.002.052-.002.054-.002.054-.002.052-.002.054-.002.054-.002.056-.002.054-.002.054-.002.056-.002.054-.002.056-.002.056-.002.056-.002.054-.002.056-.002.058-.002.056-.002.056-.002.058-.002.056-.002.058-.002.058-.002.056-.002.058-.002.058-.002.06-.002.058-.002.058-.002.06-.002.058-.002.06-.002.06-.002.058-.002.06-.002.062-.002.06-.002.06-.002.062-.002.06-.002.062-.002.062-.002.06-.002.062-.002.062-.002.064-.002.062-.002.062-.002.064-.002.062-.002.064-.002.064-.002.062-.002.064-.002.066-.002.064-.002.064-.002.066-.002.064-.002.066-.002.066-.002.064-.002.066-.002.068-.002.066-.002.066-.002.068-.002.066-.002.068-.002.068-.002.066-.002.068-.002.068-.002.07-.002.068-.002.068-.002.07-.002.068-.002.07-.002.07-.002.07-.002.068-.002.07-.002.072-.002.07-.002.07-.002.072-.002.07-.002.072-.002.072-.002.07-.002.072-.002.074-.002.072-.002.072-.002.074-.002.072-.002.074-.002.074-.002.072-.002.074-.002.076-.002.074-.002.074-.002.076-.002.074-.002.076-.002.076-.002.074-.002.076-.002.078-.002.076-.002.076-.002.078-.002.076-.002.078-.002.078-.002.076-.002.078-.002.08-.002.078-.002.078-.002.08-.002.078-.002.08-.002.08-.002.078-.002.08-.002.082-.002.08-.002.08-.002.082-.002.08-.002.082-.002.082-.002.08-.002.082-.002.084-.002.082-.002.082-.002.084-.002.082-.002.084-.002.084-.002.082-.002.084-.002.086-.002.084-.002.084-.002.086-.002.084-.002.086-.002.086-.002.084-.002.086-.002.088-.002.086-.002.086-.002.088-.002.086-.002.088-.002.088-.002.086-.002.088-.002.09-.002.088-.002.088-.002.09-.002.088-.002.09-.002.09-.002.088-.002.09-.002.092-.002.09-.002.09-.002.092-.002.09-.002.092-.002.092-.002.09-.002.092-.002.094-.002.092-.002.092-.002.094-.002.092-.002.094-.002.094-.002.092-.002.094-.002.096-.002.094-.002.094-.002.096-.002.094-.002.096-.002.096-.002.094-.002.096-.002.098-.002.096-.002.096-.002.098-.002.096-.002.098-.002.098-.002.096-.002.098-.002.1-.002.098-.002.098-.002.1-.002.098-.002.1-.002.1-.002.098-.002.1-.002.102-.002.1-.002.1-.002.102-.002.1-.002.102-.002.102-.002.1-.002.102-.002.104-.002.102-.002.102-.002.104-.002.102-.002.104-.002.104-.002.102-.002.104-.002.106-.002.104-.002.104-.002.106-.002.104-.002.106-.002.106-.002.104-.002.106-.002.108-.002.106-.002.106-.002.108-.002.106-.002.108-.002.108-.002.106-.002.108-.002.11-.002.108-.002.108-.002.11-.002.108-.002.11-.002.11-.002.108-.002.11-.002.112-.002.11-.002.11-.002.112-.002.11-.002.112-.002.112-.002.11-.002.112-.002.114-.002.112-.002.112-.002.114-.002.112-.002.114-.002.114-.002.112-.002.114-.002.116-.002.114-.002.114-.002.116-.002.114-.002.116-.002.116-.002.114-.002.116-.002.118-.002.116-.002.116-.002.118-.002.116-.002.118-.002.118-.002.116-.002.118-.002.12-.002.118-.002.118-.002.12-.002.118-.002.12-.002.12-.002.118-.002.12-.002.122-.002.12-.002.12-.002.122-.002.12-.002.122-.002.122-.002.12-.002.122-.002.124-.002.122-.002.122-.002.124-.002.122-.002.124-.002.124-.002.122-.002.124-.002.126-.002.124-.002.124-.002.126-.002.124-.002.126-.002.126-.002.124-.002.126-.002.128-.002.126-.002.126-.002.128-.002.126-.002.128-.002.128-.002.126-.002.128-.002.13-.002.128-.002.128-.002.13-.002.128-.002.13-.002.13-.002.128-.002.13-.002.132-.002.13-.002.13-.002.132-.002.13-.002.132-.002.132-.002.13-.002.132-.002.134-.002.132-.002.132-.002.134-.002.132-.002.134-.002.134-.002.132-.002.134-.002.136-.002.134-.002.134-.002.136-.002.134-.002.136-.002.136-.002.134-.002.136-.002.138-.002.136-.002.136-.002.138-.002.136-.002.138-.002.138-.002.136-.002.138-.002.14-.002.138-.002.138-.002.14-.002.138-.002.14-.002.14-.002.138-.002.14-.002.142-.002.14-.002.14-.002.142-.002.14-.002.142-.002.142-.002.14-.002.142-.002.144-.002.142-.002.142-.002.144-.002.142-.002.144-.002.144-.002.142-.002.144-.002.146-.002.144-.002.144-.002.146-.002.144-.002.146-.002.146-.002.144-.002.146-.002.148-.002.146-.002.146-.002.148-.002.146-.002.148-.002.148-.002.146-.002.148-.002.15-.002.148-.002.148-.002.15-.002.148-.002.15-.002.15-.002.148-.002.15-.002.152-.002.15-.002.15-.002.152-.002.15-.002.152-.002.152-.002.15-.002.152-.002.154-.002.152-.002.152-.002.154-.002.152-.002.154-.002.154-.002.152-.002.154-.002.156-.002.154-.002.154-.002.156-.002.154-.002.156-.002.156-.002.154-.002.156-.002.158-.002.156-.002.156-.002.158-.002.156-.002.158-.002.158-.002.156-.002.158-.002.16-.002.158-.002.158-.002.16-.002.158-.002.16-.002.16-.002.158-.002.16-.002.162-.002.16-.002.16-.002.162-.002.16-.002.162-.002.162-.002.16-.002.162-.002.164-.002.162-.002.162-.002.164-.002.162-.002.164-.002.164-.002.162-.002.164-.002.166-.002.164-.002.164-.002.166-.002.164-.002.166-.002.166-.002.164-.002.166-.002.168-.002.166-.002.166-.002.168-.002.166-.002.168-.002.168-.002.166-.002.168-.002.17-.002.168-.002.168-.002.17-.002.168-.002.17-.002.17-.002.168-.002.17-.002.172-.002.17-.002.17-.002.172-.002.17-.002.172-.002.172-.002.17-.002.172-.002.174-.002.172-.002.172-.002.174-.002.172-.002.174-.002.174-.002.172-.002.174-.002.176-.002.174-.002.174-.002.176-.002.174-.002.176-.002.176-.002.174-.002.176-.002.178-.002.176-.002.176-.002.178-.002.176-.002.178-.002.178-.002.176-.002.178-.002.18-.002.178-.002.178-.002.18-.002.178-.002.18-.002.18-.002.178-.002.18-.002.182-.002.18-.002.18-.002.182-.002.18-.002.182-.002.182-.002.18-.002.182-.002.184-.002.182-.002.182-.002.184-.002.182-.002.184-.002.184-.002.182-.002.184-.002.186-.002.184-.002.184-.002.186-.002.184-.002.186-.002.186-.002.184-.002.186-.002.188-.002.186-.002.186-.002.188-.002.186-.002.188-.002.188-.002.186-.002.188-.002.19-.002.188-.002.188-.002.19-.002.188-.002.19-.002.19-.002.188-.002.19-.002.192-.002.19-.002.19-.002.192-.002.19-.002.192-.002.192-.002.19-.002.192-.002.194-.002.192-.002.192-.002.194-.002.192-.002.194-.002.194-.002.192-.002.194-.002.196-.002.194-.002.194-.002.196-.002.194-.002.196-.002.196-.002.194-.002.196-.002.198-.002.196-.002.196-.002.198-.002.196-.002.198-.002.198-.002.196-.002.198-.002.2-.002.198-.002.198-.002.2-.002.198-.002.2-.002.2-.002.198-.002.2-.002.202-.002.2-.002.2-.002.202-.002.2-.002.202-.002.202-.002.2-.002.202-.002.204-.002.202-.002.202-.002.204-.002.202-.002.204-.002.204-.002.202-.002.204-.002.206-.002.204-.002.204-.002.206-.002.204-.002.206-.002.206-.002.204-.002.206-.002.208-.002.206-.002.206-.002.208-.002.206-.002.208-.002.208-.002.206-.002.208-.002.21-.002.208-.002.208-.002.21-.002.208-.002.21-.002.21-.002.208-.002.21-.002.212-.002.21-.002.21-.002.212-.002.21-.002.212-.002.212-.002.21-.002.212-.002.214-.002.212-.002.212-.002.214-.002.212-.002.214-.002.214-.002.212-.002.214-.002.216-.002.214-.002.214-.002.216-.002.214-.002.216-.002.216-.002.214-.002.216-.002.218-.002.216-.002.216-.002.218-.002.216-.002.218-.002.218-.002.216-.002.218-.002.22-.002.218-.002.218-.002.22-.002.218-.002.22-.002.22-.002.218-.002.22-.002.222-.002.22-.002.22-.002.222-.002.22-.002.222-.002.222-.002.22-.002.222-.002.224-.002.222-.002.222-.002.224-.002.222-.002.224-.002.224-.002.222-.002.224-.002.226-.002.224-.002.224-.002.226-.002.224-.002.226-.002.226-.002.224-.002.226-.002.228-.002.226-.002.226-.002.228-.002.226-.002.228-.002.228-.002.226-.002.228-.002.23-.002.228-.002.228-.002.23-.002.228-.002.23-.002.23-.002.228-.002.23-.002.232-.002.23-.002.23-.002.232-.002.23-.002.232-.002.232-.002.23-.002.232-.002.234-.002.232-.002.232-.002.234-.002.232-.002.234-.002.234-.002.232-.002.234-.002.236-.002.234-.002.234-.002.236-.002.234-.002.236-.002.236-.002.234-.002.236-.002.238-.002.236-.002.236-.002.238-.002.236-.002.238-.002.238-.002.236-.002.238-.002.24-.002.238-.002.238-.002.24-.002.238-.002.24-.002.24-.002.238-.002.24-.002.242-.002.24-.002.24-.002.242-.002.24-.002.242-.002.242-.002.24-.002.242-.002.244-.002.242-.002.242-.002.244-.002.242-.002.244-.002.244-.002.242-.002.244-.002.246-.002.244-.002.244-.002.246-.002.244-.002.246-.002.246-.002.244-.002.246-.002.248-.002.246-.002.246-.002.248-.002.246-.002.248-.002.248-.002.246-.002.248-.002.25-.002.248-.002.248-.002.25-.002.248-.002.25-.002.25-.002.248-.002.25-.002.252-.002.25-.002.25-.002.252-.002.25-.002.252-.002.252-.002.25-.002.252-.002.254-.002.252-.002.252-.002.254-.002.252-.002.254-.002.254-.002.252-.002.254-.002.256-.002.254-.002.254-.002.256-.002.254-.002.256-.002.256-.002.254-.002.256-.002.258-.002.256-.002.256-.002.258-.002.256-.002.258-.002.258-.002.256-.002.258-.002.26-.002.258-.002.258-.002.26-.002.258-.002.26-.002.26-.002.258-.002.26-.002.262-.002.26-.002.26-.002.262-.002.26-.002.262-.002.262-.002.26-.002.262-.002.264-.002.262-.002.262-.002.264-.002.262-.002.264-.002.264-.002.262-.002.264-.002.266-.002.264-.002.264-.002.266-.002.264-.002.266-.002.266-.002.264-.002.266-.002.268-.002.266-.002.266-.002.268-.002.266-.002.268-.002.268-.002.266-.002.268-.002.27-.002.268-.002.268-.002.27-.002.268-.002.27-.002.27-.002.268-.002.27-.002.272-.002.27-.002.27-.002.272-.002.27-.002.272-.002.272-.002.27-.002.272-.002.274-.002.272-.002.272-.002.274-.002.272-.002.274-.002.274-.002.272-.002.274-.002.276-.002.274-.002.274-.002.276-.002.274-.002.276-.002.276-.002.274-.002.276-.002.278-.002.276-.002.276-.002.278-.002.276-.002.278-.002.278-.002.276-.002.278-.002.28-.002.278-.002.278-.002.28-.002.278-.002.28-.002.28-.002.278-.002.28-.002.282-.002.28-.002.28-.002.282-.002.28-.002.282-.002.282-.002.28-.002.282-.002.284-.002.282-.002.282-.002.284-.002.282-.002.284-.002.284-.002.282-.002.284-.002.286-.002.284-.002.284-.002.286-.002.284-.002.286-.002.286-.002.284-.002.286-.002.288-.002.286-.002.286-.002.288-.002.286-.002.288-.002.288-.002.286-.002.288-.002.29-.002.288-.002.288-.002.29-.002.288-.002.29-.002.29-.002.288-.002.29-.002.292-.002.29-.002.29-.002.292-.002.29-.002.292-.002.292-.002.29-.002.292-.002.294-.002.292-.002.292-.002.294-.002.292-.002.294-.002.294-.002.292-.002.294-.002.296-.002.294-.002.294-.002.296-.002.294-.002.296-.002.296-.002.294-.002.296-.002.298-.002.296-.002.296-.002.298-.002.296-.002.298-.002.298-.002.296-.002.298-.002.3-.002.298-.002.298-.002.3-.002.298-.002.3-.002.3-.002.298-.002.3-.002.302-.002.3-.002.3-.002.302-.002.3-.002.302-.002.302-.002.3-.002.302-.002.304-.002.302-.002.302-.002.304-.002.302-.002.304-.002.304-.002.302-.002.304-.002.306-.002.304-.002.304-.002.306-.002.304-.002.306-.002.306-.002.304-.002.306-.002.308-.002.306-.002.306-.002.308-.002.306-.002.308-.002.308-.002.306-.002.308-.002.31-.002.308-.002.308-.002.31-.002.308-.002.31-.002.31-.002.308-.002.31-.002.312-.002.31-.002.31-.002.312-.002.31-.002.312-.002.312-.002.31-.002.312-.002.314-.002.312-.002.312-.002.314-.002.312-.002.314-.002.314-.002.312-.002.314-.002.316-.002.314-.002.314-.002.316-.002.314-.002.316-.002.316-.002.314-.002.316-.002.318-.002.316-.002.316-.002.318-.002.316-.002.318-.002.318-.002.316-.002.318-.002.32-.002.318-.002.318-.002.32-.002.318-.002.32-.002.32-.002.318-.002.32-.002.322-.002.32-.002.32-.002.322-.002.32-.002.322-.002.322-.002.32-.002.322-.002.324-.002.322-.002.322-.002.324-.002.322-.002.324-.002.324-.002.322-.002.324-.002.326-.002.324-.002.324-.002.326-.002.324-.002.326-.002.326-.002.324-.002.326-.002.328-.002.326-.002.326-.002.328-.002.326-.002.328-.002.328-.002.326-.002.328-.002.33-.002.328-.002.328-.002.33-.002.328-.002.33-.002.33-.002.328-.002.33-.002.332-.002.33-.002.33-.002.332-.002.33-.002.332-.002.332-.002.33-.002.332-.002.334-.002.332-.002.332-.002.334-.002.332-.002.334-.002.334-.002.332-.002.334-.002.336-.002.334-.002.334-.002.336-.002.334-.002.336-.002.336-.002.334-.002.336-.002.338-.002.336-.002.336-.002.338-.002.336-.002.338-.002.338-.002.336-.002.338-.002.34-.002.338-.002.338-.002.34-.002.338-.002.34-.002.34-.002.338-.002.34-.002.342-.002.34-.002.34-.002.342-.002.34-.002.342-.002.342-.002.34-.002.342-.002.344-.002.342-.002.342-.002.344-.002.342-.002.344-.002.344-.002.342-.002.344-.002.346-.002.344-.002.344-.002.346-.002.344-.002.346-.002.346-.002.344-.002.346-.002.348-.002.346-.002.346-.002.348-.002.346-.002.348-.002.348-.002.346-.002.348-.002.35-.002.348-.002.348-.002.35-.002.348-.002.35-.002.35-.002.348-.002.35-.002.352-.002.35-.002.35-.002.352-.002.35-.002.352-.002.352-.002.35-.002.352-.002.354-.002.352-.002.352-.002.354-.002.352-.002.354-.002.354-.002.352-.002.354-.002.356-.002.354-.002.354-.002.356-.002.354-.002.356-.002.356-.002.354-.002.356-.002.358-.002.356-.002.356-.002.358-.002.356-.002.358-.002.358-.002.356-.002.358-.002.36-.002.358-.002.358-.002.36-.002.358-.002.36-.002.36-.002.358-.002.36-.002.362-.002.36-.002.36-.002.362-.002.36-.002.362-.002.362-.002.36-.002.362-.002.364-.002.362-.002.362-.002.364-.002.362-.002.364-.002.364-.002.362-.002.364-.002.366-.002.364-.002.364-.002.366-.002.364-.002.366-.002.366-.002.364-.002.366-.002.368-.002.366-.002.366-.002.368-.002.366-.002.368-.002.368-.002.366-.002.368-.002.37-.002.366-.002.368-.002.37-.002.368-.002.37-.002.37-.002.368-.002.37-.002.372-.002.37-.002.37-.002.372-.002.37-.002.372-.002.372-.002.37-.002.372-.002.374-.002.372-.002.372-.002.374-.002.372-.002.374-.002.374-.002.372-.002.374-.002.376-.002.374-.002.374-.002.376-.002.374-.002.376-.002.376-.002.374-.002.376-.002.378-.002.376-.002.376-.002.378-.002.376-.002.378-.002.378-.002.376-.002.378-.002.38-.002.378-.002.378-.002.38-.002.378-.002.38-.002.38-.002.378-.002.38-.002.382-.002.38-.002.38-.002.382-.002.38-.002.382-.002.382-.002.38-.002.382-.002.384-.002.382-.002.382-.002.384-.002.382-.002.384-.002.384-.002.382-.002.384-.002.386-.002.384-.002.384-.002.386-.002.384-.002.386-.002.386-.002.384-.002.386-.002.388-.002.386-.002.386-.002.388-.002.386-.002.388-.002.388-.002.386-.002.388-.002.39-.002.388-.002.388-.002.39-.002.388-.002.39-.002.39-.002.388-.002.39-.002.392-.002.39-.002.39-.002.392-.002.39-.002.392-.002.392-.002.39-.002.392-.002.394-.002.392-.002.392-.002.394-.002.392-.002.394-.002.394-.002.392-.002.394-.002.396-.002.394-.002.394-.002.396-.002.394-.002.396-.002.396-.002.394-.002.396-.002.398-.002.396-.002.396-.002.398-.002.396-.002.398-.002.398-.002.396-.002.398-.002.4-.002.398-.002.398-.002.4-.002.398-.002.4-.002.4-.002.398-.002.4-.002.402-.002.4-.002.4-.002.402-.002.4-.002.402-.002.402-.002.4-.002.402-.002.404-.002.402-.002.402-.002.404-.002.402-.002.404-.002.404-.002.402-.002.404-.002.406-.002.404-.002.404-.002.406-.002.404-.002.406-.002.406-.002.404-.002.406-.002.408-.002.406-.002.406-.002.408-.002.406-.002.408-.002.408-.002.406-.002.408-.002.41-.002.408-.002.408-.002.41-.002.408-.002.41-.002.41-.002.408-.002.41-.002.412-.002.41-.002.41-.002.412-.002.41-.002.412-.002.412-.002.41-.002.412-.002.414-.002.412-.002.412-.002.414-.002.412-.002.414-.002.414-.002.412-.002.414-.002.416-.002.414-.002.414-.002.416-.002.414-.002.416-.002.416-.002.414-.002.416-.002.418-.002.416-.002.416-.002.418-.002.416-.002.418-.002.418-.002.416-.002.418-.002.42-.002.418-.002.418-.002.42-.002.418-.002.42-.002.42-.002.418-.002.42-.002.422-.002.42-.002.42-.002.422-.002.42-.002.422-.002.422-.002.42-.002.422-.002.424-.002.422-.002.422-.002.424-.002.422-.002.424-.002.424-.002.422-.002.424-.002.426-.002.424-.002.424-.002.426-.002.424-.002.426-.002.426-.002.424-.002.426-.002.428-.002.426-.002.426-.002.428-.002.426-.002.428-.002.428-.002.426-.002.428-.002.43-.002.428-.002.428-.002.43-.002.428-.002.43-.002.43-.002.428-.002.43-.002.432-.002.43-.002.43-.002.432-.002.43-.002.432-.002.432-.002.43-.002.432-.002.434-.002.432-.002.432-.002.434-.002.432-.002.434-.002.434-.002.432-.2" /></svg>
+                      </div>
+                      <span class="text-white font-semibold text-base">支付宝</span>
+                    </div>
+                    <i data-lucide="more-horizontal" class="w-5 h-5 text-white/60"></i>
+                  </div>
+                  <div>
+                    <div class="text-white/50 text-xs font-mono tracking-widest">**** **** **** 8642</div>
+                    <div class="text-white/70 text-xs mt-1">余额: ****.** 元</div>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/40 text-xs">ALIPAY</span>
+                    <div class="text-white text-lg font-bold">¥</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- WeChat Pay Card -->
+              <div class="relative rounded-2xl overflow-hidden cursor-pointer group" style="aspect-ratio:1.586/1;">
+                <div class="absolute inset-0 bg-gradient-to-br from-green-600 via-green-500 to-teal-600"></div>
+                <div class="absolute inset-0 opacity-10">
+                  <div class="absolute top-4 right-4 w-32 h-32 rounded-full border-2 border-white/20"></div>
+                  <div class="absolute -bottom-8 -left-8 w-40 h-40 rounded-full border-2 border-white/10"></div>
+                </div>
+                <div class="relative h-full p-5 flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <i data-lucide="message-circle" class="w-5 h-5 text-white"></i>
+                      </div>
+                      <span class="text-white font-semibold text-base">微信支付</span>
+                    </div>
+                    <i data-lucide="more-horizontal" class="w-5 h-5 text-white/60"></i>
+                  </div>
+                  <div>
+                    <div class="text-white/50 text-xs font-mono tracking-widest">**** **** **** 3157</div>
+                    <div class="text-white/70 text-xs mt-1">余额: ****.** 元</div>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/40 text-xs">WECHAT PAY</span>
+                    <div class="text-white text-lg font-bold">¥</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PayPal Card -->
+              <div class="relative rounded-2xl overflow-hidden cursor-pointer group" style="aspect-ratio:1.586/1;">
+                <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 via-blue-500 to-cyan-500"></div>
+                <div class="absolute inset-0 opacity-10">
+                  <div class="absolute top-4 right-4 w-32 h-32 rounded-full border-2 border-white/20"></div>
+                  <div class="absolute -bottom-8 -left-8 w-40 h-40 rounded-full border-2 border-white/10"></div>
+                </div>
+                <div class="relative h-full p-5 flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                      </div>
+                      <span class="text-white font-semibold text-base">PayPal</span>
+                    </div>
+                    <i data-lucide="more-horizontal" class="w-5 h-5 text-white/60"></i>
+                  </div>
+                  <div>
+                    <div class="text-white/50 text-xs font-mono tracking-widest">**** **** **** 9021</div>
+                    <div class="text-white/70 text-xs mt-1">Balance: ***.** USD</div>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-white/40 text-xs">PAYPAL</span>
+                    <div class="text-white text-lg font-bold">$</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Initialize Lucide icons
+      lucide.createIcons();
+
+      // Tab switching
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.dataset.tab;
+
+          // Update tab buttons
+          document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('border-primary', 'text-primary');
+            b.classList.add('border-transparent', 'text-muted-foreground');
+          });
+          btn.classList.remove('border-transparent', 'text-muted-foreground');
+          btn.classList.add('border-primary', 'text-primary');
+
+          // Update tab content
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+          document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+          // Re-render icons in newly visible tab
+          lucide.createIcons();
+        });
+      });
+
+      // View toggle
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.view-btn').forEach(b => {
+            b.classList.remove('bg-card', 'text-foreground', 'shadow-sm');
+            b.classList.add('text-muted-foreground');
+          });
+          btn.classList.add('bg-card', 'text-foreground', 'shadow-sm');
+          btn.classList.remove('text-muted-foreground');
+        });
+      });
+
+      // Filter toggle
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('bg-card', 'text-foreground', 'shadow-sm');
+            b.classList.add('text-muted-foreground');
+          });
+          btn.classList.add('bg-card', 'text-foreground', 'shadow-sm');
+          btn.classList.remove('text-muted-foreground');
+
+          const filter = btn.dataset.filter;
+          const tabMap = { image: 'images', doc: 'docs', wallet: 'wallets' };
+          if (tabMap[filter]) {
+            // Activate corresponding tab
+            document.querySelectorAll('.tab-btn').forEach(b => {
+              b.classList.remove('border-primary', 'text-primary');
+              b.classList.add('border-transparent', 'text-muted-foreground');
+            });
+            const targetTab = document.querySelector(`.tab-btn[data-tab="${tabMap[filter]}"]`);
+            if (targetTab) {
+              targetTab.classList.remove('border-transparent', 'text-muted-foreground');
+              targetTab.classList.add('border-primary', 'text-primary');
+            }
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById('tab-' + tabMap[filter]).classList.remove('hidden');
+            lucide.createIcons();
+          }
+        });
+      });
+    </script>
+</body>
+</html>

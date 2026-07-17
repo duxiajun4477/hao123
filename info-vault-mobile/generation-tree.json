@@ -1,0 +1,58 @@
+{
+  "root": {
+    "nodeId": "gen-mobile-shell",
+    "kind": "project-shell",
+    "pageIds": ["page-home", "page-vault", "page-collection", "page-profile"],
+    "output": "partials/mobile-shell.html",
+    "sharedRegions": ["bottom-nav", "page-header"],
+    "privateRegions": [],
+    "mutableSlots": ["activeNavItem"],
+    "status": "planned",
+    "children": [
+      {
+        "nodeId": "gen-page-home",
+        "kind": "page-leaf",
+        "pageIds": ["page-home"],
+        "output": "pages/home.html",
+        "sharedRegions": [],
+        "privateRegions": ["home-body"],
+        "mutableSlots": ["activeNavItem"],
+        "status": "planned",
+        "children": []
+      },
+      {
+        "nodeId": "gen-page-vault",
+        "kind": "page-leaf",
+        "pageIds": ["page-vault"],
+        "output": "pages/vault.html",
+        "sharedRegions": [],
+        "privateRegions": ["vault-body"],
+        "mutableSlots": ["activeNavItem"],
+        "status": "planned",
+        "children": []
+      },
+      {
+        "nodeId": "gen-page-collection",
+        "kind": "page-leaf",
+        "pageIds": ["page-collection"],
+        "output": "pages/collection.html",
+        "sharedRegions": [],
+        "privateRegions": ["collection-body"],
+        "mutableSlots": ["activeNavItem"],
+        "status": "planned",
+        "children": []
+      },
+      {
+        "nodeId": "gen-page-profile",
+        "kind": "page-leaf",
+        "pageIds": ["page-profile"],
+        "output": "pages/profile.html",
+        "sharedRegions": [],
+        "privateRegions": ["profile-body"],
+        "mutableSlots": ["activeNavItem"],
+        "status": "planned",
+        "children": []
+      }
+    ]
+  }
+}

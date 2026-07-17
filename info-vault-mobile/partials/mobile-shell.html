@@ -1,0 +1,55 @@
+<!-- Mobile App Shell -->
+<header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b"
+        style="background-color: var(--color-neutral-0, #0a0e1a); border-color: var(--color-neutral-300, #2d3650);">
+  <div class="flex items-center gap-2">
+    <svg class="w-7 h-7" viewBox="0 0 28 28" fill="none" stroke="#3b6ef6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="3" width="20" height="22" rx="3"/>
+      <circle cx="14" cy="14" r="5"/>
+      <line x1="14" y1="9" x2="14" y2="19"/>
+      <line x1="9" y1="14" x2="19" y2="14"/>
+    </svg>
+    <span class="text-base font-semibold tracking-tight" style="color: var(--color-neutral-950, #f3f4f8); font-family: var(--font-body, system-ui, sans-serif);">InfoVault</span>
+  </div>
+  <button class="relative flex items-center justify-center w-10 h-10 rounded-full" style="color: var(--color-neutral-800, #c1c7d4);" aria-label="通知">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+    <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background-color: var(--state-error, #ef4444);"></span>
+  </button>
+</header>
+
+<main id="page-content" class="pb-16 pt-14">
+  <!-- SLOT: activeNavItem -->
+</main>
+
+<nav data-mobile-nav="global" class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 border-t"
+     style="background-color: var(--color-neutral-0, #0a0e1a); border-color: var(--color-neutral-300, #2d3650);">
+  <button data-nav-key="home" data-active="true" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1" style="color: var(--color-primary-500, #3b6ef6);">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+      <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    </svg>
+    <span class="text-xs font-medium" style="font-family: var(--font-body, system-ui, sans-serif);">首页</span>
+  </button>
+  <button data-nav-key="vault" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1" style="color: var(--color-neutral-600, #7a8599);">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+    <span class="text-xs font-medium" style="font-family: var(--font-body, system-ui, sans-serif);">密码库</span>
+  </button>
+  <button data-nav-key="collection" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1" style="color: var(--color-neutral-600, #7a8599);">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+    </svg>
+    <span class="text-xs font-medium" style="font-family: var(--font-body, system-ui, sans-serif);">收藏夹</span>
+  </button>
+  <button data-nav-key="profile" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1" style="color: var(--color-neutral-600, #7a8599);">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="5"/>
+      <path d="M20 21a8 8 0 0 0-16 0"/>
+    </svg>
+    <span class="text-xs font-medium" style="font-family: var(--font-body, system-ui, sans-serif);">我的</span>
+  </button>
+</nav>

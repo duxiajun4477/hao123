@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - InfoVault</title>
+    <style id="theme-vars">
+/* ============================================
+   InfoVault - Personal Information Manager
+   Brand CSS: Deep Tech Blue
+   ============================================ */
+
+:root {
+  /* ---- Brand Primary (Cool Blue) ---- */
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dae6ff;
+  --color-primary-200: #b8d0ff;
+  --color-primary-300: #8db1ff;
+  --color-primary-400: #5f8fff;
+  --color-primary-500: #3b6ef6;
+  --color-primary-600: #2550e8;
+  --color-primary-700: #1d3dc7;
+  --color-primary-800: #1a33a3;
+  --color-primary-900: #1b2f87;
+  --color-primary-950: #142157;
+
+  /* ---- Neutral Scale (Cool Gray for dark UI) ---- */
+  --color-neutral-0: #0a0e1a;
+  --color-neutral-50: #111827;
+  --color-neutral-100: #1a2035;
+  --color-neutral-200: #222a3e;
+  --color-neutral-300: #2d3650;
+  --color-neutral-400: #3f4a63;
+  --color-neutral-500: #5a6580;
+  --color-neutral-600: #7a8599;
+  --color-neutral-700: #9aa3b4;
+  --color-neutral-800: #c1c7d4;
+  --color-neutral-900: #e5e8ee;
+  --color-neutral-950: #f3f4f8;
+
+  /* ---- State Colors ---- */
+  --state-success: #22c55e;
+  --state-warning: #f59e0b;
+  --state-error: #ef4444;
+  --state-info: #3b82f6;
+
+  /* ---- Semantic Aliases (Light) ---- */
+  --info-vault-background: #0a0e1a;
+  --info-vault-foreground: #e5e8ee;
+  --info-vault-card: #1a2035;
+  --info-vault-card-foreground: #e5e8ee;
+  --info-vault-popover: #222a3e;
+  --info-vault-popover-foreground: #e5e8ee;
+  --info-vault-primary: #3b6ef6;
+  --info-vault-primary-foreground: #ffffff;
+  --info-vault-muted: #2d3650;
+  --info-vault-muted-foreground: #9aa3b4;
+  --info-vault-border: #2d3650;
+  --info-vault-input: #1a2035;
+  --info-vault-ring: #3b6ef6;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* ---- Radius Semantic Aliases ---- */
+  --info-vault-radius-sm: var(--radius-sm);
+  --info-vault-radius-md: var(--radius-md);
+  --info-vault-radius-lg: var(--radius-lg);
+
+  /* ---- Typography ---- */
+  --font-display: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* ---- Typography Classes ---- */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-xs { font-size: var(--text-xs); line-height: var(--leading-normal); }
+.text-sm { font-size: var(--text-sm); line-height: var(--leading-normal); }
+.text-base { font-size: var(--text-base); line-height: var(--leading-normal); }
+.text-lg { font-size: var(--text-lg); line-height: var(--leading-tight); }
+.text-xl { font-size: var(--text-xl); line-height: var(--leading-tight); }
+.text-2xl { font-size: var(--text-2xl); line-height: var(--leading-tight); }
+.text-3xl { font-size: var(--text-3xl); line-height: var(--leading-tight); }
+.text-4xl { font-size: var(--text-4xl); line-height: var(--leading-tight); }
+
+.font-light { font-weight: var(--font-light); }
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+.leading-tight { line-height: var(--leading-tight); }
+.leading-normal { line-height: var(--leading-normal); }
+.leading-relaxed { line-height: var(--leading-relaxed); }
+
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide { letter-spacing: 0.025em; }
+
+/* ---- Spacing Scale ---- */
+.space-1 { margin: 0.25rem; }
+.space-2 { margin: 0.5rem; }
+.space-3 { margin: 0.75rem; }
+.space-4 { margin: 1rem; }
+.space-6 { margin: 1.5rem; }
+.space-8 { margin: 2rem; }
+.space-10 { margin: 2.5rem; }
+.space-12 { margin: 3rem; }
+.space-16 { margin: 4rem; }
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+/* ---- Shadow / Depth (Static surfaces use border, floating layers use subtle shadow) ---- */
+.shadow-card {
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-md);
+}
+.shadow-float {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Animation ---- */
+.transition-base {
+  transition: all 0.2s ease;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--info-vault-background);
+    --color-foreground: var(--info-vault-foreground);
+    --color-card: var(--info-vault-card);
+    --color-card-foreground: var(--info-vault-card-foreground);
+    --color-popover: var(--info-vault-popover);
+    --color-popover-foreground: var(--info-vault-popover-foreground);
+    --color-primary: var(--info-vault-primary);
+    --color-primary-foreground: var(--info-vault-primary-foreground);
+    --color-muted: var(--info-vault-muted);
+    --color-muted-foreground: var(--info-vault-muted-foreground);
+    --color-border: var(--info-vault-border);
+    --color-input: var(--info-vault-input);
+    --color-ring: var(--info-vault-ring);
+    --radius-sm: var(--info-vault-radius-sm);
+    --radius-md: var(--info-vault-radius-md);
+    --radius-lg: var(--info-vault-radius-lg);
+  }
+  @layer base {
+    body { background: var(--info-vault-background); color: var(--info-vault-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--info-vault-background); }
+      .text-background { color: var(--info-vault-background); }
+      .border-background { border-color: var(--info-vault-background); }
+      .ring-background { --tw-ring-color: var(--info-vault-background); }
+      .bg-foreground { background-color: var(--info-vault-foreground); }
+      .text-foreground { color: var(--info-vault-foreground); }
+      .border-foreground { border-color: var(--info-vault-foreground); }
+      .ring-foreground { --tw-ring-color: var(--info-vault-foreground); }
+      .bg-card { background-color: var(--info-vault-card); }
+      .text-card { color: var(--info-vault-card); }
+      .border-card { border-color: var(--info-vault-card); }
+      .ring-card { --tw-ring-color: var(--info-vault-card); }
+      .bg-card-foreground { background-color: var(--info-vault-card-foreground); }
+      .text-card-foreground { color: var(--info-vault-card-foreground); }
+      .border-card-foreground { border-color: var(--info-vault-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--info-vault-card-foreground); }
+      .bg-popover { background-color: var(--info-vault-popover); }
+      .text-popover { color: var(--info-vault-popover); }
+      .border-popover { border-color: var(--info-vault-popover); }
+      .ring-popover { --tw-ring-color: var(--info-vault-popover); }
+      .bg-popover-foreground { background-color: var(--info-vault-popover-foreground); }
+      .text-popover-foreground { color: var(--info-vault-popover-foreground); }
+      .border-popover-foreground { border-color: var(--info-vault-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--info-vault-popover-foreground); }
+      .bg-primary { background-color: var(--info-vault-primary); }
+      .text-primary { color: var(--info-vault-primary); }
+      .border-primary { border-color: var(--info-vault-primary); }
+      .ring-primary { --tw-ring-color: var(--info-vault-primary); }
+      .bg-primary-foreground { background-color: var(--info-vault-primary-foreground); }
+      .text-primary-foreground { color: var(--info-vault-primary-foreground); }
+      .border-primary-foreground { border-color: var(--info-vault-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--info-vault-primary-foreground); }
+      .bg-muted { background-color: var(--info-vault-muted); }
+      .text-muted { color: var(--info-vault-muted); }
+      .border-muted { border-color: var(--info-vault-muted); }
+      .ring-muted { --tw-ring-color: var(--info-vault-muted); }
+      .bg-muted-foreground { background-color: var(--info-vault-muted-foreground); }
+      .text-muted-foreground { color: var(--info-vault-muted-foreground); }
+      .border-muted-foreground { border-color: var(--info-vault-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--info-vault-muted-foreground); }
+      .bg-border { background-color: var(--info-vault-border); }
+      .text-border { color: var(--info-vault-border); }
+      .border-border { border-color: var(--info-vault-border); }
+      .ring-border { --tw-ring-color: var(--info-vault-border); }
+      .bg-input { background-color: var(--info-vault-input); }
+      .text-input { color: var(--info-vault-input); }
+      .border-input { border-color: var(--info-vault-input); }
+      .ring-input { --tw-ring-color: var(--info-vault-input); }
+      .bg-ring { background-color: var(--info-vault-ring); }
+      .text-ring { color: var(--info-vault-ring); }
+      .border-ring { border-color: var(--info-vault-ring); }
+      .ring-ring { --tw-ring-color: var(--info-vault-ring); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main style="font-family: var(--font-body);">
+<div class="flex h-screen">
+
+  <!-- Sidebar -->
+  <aside class="flex flex-col w-[240px] min-w-[240px] h-full" style="background-color: var(--color-neutral-50);">
+
+    <!-- Logo Area -->
+    <div class="flex items-center gap-3 px-5 py-5">
+      <div class="flex items-center justify-center w-9 h-9 rounded-lg" style="background-color: var(--color-primary-500);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-base font-semibold tracking-tight" style="color: var(--color-neutral-900);">InfoVault</div>
+        <div class="text-xs" style="color: var(--color-neutral-500);">信息金库</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 mt-2 px-3">
+      <ul class="flex flex-col gap-1">
+        <li>
+          <a href="#" data-nav-key="dashboard" class="nav-item group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: var(--color-neutral-600); border-left: 3px solid transparent;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="7" height="9" x="3" y="3" rx="1"/>
+              <rect width="7" height="5" x="14" y="3" rx="1"/>
+              <rect width="7" height="9" x="14" y="12" rx="1"/>
+              <rect width="7" height="5" x="3" y="16" rx="1"/>
+            </svg>
+            <span>仪表盘</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-nav-key="passwords" class="nav-item group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: var(--color-neutral-600); border-left: 3px solid transparent;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7.5" cy="15.5" r="5.5"/>
+              <path d="m21 2-9.3 9.3"/>
+              <path d="m18.4 4.6 1.6-1.6 1.6 1.6-1.6 1.6z"/>
+            </svg>
+            <span>密码管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-nav-key="collectibles" class="nav-item group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: var(--color-neutral-600); border-left: 3px solid transparent;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h16Z"/>
+              <path d="M2 10h20"/>
+            </svg>
+            <span>收藏管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-nav-key="settings" data-active="true" class="nav-item group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: #3b6ef6; background-color: rgba(59, 110, 246, 0.1); border-left: 3px solid #3b6ef6;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>设置</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Sync Status -->
+    <div class="flex items-center gap-2 px-5 py-4" style="border-top: 1px solid var(--color-neutral-300);">
+      <span class="inline-block w-2 h-2 rounded-full" style="background-color: var(--state-success);"></span>
+      <span class="text-xs" style="color: var(--color-neutral-500);">已同步 · 3分钟前</span>
+    </div>
+  </aside>
+
+  <!-- Main Area -->
+  <div class="flex-1 flex flex-col h-full" style="background-color: var(--color-neutral-0);">
+
+    <!-- Top Bar -->
+    <header class="flex items-center justify-between px-6 py-3.5" style="border-bottom: 1px solid var(--color-neutral-300); background-color: var(--color-neutral-50);">
+      <div class="flex items-center gap-2.5 flex-1 max-w-xl px-4 py-2 rounded-lg" style="background-color: var(--color-neutral-100); border: 1px solid var(--color-neutral-300);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-neutral-500);">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" placeholder="搜索网站、账号、密码、证件..." class="flex-1 bg-transparent border-none outline-none text-sm" style="color: var(--color-neutral-900);" />
+      </div>
+      <div class="flex items-center gap-4 ml-6">
+        <button class="relative flex items-center justify-center w-9 h-9 rounded-lg transition-base" style="color: var(--color-neutral-500);" onmouseover="this.style.backgroundColor='var(--color-neutral-200)'" onmouseout="this.style.backgroundColor='transparent'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+          </svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background-color: var(--color-primary-500);"></span>
+        </button>
+        <button class="flex items-center justify-center w-9 h-9 rounded-full" style="background-color: var(--color-primary-500); color: #ffffff; font-size: var(--text-sm); font-weight: var(--font-semibold);">
+          U
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="flex-1 overflow-auto p-6">
+      <!-- Page Title -->
+      <h1 class="text-2xl font-bold tracking-tight mb-6" style="color: var(--color-neutral-900);">设置</h1>
+
+      <!-- Two-Column Layout -->
+      <div class="flex gap-6">
+
+        <!-- Left Column: Settings Navigation -->
+        <nav class="w-[200px] min-w-[200px]">
+          <ul class="flex flex-col gap-1">
+            <li>
+              <button data-settings-nav="account" class="settings-nav-item w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: var(--color-primary-500); background-color: rgba(59, 110, 246, 0.1);">
+                账户安全
+              </button>
+            </li>
+            <li>
+              <button data-settings-nav="sync" class="settings-nav-item w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: var(--color-neutral-500);">
+                同步设置
+              </button>
+            </li>
+            <li>
+              <button data-settings-nav="data" class="settings-nav-item w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: var(--color-neutral-500);">
+                数据管理
+              </button>
+            </li>
+            <li>
+              <button data-settings-nav="appearance" class="settings-nav-item w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: var(--color-neutral-500);">
+                外观设置
+              </button>
+            </li>
+            <li>
+              <button data-settings-nav="about" class="settings-nav-item w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-base" style="color: var(--color-neutral-500);">
+                关于
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Right Column: Settings Content -->
+        <div class="flex-1 max-w-[680px]">
+
+          <!-- 账户安全 Section -->
+          <section class="mb-8">
+            <h2 class="text-lg font-semibold mb-5" style="color: var(--color-neutral-900);">账户安全</h2>
+            <div class="rounded-xl p-6" style="background-color: var(--color-neutral-50); border: 1px solid var(--color-neutral-300);">
+
+              <!-- 修改主密码 -->
+              <div class="pb-5 mb-5" style="border-bottom: 1px solid var(--color-neutral-300);">
+                <label class="block text-sm font-medium mb-2" style="color: var(--color-neutral-700);">修改主密码</label>
+                <div class="flex items-center gap-3">
+                  <div class="flex-1 px-3.5 py-2.5 rounded-lg text-sm" style="background-color: var(--color-neutral-100); border: 1px solid var(--color-neutral-300); color: var(--color-neutral-500); letter-spacing: 0.15em;">
+                    ••••••••••••
+                  </div>
+                  <button class="px-4 py-2.5 rounded-lg text-sm font-medium transition-base" style="background-color: var(--color-primary-500); color: #ffffff;" onmouseover="this.style.backgroundColor='var(--color-primary-600)'" onmouseout="this.style.backgroundColor='var(--color-primary-500)'">
+                    修改密码
+                  </button>
+                </div>
+              </div>
+
+              <!-- 两步验证 -->
+              <div class="flex items-center justify-between pb-5 mb-5" style="border-bottom: 1px solid var(--color-neutral-300);">
+                <div>
+                  <div class="text-sm font-medium" style="color: var(--color-neutral-800);">两步验证</div>
+                  <div class="text-xs mt-1" style="color: var(--color-neutral-500);">通过验证器应用获取登录验证码</div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button class="px-3.5 py-2 rounded-lg text-xs font-medium transition-base" style="background-color: var(--color-neutral-200); color: var(--color-neutral-600); border: 1px solid var(--color-neutral-400);">
+                    设置
+                  </button>
+                  <!-- Toggle ON -->
+                  <button class="relative w-11 h-6 rounded-full transition-base" style="background-color: var(--color-primary-500);" onclick="this.classList.toggle('off'); if(this.classList.contains('off')){this.style.backgroundColor='var(--color-neutral-400)';this.querySelector('span').style.transform='translateX(0)'}else{this.style.backgroundColor='var(--color-primary-500)';this.querySelector('span').style.transform='translateX(20px)'}">
+                    <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-base" style="transform: translateX(20px);"></span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 自动锁定 -->
+              <div class="flex items-center justify-between pb-5 mb-5" style="border-bottom: 1px solid var(--color-neutral-300);">
+                <div>
+                  <div class="text-sm font-medium" style="color: var(--color-neutral-800);">自动锁定</div>
+                  <div class="text-xs mt-1" style="color: var(--color-neutral-500);">无操作后自动锁定应用</div>
+                </div>
+                <select class="px-3.5 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background-color: var(--color-neutral-100); border: 1px solid var(--color-neutral-300); color: var(--color-neutral-800);">
+                  <option>1分钟</option>
+                  <option>3分钟</option>
+                  <option selected>5分钟</option>
+                  <option>10分钟</option>
+                  <option>15分钟</option>
+                  <option>30分钟</option>
+                  <option>从不</option>
+                </select>
+              </div>
+
+              <!-- 解锁方式 -->
+              <div>
+                <div class="text-sm font-medium mb-3" style="color: var(--color-neutral-800);">解锁方式</div>
+                <div class="flex items-center gap-6">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="unlock" value="faceid" class="w-4 h-4 accent-[#3b6ef6]" checked />
+                    <span class="text-sm" style="color: var(--color-neutral-600);">Face ID</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="unlock" value="touchid" class="w-4 h-4 accent-[#3b6ef6]" />
+                    <span class="text-sm" style="color: var(--color-neutral-600);">Touch ID</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="unlock" value="password" class="w-4 h-4 accent-[#3b6ef6]" />
+                    <span class="text-sm" style="color: var(--color-neutral-600);">密码</span>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- 同步设置 Section -->
+          <section class="mb-8">
+            <h2 class="text-lg font-semibold mb-5" style="color: var(--color-neutral-900);">同步设置</h2>
+            <div class="rounded-xl p-6" style="background-color: var(--color-neutral-50); border: 1px solid var(--color-neutral-300);">
+
+              <!-- 端到端加密 -->
+              <div class="flex items-center justify-between pb-5 mb-5" style="border-bottom: 1px solid var(--color-neutral-300);">
+                <div>
+                  <div class="text-sm font-medium" style="color: var(--color-neutral-800);">端到端加密</div>
+                  <div class="text-xs mt-1" style="color: var(--color-neutral-500);">所有数据在传输和存储时均使用端到端加密</div>
+                </div>
+                <!-- Toggle ON (green) -->
+                <button class="relative w-11 h-6 rounded-full transition-base" style="background-color: var(--state-success);" onclick="this.classList.toggle('off'); if(this.classList.contains('off')){this.style.backgroundColor='var(--color-neutral-400)';this.querySelector('span').style.transform='translateX(0)'}else{this.style.backgroundColor='var(--state-success)';this.querySelector('span').style.transform='translateX(20px)'}">
+                  <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-base" style="transform: translateX(20px);"></span>
+                </button>
+              </div>
+
+              <!-- 同步频率 -->
+              <div class="flex items-center justify-between pb-5 mb-5" style="border-bottom: 1px solid var(--color-neutral-300);">
+                <div>
+                  <div class="text-sm font-medium" style="color: var(--color-neutral-800);">同步频率</div>
+                  <div class="text-xs mt-1" style="color: var(--color-neutral-500);">设置数据自动同步的时间间隔</div>
+                </div>
+                <select class="px-3.5 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background-color: var(--color-neutral-100); border: 1px solid var(--color-neutral-300); color: var(--color-neutral-800);">
+                  <option>手动</option>
+                  <option>每小时</option>
+                  <option selected>实时</option>
+                </select>
+              </div>
+
+              <!-- 已连接设备 -->
+              <div>
+                <div class="text-sm font-medium mb-4" style="color: var(--color-neutral-800);">已连接设备</div>
+                <div class="flex flex-col gap-3">
+
+                  <!-- MacBook Pro -->
+                  <div class="flex items-center justify-between px-4 py-3 rounded-lg" style="background-color: var(--color-neutral-100);">
+                    <div class="flex items-center gap-3">
+                      <span class="inline-block w-2.5 h-2.5 rounded-full" style="background-color: var(--state-success);"></span>
+                      <div>
+                        <div class="text-sm font-medium" style="color: var(--color-neutral-800);">MacBook Pro</div>
+                        <div class="text-xs" style="color: var(--color-neutral-500);">活跃 · 最后同步 3分钟前</div>
+                      </div>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded-full font-medium" style="background-color: rgba(34, 197, 94, 0.12); color: var(--state-success);">当前设备</span>
+                  </div>
+
+                  <!-- iPhone 15 -->
+                  <div class="flex items-center justify-between px-4 py-3 rounded-lg" style="background-color: var(--color-neutral-100);">
+                    <div class="flex items-center gap-3">
+                      <span class="inline-block w-2.5 h-2.5 rounded-full" style="background-color: var(--state-success);"></span>
+                      <div>
+                        <div class="text-sm font-medium" style="color: var(--color-neutral-800);">iPhone 15</div>
+                        <div class="text-xs" style="color: var(--color-neutral-500);">活跃 · 最后同步 10分钟前</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- iPad Air -->
+                  <div class="flex items-center justify-between px-4 py-3 rounded-lg" style="background-color: var(--color-neutral-100);">
+                    <div class="flex items-center gap-3">
+                      <span class="inline-block w-2.5 h-2.5 rounded-full" style="background-color: var(--color-neutral-500);"></span>
+                      <div>
+                        <div class="text-sm font-medium" style="color: var(--color-neutral-800);">iPad Air</div>
+                        <div class="text-xs" style="color: var(--color-neutral-500);">离线 · 最后同步 2天前</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Windows PC -->
+                  <div class="flex items-center justify-between px-4 py-3 rounded-lg" style="background-color: var(--color-neutral-100);">
+                    <div class="flex items-center gap-3">
+                      <span class="inline-block w-2.5 h-2.5 rounded-full" style="background-color: var(--state-success);"></span>
+                      <div>
+                        <div class="text-sm font-medium" style="color: var(--color-neutral-800);">Windows PC</div>
+                        <div class="text-xs" style="color: var(--color-neutral-500);">活跃 · 最后同步 1小时前</div>
+                      </div>
+                    </div>
+                    <button class="px-3 py-1.5 rounded-lg text-xs font-medium transition-base" style="color: var(--state-error); background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);" onmouseover="this.style.backgroundColor='rgba(239, 68, 68, 0.18)'" onmouseout="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'">
+                      移除
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- 数据管理 Section -->
+          <section class="mb-8">
+            <h2 class="text-lg font-semibold mb-5" style="color: var(--color-neutral-900);">数据管理</h2>
+            <div class="rounded-xl p-6" style="background-color: var(--color-neutral-50); border: 1px solid var(--color-neutral-300);">
+
+              <!-- 数据导出 -->
+              <div class="pb-5 mb-5" style="border-bottom: 1px solid var(--color-neutral-300);">
+                <div class="text-sm font-medium mb-2" style="color: var(--color-neutral-800);">数据导出</div>
+                <div class="text-xs mb-3" style="color: var(--color-neutral-500);">将所有数据导出为指定格式的文件</div>
+                <div class="flex items-center gap-3">
+                  <select class="px-3.5 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background-color: var(--color-neutral-100); border: 1px solid var(--color-neutral-300); color: var(--color-neutral-800);">
+                    <option>JSON</option>
+                    <option>CSV</option>
+                    <option>Excel</option>
+                  </select>
+                  <button class="px-4 py-2 rounded-lg text-sm font-medium transition-base" style="background-color: var(--color-primary-500); color: #ffffff;" onmouseover="this.style.backgroundColor='var(--color-primary-600)'" onmouseout="this.style.backgroundColor='var(--color-primary-500)'">
+                    导出
+                  </button>
+                </div>
+              </div>
+
+              <!-- 数据导入 -->
+              <div class="pb-5 mb-5" style="border-bottom: 1px solid var(--color-neutral-300);">
+                <div class="text-sm font-medium mb-2" style="color: var(--color-neutral-800);">数据导入</div>
+                <div class="text-xs mb-3" style="color: var(--color-neutral-500);">从文件中导入数据到 InfoVault</div>
+                <div class="flex flex-col items-center justify-center py-8 rounded-lg border-2 border-dashed transition-base cursor-pointer" style="border-color: var(--color-neutral-400); background-color: var(--color-neutral-100);" onmouseover="this.style.borderColor='var(--color-primary-500)';this.style.backgroundColor='rgba(59, 110, 246, 0.04)'" onmouseout="this.style.borderColor='var(--color-neutral-400)';this.style.backgroundColor='var(--color-neutral-100)'">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-neutral-500);">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                  <p class="text-sm mt-2" style="color: var(--color-neutral-500);">拖拽文件到此处，或<span style="color: var(--color-primary-400);"> 点击浏览</span></p>
+                  <p class="text-xs mt-1" style="color: var(--color-neutral-500);">支持 JSON、CSV、Excel 格式</p>
+                </div>
+              </div>
+
+              <!-- 存储空间 -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="text-sm font-medium" style="color: var(--color-neutral-800);">存储空间</div>
+                  <div class="text-sm" style="color: var(--color-neutral-500);">1.2 GB / 5 GB</div>
+                </div>
+                <div class="w-full h-2.5 rounded-full overflow-hidden" style="background-color: var(--color-neutral-200);">
+                  <div class="h-full rounded-full" style="width: 24%; background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-400));"></div>
+                </div>
+                <div class="text-xs mt-2" style="color: var(--color-neutral-500);">已使用 24%，剩余 3.8 GB 可用空间</div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

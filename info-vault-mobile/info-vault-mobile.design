@@ -1,0 +1,76 @@
+{
+  "data": [
+    {
+      "id": "page-home",
+      "title": "首页",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1784255800000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0,
+        "deviceType": "desktop"
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/home.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-vault",
+      "title": "密码库",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1784255801000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/vault.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-collection",
+      "title": "收藏夹",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1784255802000,
+      "canvasData": {
+        "x": 1040,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/collection.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-profile",
+      "title": "我的",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1784255803000,
+      "canvasData": {
+        "x": 1460,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/profile.html",
+        "interactions": []
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "mobile",
+    "projectName": "InfoVault 信息金库",
+    "designLibrary": null,
+    "visualEditorEnabled": true
+  }
+}

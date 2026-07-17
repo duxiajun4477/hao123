@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - InfoVault</title>
+    <style id="theme-vars">
+/* ============================================
+   InfoVault - Personal Information Manager
+   Brand CSS: Deep Tech Blue
+   ============================================ */
+
+:root {
+  /* ---- Brand Primary (Cool Blue) ---- */
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dae6ff;
+  --color-primary-200: #b8d0ff;
+  --color-primary-300: #8db1ff;
+  --color-primary-400: #5f8fff;
+  --color-primary-500: #3b6ef6;
+  --color-primary-600: #2550e8;
+  --color-primary-700: #1d3dc7;
+  --color-primary-800: #1a33a3;
+  --color-primary-900: #1b2f87;
+  --color-primary-950: #142157;
+
+  /* ---- Neutral Scale (Cool Gray for dark UI) ---- */
+  --color-neutral-0: #0a0e1a;
+  --color-neutral-50: #111827;
+  --color-neutral-100: #1a2035;
+  --color-neutral-200: #222a3e;
+  --color-neutral-300: #2d3650;
+  --color-neutral-400: #3f4a63;
+  --color-neutral-500: #5a6580;
+  --color-neutral-600: #7a8599;
+  --color-neutral-700: #9aa3b4;
+  --color-neutral-800: #c1c7d4;
+  --color-neutral-900: #e5e8ee;
+  --color-neutral-950: #f3f4f8;
+
+  /* ---- State Colors ---- */
+  --state-success: #22c55e;
+  --state-warning: #f59e0b;
+  --state-error: #ef4444;
+  --state-info: #3b82f6;
+
+  /* ---- Semantic Aliases (Light) ---- */
+  --info-vault-background: #0a0e1a;
+  --info-vault-foreground: #e5e8ee;
+  --info-vault-card: #1a2035;
+  --info-vault-card-foreground: #e5e8ee;
+  --info-vault-popover: #222a3e;
+  --info-vault-popover-foreground: #e5e8ee;
+  --info-vault-primary: #3b6ef6;
+  --info-vault-primary-foreground: #ffffff;
+  --info-vault-muted: #2d3650;
+  --info-vault-muted-foreground: #9aa3b4;
+  --info-vault-border: #2d3650;
+  --info-vault-input: #1a2035;
+  --info-vault-ring: #3b6ef6;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* ---- Radius Semantic Aliases ---- */
+  --info-vault-radius-sm: var(--radius-sm);
+  --info-vault-radius-md: var(--radius-md);
+  --info-vault-radius-lg: var(--radius-lg);
+
+  /* ---- Typography ---- */
+  --font-display: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* ---- Typography Classes ---- */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-xs { font-size: var(--text-xs); line-height: var(--leading-normal); }
+.text-sm { font-size: var(--text-sm); line-height: var(--leading-normal); }
+.text-base { font-size: var(--text-base); line-height: var(--leading-normal); }
+.text-lg { font-size: var(--text-lg); line-height: var(--leading-tight); }
+.text-xl { font-size: var(--text-xl); line-height: var(--leading-tight); }
+.text-2xl { font-size: var(--text-2xl); line-height: var(--leading-tight); }
+.text-3xl { font-size: var(--text-3xl); line-height: var(--leading-tight); }
+.text-4xl { font-size: var(--text-4xl); line-height: var(--leading-tight); }
+
+.font-light { font-weight: var(--font-light); }
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+.leading-tight { line-height: var(--leading-tight); }
+.leading-normal { line-height: var(--leading-normal); }
+.leading-relaxed { line-height: var(--leading-relaxed); }
+
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide { letter-spacing: 0.025em; }
+
+/* ---- Spacing Scale ---- */
+.space-1 { margin: 0.25rem; }
+.space-2 { margin: 0.5rem; }
+.space-3 { margin: 0.75rem; }
+.space-4 { margin: 1rem; }
+.space-6 { margin: 1.5rem; }
+.space-8 { margin: 2rem; }
+.space-10 { margin: 2.5rem; }
+.space-12 { margin: 3rem; }
+.space-16 { margin: 4rem; }
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+/* ---- Shadow / Depth (Static surfaces use border, floating layers use subtle shadow) ---- */
+.shadow-card {
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-md);
+}
+.shadow-float {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Animation ---- */
+.transition-base {
+  transition: all 0.2s ease;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--info-vault-background);
+    --color-foreground: var(--info-vault-foreground);
+    --color-card: var(--info-vault-card);
+    --color-card-foreground: var(--info-vault-card-foreground);
+    --color-popover: var(--info-vault-popover);
+    --color-popover-foreground: var(--info-vault-popover-foreground);
+    --color-primary: var(--info-vault-primary);
+    --color-primary-foreground: var(--info-vault-primary-foreground);
+    --color-muted: var(--info-vault-muted);
+    --color-muted-foreground: var(--info-vault-muted-foreground);
+    --color-border: var(--info-vault-border);
+    --color-input: var(--info-vault-input);
+    --color-ring: var(--info-vault-ring);
+    --radius-sm: var(--info-vault-radius-sm);
+    --radius-md: var(--info-vault-radius-md);
+    --radius-lg: var(--info-vault-radius-lg);
+  }
+  @layer base {
+    body { background: var(--info-vault-background); color: var(--info-vault-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--info-vault-background); }
+      .text-background { color: var(--info-vault-background); }
+      .border-background { border-color: var(--info-vault-background); }
+      .ring-background { --tw-ring-color: var(--info-vault-background); }
+      .bg-foreground { background-color: var(--info-vault-foreground); }
+      .text-foreground { color: var(--info-vault-foreground); }
+      .border-foreground { border-color: var(--info-vault-foreground); }
+      .ring-foreground { --tw-ring-color: var(--info-vault-foreground); }
+      .bg-card { background-color: var(--info-vault-card); }
+      .text-card { color: var(--info-vault-card); }
+      .border-card { border-color: var(--info-vault-card); }
+      .ring-card { --tw-ring-color: var(--info-vault-card); }
+      .bg-card-foreground { background-color: var(--info-vault-card-foreground); }
+      .text-card-foreground { color: var(--info-vault-card-foreground); }
+      .border-card-foreground { border-color: var(--info-vault-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--info-vault-card-foreground); }
+      .bg-popover { background-color: var(--info-vault-popover); }
+      .text-popover { color: var(--info-vault-popover); }
+      .border-popover { border-color: var(--info-vault-popover); }
+      .ring-popover { --tw-ring-color: var(--info-vault-popover); }
+      .bg-popover-foreground { background-color: var(--info-vault-popover-foreground); }
+      .text-popover-foreground { color: var(--info-vault-popover-foreground); }
+      .border-popover-foreground { border-color: var(--info-vault-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--info-vault-popover-foreground); }
+      .bg-primary { background-color: var(--info-vault-primary); }
+      .text-primary { color: var(--info-vault-primary); }
+      .border-primary { border-color: var(--info-vault-primary); }
+      .ring-primary { --tw-ring-color: var(--info-vault-primary); }
+      .bg-primary-foreground { background-color: var(--info-vault-primary-foreground); }
+      .text-primary-foreground { color: var(--info-vault-primary-foreground); }
+      .border-primary-foreground { border-color: var(--info-vault-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--info-vault-primary-foreground); }
+      .bg-muted { background-color: var(--info-vault-muted); }
+      .text-muted { color: var(--info-vault-muted); }
+      .border-muted { border-color: var(--info-vault-muted); }
+      .ring-muted { --tw-ring-color: var(--info-vault-muted); }
+      .bg-muted-foreground { background-color: var(--info-vault-muted-foreground); }
+      .text-muted-foreground { color: var(--info-vault-muted-foreground); }
+      .border-muted-foreground { border-color: var(--info-vault-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--info-vault-muted-foreground); }
+      .bg-border { background-color: var(--info-vault-border); }
+      .text-border { color: var(--info-vault-border); }
+      .border-border { border-color: var(--info-vault-border); }
+      .ring-border { --tw-ring-color: var(--info-vault-border); }
+      .bg-input { background-color: var(--info-vault-input); }
+      .text-input { color: var(--info-vault-input); }
+      .border-input { border-color: var(--info-vault-input); }
+      .ring-input { --tw-ring-color: var(--info-vault-input); }
+      .bg-ring { background-color: var(--info-vault-ring); }
+      .text-ring { color: var(--info-vault-ring); }
+      .border-ring { border-color: var(--info-vault-ring); }
+      .ring-ring { --tw-ring-color: var(--info-vault-ring); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+      .search-glow:focus-within {
+        box-shadow: 0 0 0 2px rgba(59, 110, 246, 0.4), 0 0 20px rgba(59, 110, 246, 0.15);
+        border-color: #3b6ef6 !important;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased" style="background-color: #0a0e1a;">
+
+    <!-- ===== App Header ===== -->
+    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b"
+            style="background-color: #0a0e1a; border-color: #2d3650;">
+      <div class="flex items-center gap-2">
+        <svg class="w-7 h-7" viewBox="0 0 28 28" fill="none" stroke="#3b6ef6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="20" height="22" rx="3"/>
+          <circle cx="14" cy="14" r="5"/>
+          <line x1="14" y1="9" x2="14" y2="19"/>
+          <line x1="9" y1="14" x2="19" y2="14"/>
+        </svg>
+        <span class="text-base font-semibold tracking-tight" style="color: #f3f4f8; font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;">InfoVault</span>
+      </div>
+      <button class="relative flex items-center justify-center w-10 h-10 rounded-full" style="color: #c1c7d4;" aria-label="通知">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background-color: #ef4444;"></span>
+      </button>
+    </header>
+
+    <!-- ===== Main Content ===== -->
+    <main id="page-content" class="pb-16 pt-14">
+      <div class="max-w-md mx-auto px-4 py-5">
+
+        <!-- Section 1: Greeting Header -->
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex items-center justify-center w-11 h-11 rounded-full" style="background-color: rgba(59, 110, 246, 0.15);">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#3b6ef6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold tracking-tight" style="color: #f3f4f8; font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;">你好，用户</h1>
+            <p class="text-xs" style="color: #9aa3b4; font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;">你的数字资产安全管家</p>
+          </div>
+        </div>
+
+        <!-- Section 2: Search Bar -->
+        <div class="search-glow flex items-center gap-3 rounded-xl px-4 py-3 mb-6 transition-base"
+             style="background-color: #1a2035; border: 1.5px solid #2d3650;">
+          <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="#7a8599" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" placeholder="搜索任何信息..."
+                 class="flex-1 bg-transparent outline-none text-sm"
+                 style="color: #e5e8ee; font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif; caret-color: #3b6ef6;" />
+        </div>
+
+        <!-- Section 3: Category Grid (2x2) -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+          <!-- Card: 网站账号 -->
+          <a href="#" data-dom-id="link-vault"
+             class="flex flex-col gap-3 p-4 rounded-xl transition-base active:scale-[0.97]"
+             style="background-color: #1a2035; border: 1px solid #2d3650;">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full" style="background-color: rgba(59, 110, 246, 0.15);">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#3b6ef6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold" style="color: #e5e8ee;">网站账号</p>
+              <p class="text-xs" style="color: #7a8599;">32 个条目</p>
+            </div>
+          </a>
+
+          <!-- Card: 虚拟钱包 -->
+          <a href="#"
+             class="flex flex-col gap-3 p-4 rounded-xl transition-base active:scale-[0.97]"
+             style="background-color: #1a2035; border: 1px solid #2d3650;">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full" style="background-color: rgba(59, 110, 246, 0.15);">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#3b6ef6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold" style="color: #e5e8ee;">虚拟钱包</p>
+              <p class="text-xs" style="color: #7a8599;">5 个条目</p>
+            </div>
+          </a>
+
+          <!-- Card: 证件图片 -->
+          <a href="#" data-dom-id="link-collection"
+             class="flex flex-col gap-3 p-4 rounded-xl transition-base active:scale-[0.97]"
+             style="background-color: #1a2035; border: 1px solid #2d3650;">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full" style="background-color: rgba(59, 110, 246, 0.15);">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#3b6ef6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <circle cx="8" cy="12" r="2"/>
+                <path d="M16 10h2"/>
+                <path d="M16 14h2"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold" style="color: #e5e8ee;">证件图片</p>
+              <p class="text-xs" style="color: #7a8599;">12 个条目</p>
+            </div>
+          </a>
+
+          <!-- Card: 其他信息 -->
+          <a href="#"
+             class="flex flex-col gap-3 p-4 rounded-xl transition-base active:scale-[0.97]"
+             style="background-color: #1a2035; border: 1px solid #2d3650;">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full" style="background-color: rgba(59, 110, 246, 0.15);">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#3b6ef6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold" style="color: #e5e8ee;">其他信息</p>
+              <p class="text-xs" style="color: #7a8599;">18 个条目</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Section 4: Security Overview -->
+        <div class="rounded-xl p-4 mb-6" style="background-color: #1a2035; border: 1px solid #2d3650;">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-semibold" style="color: #e5e8ee;">安全概览</h2>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background-color: rgba(34, 197, 94, 0.15); color: #22c55e;">87%</span>
+          </div>
+          <!-- Status rows -->
+          <div class="flex items-center gap-4 mb-3">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full" style="background-color: #22c55e;"></span>
+              <span class="text-xs" style="color: #9aa3b4;">强密码</span>
+              <span class="text-xs font-semibold" style="color: #e5e8ee;">28/32</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full" style="background-color: #f59e0b;"></span>
+              <span class="text-xs" style="color: #9aa3b4;">需更新</span>
+              <span class="text-xs font-semibold" style="color: #e5e8ee;">3</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full" style="background-color: #ef4444;"></span>
+              <span class="text-xs" style="color: #9aa3b4;">弱密码</span>
+              <span class="text-xs font-semibold" style="color: #e5e8ee;">1</span>
+            </div>
+          </div>
+          <!-- Progress bar -->
+          <div class="w-full h-1.5 rounded-full overflow-hidden" style="background-color: #2d3650;">
+            <div class="h-full rounded-full" style="width: 87%; background: linear-gradient(90deg, #22c55e, #3b6ef6);"></div>
+          </div>
+        </div>
+
+        <!-- Section 5: Recently Used (horizontal scroll) -->
+        <div class="mb-6">
+          <h2 class="text-sm font-semibold mb-3" style="color: #e5e8ee;">最近使用</h2>
+          <div class="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4">
+
+            <!-- Card: GitHub -->
+            <div class="flex-shrink-0 w-40 rounded-xl p-4 transition-base active:scale-[0.97]"
+                 style="background-color: #1a2035; border: 1px solid #2d3650;">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg" style="background-color: #2d3650;">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#e5e8ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                    <path d="M9 18c-4.51 2-5-2-7-2"/>
+                  </svg>
+                </div>
+                <span class="text-sm font-semibold" style="color: #e5e8ee;">GitHub</span>
+              </div>
+              <p class="text-xs mb-1" style="color: #7a8599;">账号密码</p>
+              <p class="text-xs" style="color: #5a6580;">user****@gmail.com</p>
+              <p class="text-xs mt-2" style="color: #5a6580;">2 小时前</p>
+            </div>
+
+            <!-- Card: 微信支付 -->
+            <div class="flex-shrink-0 w-40 rounded-xl p-4 transition-base active:scale-[0.97]"
+                 style="background-color: #1a2035; border: 1px solid #2d3650;">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg" style="background-color: #2d3650;">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#e5e8ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+                  </svg>
+                </div>
+                <span class="text-sm font-semibold" style="color: #e5e8ee;">微信支付</span>
+              </div>
+              <p class="text-xs mb-1" style="color: #7a8599;">虚拟钱包</p>
+              <p class="text-xs" style="color: #5a6580;">绑定银行卡 3 张</p>
+              <p class="text-xs mt-2" style="color: #5a6580;">1 天前</p>
+            </div>
+
+            <!-- Card: 身份证 -->
+            <div class="flex-shrink-0 w-40 rounded-xl p-4 transition-base active:scale-[0.97]"
+                 style="background-color: #1a2035; border: 1px solid #2d3650;">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg" style="background-color: #2d3650;">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#e5e8ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <circle cx="8" cy="12" r="2"/>
+                    <path d="M16 10h2"/>
+                    <path d="M16 14h2"/>
+                  </svg>
+                </div>
+                <span class="text-sm font-semibold" style="color: #e5e8ee;">身份证</span>
+              </div>
+              <p class="text-xs mb-1" style="color: #7a8599;">证件图片</p>
+              <p class="text-xs" style="color: #5a6580;">正面 + 背面</p>
+              <p class="text-xs mt-2" style="color: #5a6580;">5 天前</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section 6: Quick Actions -->
+        <div class="flex items-center justify-center gap-8 py-2">
+          <button class="flex flex-col items-center gap-1.5 group">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full transition-base active:scale-[0.93]"
+                 style="background-color: #3b6ef6;">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <span class="text-xs font-medium" style="color: #c1c7d4;">添加</span>
+          </button>
+
+          <button class="flex flex-col items-center gap-1.5 group">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full transition-base active:scale-[0.93]"
+                 style="background-color: #1a2035; border: 1.5px solid #2d3650;">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#c1c7d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+                <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                <line x1="7" y1="12" x2="17" y2="12"/>
+              </svg>
+            </div>
+            <span class="text-xs font-medium" style="color: #c1c7d4;">扫码</span>
+          </button>
+
+          <button class="flex flex-col items-center gap-1.5 group">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full transition-base active:scale-[0.93]"
+                 style="background-color: #1a2035; border: 1.5px solid #2d3650;">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#c1c7d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </div>
+            <span class="text-xs font-medium" style="color: #c1c7d4;">导出</span>
+          </button>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ===== Bottom Navigation ===== -->
+    <nav data-mobile-nav="global" class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 border-t"
+         style="background-color: #0a0e1a; border-color: #2d3650;">
+      <button data-nav-key="home" data-active="true" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1" style="color: #3b6ef6;">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+          <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        <span class="text-xs font-medium" style="font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;">首页</span>
+      </button>
+      <button data-nav-key="vault" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1" style="color: #7a8599;">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span class="text-xs font-medium" style="font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;">密码库</span>
+      </button>
+      <button data-nav-key="collection" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1" style="color: #7a8599;">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span class="text-xs font-medium" style="font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;">收藏夹</span>
+      </button>
+      <button data-nav-key="profile" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1" style="color: #7a8599;">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="5"/>
+          <path d="M20 21a8 8 0 0 0-16 0"/>
+        </svg>
+        <span class="text-xs font-medium" style="font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;">我的</span>
+      </button>
+    </nav>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{
+  "root": {
+    "nodeId": "gen-desktop-shell",
+    "kind": "project-shell",
+    "pageIds": ["page-dashboard", "page-passwords", "page-collectibles", "page-settings"],
+    "output": "partials/desktop-shell.html",
+    "sharedRegions": ["sidebar", "topbar"],
+    "privateRegions": [],
+    "mutableSlots": ["activeNavItem"],
+    "status": "planned",
+    "children": [
+      {
+        "nodeId": "gen-page-dashboard",
+        "kind": "page-leaf",
+        "pageIds": ["page-dashboard"],
+        "output": "pages/dashboard.html",
+        "sharedRegions": [],
+        "privateRegions": ["dashboard-body"],
+        "mutableSlots": ["activeNavItem"],
+        "status": "planned",
+        "children": []
+      },
+      {
+        "nodeId": "gen-page-passwords",
+        "kind": "page-leaf",
+        "pageIds": ["page-passwords"],
+        "output": "pages/passwords.html",
+        "sharedRegions": [],
+        "privateRegions": ["passwords-body"],
+        "mutableSlots": ["activeNavItem"],
+        "status": "planned",
+        "children": []
+      },
+      {
+        "nodeId": "gen-page-collectibles",
+        "kind": "page-leaf",
+        "pageIds": ["page-collectibles"],
+        "output": "pages/collectibles.html",
+        "sharedRegions": [],
+        "privateRegions": ["collectibles-body"],
+        "mutableSlots": ["activeNavItem"],
+        "status": "planned",
+        "children": []
+      },
+      {
+        "nodeId": "gen-page-settings",
+        "kind": "page-leaf",
+        "pageIds": ["page-settings"],
+        "output": "pages/settings.html",
+        "sharedRegions": [],
+        "privateRegions": ["settings-body"],
+        "mutableSlots": ["activeNavItem"],
+        "status": "planned",
+        "children": []
+      }
+    ]
+  }
+}

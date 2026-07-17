@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preflight</title>
+    <style id="theme-vars">
+/* ============================================
+   InfoVault - Personal Information Manager
+   Brand CSS: Deep Tech Blue
+   ============================================ */
+
+:root {
+  /* ---- Brand Primary (Cool Blue) ---- */
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dae6ff;
+  --color-primary-200: #b8d0ff;
+  --color-primary-300: #8db1ff;
+  --color-primary-400: #5f8fff;
+  --color-primary-500: #3b6ef6;
+  --color-primary-600: #2550e8;
+  --color-primary-700: #1d3dc7;
+  --color-primary-800: #1a33a3;
+  --color-primary-900: #1b2f87;
+  --color-primary-950: #142157;
+
+  /* ---- Neutral Scale (Cool Gray for dark UI) ---- */
+  --color-neutral-0: #0a0e1a;
+  --color-neutral-50: #111827;
+  --color-neutral-100: #1a2035;
+  --color-neutral-200: #222a3e;
+  --color-neutral-300: #2d3650;
+  --color-neutral-400: #3f4a63;
+  --color-neutral-500: #5a6580;
+  --color-neutral-600: #7a8599;
+  --color-neutral-700: #9aa3b4;
+  --color-neutral-800: #c1c7d4;
+  --color-neutral-900: #e5e8ee;
+  --color-neutral-950: #f3f4f8;
+
+  /* ---- State Colors ---- */
+  --state-success: #22c55e;
+  --state-warning: #f59e0b;
+  --state-error: #ef4444;
+  --state-info: #3b82f6;
+
+  /* ---- Semantic Aliases (Light) ---- */
+  --info-vault-background: #0a0e1a;
+  --info-vault-foreground: #e5e8ee;
+  --info-vault-card: #1a2035;
+  --info-vault-card-foreground: #e5e8ee;
+  --info-vault-popover: #222a3e;
+  --info-vault-popover-foreground: #e5e8ee;
+  --info-vault-primary: #3b6ef6;
+  --info-vault-primary-foreground: #ffffff;
+  --info-vault-muted: #2d3650;
+  --info-vault-muted-foreground: #9aa3b4;
+  --info-vault-border: #2d3650;
+  --info-vault-input: #1a2035;
+  --info-vault-ring: #3b6ef6;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* ---- Radius Semantic Aliases ---- */
+  --info-vault-radius-sm: var(--radius-sm);
+  --info-vault-radius-md: var(--radius-md);
+  --info-vault-radius-lg: var(--radius-lg);
+
+  /* ---- Typography ---- */
+  --font-display: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* ---- Typography Classes ---- */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-xs { font-size: var(--text-xs); line-height: var(--leading-normal); }
+.text-sm { font-size: var(--text-sm); line-height: var(--leading-normal); }
+.text-base { font-size: var(--text-base); line-height: var(--leading-normal); }
+.text-lg { font-size: var(--text-lg); line-height: var(--leading-tight); }
+.text-xl { font-size: var(--text-xl); line-height: var(--leading-tight); }
+.text-2xl { font-size: var(--text-2xl); line-height: var(--leading-tight); }
+.text-3xl { font-size: var(--text-3xl); line-height: var(--leading-tight); }
+.text-4xl { font-size: var(--text-4xl); line-height: var(--leading-tight); }
+
+.font-light { font-weight: var(--font-light); }
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+
+.leading-tight { line-height: var(--leading-tight); }
+.leading-normal { line-height: var(--leading-normal); }
+.leading-relaxed { line-height: var(--leading-relaxed); }
+
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide { letter-spacing: 0.025em; }
+
+/* ---- Spacing Scale ---- */
+.space-1 { margin: 0.25rem; }
+.space-2 { margin: 0.5rem; }
+.space-3 { margin: 0.75rem; }
+.space-4 { margin: 1rem; }
+.space-6 { margin: 1.5rem; }
+.space-8 { margin: 2rem; }
+.space-10 { margin: 2.5rem; }
+.space-12 { margin: 3rem; }
+.space-16 { margin: 4rem; }
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+/* ---- Shadow / Depth (Static surfaces use border, floating layers use subtle shadow) ---- */
+.shadow-card {
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-md);
+}
+.shadow-float {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Animation ---- */
+.transition-base {
+  transition: all 0.2s ease;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--info-vault-background);
+    --color-foreground: var(--info-vault-foreground);
+    --color-card: var(--info-vault-card);
+    --color-card-foreground: var(--info-vault-card-foreground);
+    --color-popover: var(--info-vault-popover);
+    --color-popover-foreground: var(--info-vault-popover-foreground);
+    --color-primary: var(--info-vault-primary);
+    --color-primary-foreground: var(--info-vault-primary-foreground);
+    --color-muted: var(--info-vault-muted);
+    --color-muted-foreground: var(--info-vault-muted-foreground);
+    --color-border: var(--info-vault-border);
+    --color-input: var(--info-vault-input);
+    --color-ring: var(--info-vault-ring);
+    --radius-sm: var(--info-vault-radius-sm);
+    --radius-md: var(--info-vault-radius-md);
+    --radius-lg: var(--info-vault-radius-lg);
+  }
+  @layer base {
+    body { background: var(--info-vault-background); color: var(--info-vault-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--info-vault-background); }
+      .text-background { color: var(--info-vault-background); }
+      .border-background { border-color: var(--info-vault-background); }
+      .ring-background { --tw-ring-color: var(--info-vault-background); }
+      .bg-foreground { background-color: var(--info-vault-foreground); }
+      .text-foreground { color: var(--info-vault-foreground); }
+      .border-foreground { border-color: var(--info-vault-foreground); }
+      .ring-foreground { --tw-ring-color: var(--info-vault-foreground); }
+      .bg-card { background-color: var(--info-vault-card); }
+      .text-card { color: var(--info-vault-card); }
+      .border-card { border-color: var(--info-vault-card); }
+      .ring-card { --tw-ring-color: var(--info-vault-card); }
+      .bg-card-foreground { background-color: var(--info-vault-card-foreground); }
+      .text-card-foreground { color: var(--info-vault-card-foreground); }
+      .border-card-foreground { border-color: var(--info-vault-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--info-vault-card-foreground); }
+      .bg-popover { background-color: var(--info-vault-popover); }
+      .text-popover { color: var(--info-vault-popover); }
+      .border-popover { border-color: var(--info-vault-popover); }
+      .ring-popover { --tw-ring-color: var(--info-vault-popover); }
+      .bg-popover-foreground { background-color: var(--info-vault-popover-foreground); }
+      .text-popover-foreground { color: var(--info-vault-popover-foreground); }
+      .border-popover-foreground { border-color: var(--info-vault-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--info-vault-popover-foreground); }
+      .bg-primary { background-color: var(--info-vault-primary); }
+      .text-primary { color: var(--info-vault-primary); }
+      .border-primary { border-color: var(--info-vault-primary); }
+      .ring-primary { --tw-ring-color: var(--info-vault-primary); }
+      .bg-primary-foreground { background-color: var(--info-vault-primary-foreground); }
+      .text-primary-foreground { color: var(--info-vault-primary-foreground); }
+      .border-primary-foreground { border-color: var(--info-vault-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--info-vault-primary-foreground); }
+      .bg-muted { background-color: var(--info-vault-muted); }
+      .text-muted { color: var(--info-vault-muted); }
+      .border-muted { border-color: var(--info-vault-muted); }
+      .ring-muted { --tw-ring-color: var(--info-vault-muted); }
+      .bg-muted-foreground { background-color: var(--info-vault-muted-foreground); }
+      .text-muted-foreground { color: var(--info-vault-muted-foreground); }
+      .border-muted-foreground { border-color: var(--info-vault-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--info-vault-muted-foreground); }
+      .bg-border { background-color: var(--info-vault-border); }
+      .text-border { color: var(--info-vault-border); }
+      .border-border { border-color: var(--info-vault-border); }
+      .ring-border { --tw-ring-color: var(--info-vault-border); }
+      .bg-input { background-color: var(--info-vault-input); }
+      .text-input { color: var(--info-vault-input); }
+      .border-input { border-color: var(--info-vault-input); }
+      .ring-input { --tw-ring-color: var(--info-vault-input); }
+      .bg-ring { background-color: var(--info-vault-ring); }
+      .text-ring { color: var(--info-vault-ring); }
+      .border-ring { border-color: var(--info-vault-ring); }
+      .ring-ring { --tw-ring-color: var(--info-vault-ring); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

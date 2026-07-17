@@ -1433,15 +1433,15 @@ showDetailPassword()">${this.icons.eye}</button></div>
         break;
       case 'email': body = `
         <div class="detail-section">
-          <div class="detail-section-title">邮箱信息</div>
+          <div class="detail-section-title">📧 邮箱信息</div>
           <div class="detail-grid">
-            <div class="detail-label">邮箱地址</div><div class="detail-value" style="font-weight:600;">${this._escape(entry.email)}</div>
-            <div class="detail-label">用户名</div><div class="detail-value mono">${this._escape(entry.username || '')}</div>
-            <div class="detail-label">密码</div><div class="detail-value mono"><span id="detailEmailPw">${'•'.repeat(12)}</span> <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.password)}','密码已复制')">${this.icons.copy}</button>
-              <button class="btn btn-icon btn-ghost" onclick="document.getElementById('detailEmailPw').textContent='${this._escape(entry.password)}'">${this.icons.eye}</button></div>
+            <div class="detail-label">邮箱地址</div><div class="detail-value" style="font-weight:600;">${this._escape(entry.email)} <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.email)}','邮箱已复制')" title="复制邮箱" style="display:inline-flex;width:28px;height:28px;">${this.icons.copy}</button></div>
+            <div class="detail-label">用户名</div><div class="detail-value mono">${this._escape(entry.username || '')} <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.username)}','用户名已复制')" title="复制用户名" style="display:inline-flex;width:28px;height:28px;">${this.icons.copy}</button></div>
+            <div class="detail-label">密码</div><div class="detail-value mono"><span id="detailEmailPw">${'•'.repeat(12)}</span> <button class="btn btn-icon" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.password)}','密码已复制')" title="复制密码" style="background:rgba(59,110,246,0.1);color:var(--color-primary-500);width:28px;height:28px;">${this.icons.copy}</button>
+              <button class="btn btn-icon btn-ghost" onclick="document.getElementById('detailEmailPw').textContent='${this._escape(entry.password)}'" title="显示密码" style="width:28px;height:28px;">${this.icons.eye}</button></div>
             <div class="detail-label">SMTP</div><div class="detail-value mono">${entry.smtpHost || '-'}:${entry.smtpPort || '-'}</div>
             <div class="detail-label">IMAP</div><div class="detail-value mono">${entry.imapHost || '-'}:${entry.imapPort || '-'}</div>
-            <div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-green">${entry.category || '个人'}</span></div>
+            <div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-green">${this._escape(entry.category || '个人')}</span></div>
           </div>
         </div>`;
         break;

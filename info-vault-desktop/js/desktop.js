@@ -990,6 +990,8 @@ var InfoVaultApp = {
     }
     const hash = await this._hashPassword(pwd);
     await InfoVaultDB.setSetting('master_password_hash', hash);
+    // 立即激活加密密钥，之后添加的数据都会加密存储
+    await InfoVaultDB.setEncryptionKey(pwd);
     this.toast('主密码已设置');
     this.closeModal();
     this.renderView(this.currentView);
@@ -998,6 +1000,7 @@ var InfoVaultApp = {
   async clearMasterPassword() {
     if (!confirm('确定清除主密码？同步数据将不再加密。')) return;
     await InfoVaultDB.setSetting('master_password_hash', '');
+    InfoVaultDB.setEncryptionKey(null);
     this.toast('主密码已清除');
     this.renderView(this.currentView);
   },

@@ -5,6 +5,7 @@ var InfoVaultApp = {
   currentView: 'dashboard',
   currentItem: null,
   searchTimeout: null,
+  _pageCache: {},
 
   // SVG 图标集合
   icons: {
@@ -231,7 +232,7 @@ var InfoVaultApp = {
     window.addEventListener('beforeunload', () => { if (InfoVaultSync.isConfigured()) InfoVaultSync.push(); });
     // 多标签页同步
     try { this._bc = new BroadcastChannel('infovault-sync');
-      this._bc.onmessage = () => this.renderView(this.currentView);
+      this._bc.onmessage = () => this.navigateTo(this.currentView);
     } catch(e) {}
   },
 
@@ -248,42 +249,43 @@ var InfoVaultApp = {
   },
 
   // ====== 导航 ======
-  navigateTo(view) {
+    navigateTo(view) {
     this.currentView = view;
-    // 更新导航高亮
-    document.querySelectorAll('[data-view]').forEach(el => {
-      el.classList.toggle('active', el.dataset.view === view);
-    });
-    // 更新标题
-    const titles = {
-      dashboard: '仪表盘', passwords: '密码管理', wallets: '虚拟钱包',
-      identities: '证件管理', notes: '安全笔记', bookmarks: '收藏夹',
-      images: '图片管理', emails: '邮箱账号', crypto: '加密货币', files: '文件管理', trash: '回收站',
-      settings: '设置', help: '帮助与支持'
-    };
-    document.getElementById('pageTitle').textContent = titles[view] || view;
-    // 渲染视图
-    this.renderView(view);
+    document.querySelectorAll('[data-view]').forEach(function(el){el.classList.toggle('active',el.dataset.view===view);});
+    var titles={dashboard:'仪表盘',passwords:'密码管理',wallets:'电子钱包',identities:'证件管理',notes:'安全笔记',bookmarks:'收藏夹',images:'图片管理',emails:'邮箱账号',crypto:'加密货币',files:'文件管理',trash:'回收站',settings:'设置',help:'帮助与支持'};
+    document.getElementById('pageTitle').textContent=titles[view]||view;
+    if(this._pageCache[view]&&!['settings','help','trash'].includes(view)){
+      document.getElementById('contentArea').innerHTML=this._pageCache[view];
+      return;
+    }
+    var self=this;
+    requestAnimationFrame(function(){self._renderViewAsync(view);});
   },
 
-  async renderView(view) {
-    const area = document.getElementById('contentArea');
-    switch (view) {
-      case 'dashboard': await this.renderDashboard(area); break;
-      case 'passwords': await this.renderPasswords(area); break;
-      case 'wallets': await this.renderWallets(area); break;
-      case 'identities': await this.renderIdentities(area); break;
-      case 'notes': await this.renderNotes(area); break;
-      case 'bookmarks': await this.renderBookmarks(area); break;
-      case 'images': await this.renderImages(area); break;
-      case 'emails': await this.renderEmails(area); break;
-      case 'crypto': await this.renderCrypto(area); break;
-      case 'files': await this.renderFiles(area); break;
-      case 'trash': await this.renderTrash(area); break;
-      case 'settings': await this.renderSettings(area); break;
-      case 'help': await this.renderHelp(area); break;
-      default: area.innerHTML = '<div class="empty-state"><h3>页面开发中</h3></div>';
+  _renderViewAsync(view){
+    var area=document.getElementById('contentArea');
+    var self=this;
+    switch(view){
+      case'dashboard':self.renderDashboard(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'passwords':self.renderPasswords(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'wallets':self.renderWallets(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'identities':self.renderIdentities(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'notes':self.renderNotes(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'bookmarks':self.renderBookmarks(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'images':self.renderImages(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'emails':self.renderEmails(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'crypto':self.renderCrypto(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'files':self.renderFiles(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'trash':self.renderTrash(area).then(function(){self._pageCache[view]=area.innerHTML;});break;
+      case'settings':self.renderSettings(area);break;
+      case'help':self.renderHelp(area);break;
+      default:area.innerHTML='<div class="empty-state"><h3>页面开发中</h3></div>';
     }
+  },
+
+  invalidateCache(view){
+    if(view){delete this._pageCache[view];}
+    else{this._pageCache={};}
   },
 
   // ====== 仪表盘 ======
@@ -462,7 +464,7 @@ var InfoVaultApp = {
         <div class="table-wrap">
           <table id="idTable">
             <thead><tr><th>证件类型</th><th>姓名</th><th>证件号码</th><th>发证机关</th><th>有效期</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr style="cursor:pointer;" onclick="InfoVaultApp.openItem('${e.id}')">
+            <tbody>${entries.map(e => `<tr>
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <span class="badge badge-purple">${this._escape(e.identityType || '其他')}</span>
               </div></td>
@@ -554,8 +556,8 @@ var InfoVaultApp = {
         ${entries.length === 0 ? '<div class="empty-state" style="padding:60px 20px;"><h3>还没有邮箱账号</h3><p>添加你的邮箱账号，安全存储邮箱密码和服务器配置</p></div>' : `
         <div class="table-wrap">
           <table id="emailTable">
-            <thead><tr><th>邮箱</th><th>用户名</th><th>密码</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr style="cursor:pointer;" onclick="InfoVaultApp.openItem('${e.id}')">
+            <thead><tr><th>邮箱</th><th>用户名</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
+            <tbody>${entries.map(e => `<tr>
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,0.12);color:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.note}</div>
                 <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.email || e.name)}</span>
@@ -653,7 +655,7 @@ var InfoVaultApp = {
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有图片</h3><p>点击上传按钮添加图片</p></div>' : `
       <div class="image-grid" id="imgGrid">
         ${entries.map(e => `
-          <div class="image-card" onclick="InfoVaultApp.viewImageDirect('${e.id}')">
+          <div class="image-card" onclick="InfoVaultApp.openItem('${e.id}')">
             <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
             </div>
@@ -697,7 +699,7 @@ var InfoVaultApp = {
       // 等待所有文件处理完成
       setTimeout(() => {
         this.toast(`已上传 ${e.target.files.length} 张图片`);
-        this.renderView(this.currentView);
+        this.navigateTo(this.currentView);
         if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       }, 500);
     };
@@ -763,7 +765,7 @@ var InfoVaultApp = {
   async restoreEntry(id) {
     await InfoVaultDB.restore(id);
     this.toast('已恢复');
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
     if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
   },
 
@@ -771,7 +773,7 @@ var InfoVaultApp = {
     if (!confirm('永久删除此条目？不可恢复！')) return;
     await InfoVaultDB.delete(id, true);
     this.toast('已永久删除');
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
   },
 
   async emptyTrash() {
@@ -782,7 +784,7 @@ var InfoVaultApp = {
       await InfoVaultDB.delete(e.id, true);
     }
     this.toast('回收站已清空');
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
   },
 
   // ====== 演示数据 ======
@@ -818,7 +820,7 @@ var InfoVaultApp = {
       await InfoVaultDB.add(demo);
     }
     this.toast(`已添加 ${demos.length} 条演示数据`);
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
   },
   async renderSettings(area) {
     const syncStatus = InfoVaultSync.getStatus();
@@ -935,14 +937,14 @@ var InfoVaultApp = {
     await InfoVaultDB.setSetting('master_password_hash', hash);
     this.toast('主密码已设置');
     this.closeModal();
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
   },
 
   async clearMasterPassword() {
     if (!confirm('确定清除主密码？同步数据将不再加密。')) return;
     await InfoVaultDB.setSetting('master_password_hash', '');
     this.toast('主密码已清除');
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
   },
 
   toggleAutoLock(checked) {
@@ -1142,7 +1144,7 @@ var InfoVaultApp = {
         await InfoVaultDB.add({ ...data, type: 'password' });
         this.toast('密码已添加');
       }
-      this.closeModal(); this.renderView(this.currentView);
+      this.invalidateCache(this.currentView);this.closeModal();this.navigateTo(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1170,7 +1172,7 @@ var InfoVaultApp = {
       if (!data.name) { this.toast('请填写名称', 'error'); return false; }
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'wallet' }); this.toast('钱包已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'wallet' }); this.toast('钱包已添加'); }
-      this.closeModal(); this.renderView(this.currentView);
+      this.invalidateCache(this.currentView);this.closeModal();this.navigateTo(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1194,7 +1196,7 @@ var InfoVaultApp = {
       if (!data.realName || !data.idNumber) { this.toast('请填写姓名和证件号码', 'error'); return false; }
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'identity' }); this.toast('证件已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'identity' }); this.toast('证件已添加'); }
-      this.closeModal(); this.renderView(this.currentView);
+      this.invalidateCache(this.currentView);this.closeModal();this.navigateTo(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1212,7 +1214,7 @@ var InfoVaultApp = {
       data.tags = data.tags ? data.tags.split(/[,，]/).map(t => t.trim()).filter(Boolean) : [];
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, name: data.title || '无标题', type: 'note' }); this.toast('笔记已更新'); }
       else { await InfoVaultDB.add({ ...data, name: data.title || '无标题', type: 'note' }); this.toast('笔记已添加'); }
-      this.closeModal(); this.renderView(this.currentView);
+      this.invalidateCache(this.currentView);this.closeModal();this.navigateTo(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1232,7 +1234,7 @@ var InfoVaultApp = {
       data.name = data.title || data.url;
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'bookmark' }); this.toast('收藏已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'bookmark' }); this.toast('收藏已添加'); }
-      this.closeModal(); this.renderView(this.currentView);
+      this.invalidateCache(this.currentView);this.closeModal();this.navigateTo(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1262,7 +1264,7 @@ var InfoVaultApp = {
       data.name = data.email;
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'email' }); this.toast('邮箱已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'email' }); this.toast('邮箱已添加'); }
-      this.closeModal(); this.renderView(this.currentView);
+      this.invalidateCache(this.currentView);this.closeModal();this.navigateTo(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1291,7 +1293,7 @@ var InfoVaultApp = {
       if (!data.name) { this.toast('请填写名称', 'error'); return false; }
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'crypto' }); this.toast('钱包已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'crypto' }); this.toast('钱包已添加'); }
-      this.closeModal(); this.renderView(this.currentView);
+      this.invalidateCache(this.currentView);this.closeModal();this.navigateTo(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1323,7 +1325,7 @@ var InfoVaultApp = {
       }
       setTimeout(() => {
         this.toast(`已上传 ${e.target.files.length} 个文件`);
-        this.renderView(this.currentView);
+        this.navigateTo(this.currentView);
         if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       }, 500);
     };
@@ -1427,61 +1429,6 @@ var InfoVaultApp = {
           </div>
         </div>`;
         break;
-      case 'note': body = `
-        <div class="detail-section">
-          <div class="detail-section-title">📝 笔记内容</div>
-          <div style="font-size:var(--text-sm);color:var(--color-neutral-800);line-height:1.8;white-space:pre-wrap;background:rgba(26,32,53,0.4);padding:16px;border-radius:10px;border:1px solid rgba(45,54,80,0.3);margin-bottom:12px;">${this._escape(entry.content || '')}</div>
-          <button class="btn btn-sm btn-secondary" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.content)}','笔记已复制')">${this.icons.copy} 复制全部</button>
-          ${entry.tags?.length ? entry.tags.map(t => `<span class="badge badge-gray">#${this._escape(t)}</span>`).join('') : ''}
-        </div>
-        <div class="detail-section"><div class="detail-section-title">时间</div><div class="detail-grid">
-          <div class="detail-label">创建</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.createdAt).toLocaleString()}</div>
-          <div class="detail-label">更新</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.updatedAt).toLocaleString()}</div>
-        </div></div>`;
-        break;
-      case 'bookmark': body = `
-        <div class="detail-section">
-          <div class="detail-section-title">🔖 收藏信息</div>
-          <div class="detail-grid">
-            <div class="detail-label">标题</div><div class="detail-value" style="font-weight:600;font-size:var(--text-base);">${this._escape(entry.title || entry.name)}</div>
-            <div class="detail-label">URL</div><div class="detail-value mono" style="font-size:12px;">${entry.url ? `<a href="${this._escape(entry.url)}" target="_blank" style="color:var(--color-primary-500);">${this._escape(entry.url)}</a>` : '-'}</div>
-            <div class="detail-label">操作</div><div class="detail-value" style="display:flex;gap:8px;">
-              ${entry.url ? `<button class="btn btn-sm btn-primary" onclick="window.open('${this._escape(entry.url)}','_blank')">${this.icons.link} 打开</button><button class="btn btn-sm btn-secondary" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.url)}','链接已复制')">${this.icons.copy} 复制</button>` : ''}
-            </div>
-            <div class="detail-label">描述</div><div class="detail-value" style="font-size:var(--text-sm);color:var(--color-neutral-700);">${this._escape(entry.description || '-')}</div>
-            ${entry.tags?.length ? `<div class="detail-label">标签</div><div class="detail-value"><div style="display:flex;gap:4px;flex-wrap:wrap;">${entry.tags.map(t => `<span class="badge badge-gray">#${this._escape(t)}</span>`).join('')}</div></div>` : ''}
-          </div>
-        </div>`;
-        break;
-      case 'image': body = `
-        <div class="detail-section">
-          <div class="detail-section-title">🖼️ 图片信息</div>
-          <div class="detail-grid">
-            <div class="detail-label">文件名</div><div class="detail-value">${this._escape(entry.filename || entry.name)}</div>
-            <div class="detail-label">大小</div><div class="detail-value">${entry.fileSize || '未知'}</div>
-            <div class="detail-label">类型</div><div class="detail-value">${entry.mimeType || '未知'}</div>
-            <div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-green">${this._escape(entry.category || '未分类')}</span></div>
-          </div>
-          ${entry.dataUrl ? `<div style="margin-top:16px;border-radius:12px;overflow:hidden;border:1px solid rgba(45,54,80,0.3);cursor:pointer;" onclick="InfoVaultApp.viewImage('${entry.id}')"><img src="${entry.dataUrl}" style="width:100%;max-height:300px;object-fit:contain;background:rgba(0,0,0,0.3);" alt="${this._escape(entry.name)}"><div style="text-align:center;padding:6px;font-size:11px;color:var(--color-neutral-500);background:rgba(0,0,0,0.2);">点击放大</div></div>` : ''}
-        </div>`;
-        break;
-      case 'file': body = `
-        <div class="detail-section">
-          <div class="detail-section-title">📄 文件信息</div>
-          <div class="detail-grid">
-            <div class="detail-label">文件名</div><div class="detail-value" style="font-weight:600;">${this._escape(entry.filename || entry.name)}</div>
-            <div class="detail-label">大小</div><div class="detail-value">${entry.fileSize || '未知'}</div>
-            <div class="detail-label">类型</div><div class="detail-value">${entry.mimeType || '未知'}</div>
-            <div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-blue">${this._escape(entry.category || '未分类')}</span></div>
-            ${entry.description ? `<div class="detail-label">介绍</div><div class="detail-value" style="font-size:var(--text-sm);color:var(--color-neutral-700);background:rgba(26,32,53,0.3);padding:8px 12px;border-radius:6px;">${this._escape(entry.description)}</div>` : ''}
-            <div class="detail-label">上传时间</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.createdAt).toLocaleString()}</div>
-          </div>
-          <div style="margin-top:16px;display:flex;gap:8px;">
-            <button class="btn btn-primary" onclick="InfoVaultApp.downloadFile('${entry.id}')">${this.icons.download} 下载文件</button>
-            <button class="btn btn-secondary" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.filename || entry.name)}','文件名已复制')">${this.icons.copy} 复制文件名</button>
-          </div>
-        </div>`;
-        break;
       default: body = `<pre style="font-size:var(--text-sm);color:var(--color-neutral-800);white-space:pre-wrap;">${JSON.stringify(entry, null, 2)}</pre>`;
     }
 
@@ -1501,48 +1448,6 @@ var InfoVaultApp = {
     const pw = el.dataset.pw || '';
     const copyIcon = this.icons.copy;
     el.innerHTML = `${pw} <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard(document.getElementById('detailPw').dataset.pw,'密码已复制')">${copyIcon}</button>`;
-  },
-
-  viewImage(id){
-    var entry = this._currentDetailEntry;
-    if(!entry||!entry.dataUrl)return;
-    this.closeModal();
-    this._showImageViewer(entry.dataUrl, id);
-  },
-
-  async viewImageDirect(id){
-    try {
-      var entry = await InfoVaultDB.get(id);
-      if(!entry){this.toast('找不到图片数据','error');return;}
-      if(!entry.dataUrl){
-        // 如果没有 dataUrl，回退到详情查看
-        this.openItem(id);
-        return;
-      }
-      this._showImageViewer(entry.dataUrl, id);
-    } catch(e) {
-      this.toast('加载图片失败: '+e.message,'error');
-      console.error('viewImageDirect error:', e);
-    }
-  },
-
-  _showImageViewer(dataUrl, id){
-    var ov = document.createElement('div');
-    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
-    ov.onclick = function(e){if(e.target===ov)document.body.removeChild(ov);};
-    var img = document.createElement('img');
-    img.src = dataUrl;
-    img.style.cssText = 'max-width:92vw;max-height:88vh;object-fit:contain;border-radius:10px;box-shadow:0 0 80px rgba(0,0,0,0.6);transition:transform 0.1s;';
-    var scale = 1;
-    ov.onwheel = function(e){e.preventDefault();scale+=e.deltaY>0?-0.15:0.15;scale=Math.max(0.3,Math.min(4,scale));img.style.transform='scale('+scale+')';};
-    ov.appendChild(img);
-    var bar = document.createElement('div');
-    bar.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10000;';
-    bar.innerHTML = '<button style="padding:8px 18px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;font-size:13px;" onclick="this.parentElement.previousElementSibling.style.transform=\'scale(1)\'">\u21bb \u91cd\u7f6e</button>' +
-      '<button style="padding:8px 18px;background:rgba(59,110,246,0.3);color:#fff;border:1px solid rgba(59,110,246,0.4);border-radius:8px;cursor:pointer;font-size:13px;" onclick="InfoVaultApp.downloadImage(\''+id+'\')">\u2b07 \u4e0b\u8f7d</button>' +
-      '<button style="padding:8px 18px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;font-size:13px;" onclick="document.body.removeChild(this.parentElement.parentElement)">\u2715 \u5173\u95ed</button>';
-    ov.appendChild(bar);
-    document.body.appendChild(ov);
   },
 
   // ====== 编辑/删除 ======
@@ -1566,7 +1471,7 @@ var InfoVaultApp = {
     await InfoVaultDB.delete(id);
     this.toast('已删除');
     this.closeModal();
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
     if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
   },
 
@@ -1574,7 +1479,7 @@ var InfoVaultApp = {
     const entry = await InfoVaultDB.get(id);
     if (!entry) return;
     await InfoVaultDB.update(id, { favorite: !entry.favorite });
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
   },
 
   async deleteSelected() {
@@ -1585,7 +1490,7 @@ var InfoVaultApp = {
       await InfoVaultDB.delete(cb.dataset.id);
     }
     this.toast(`已删除 ${checks.length} 个条目`);
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
     if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
   },
 
@@ -1737,7 +1642,7 @@ var InfoVaultApp = {
         if (!Array.isArray(data)) throw new Error('无效的格式');
         const count = await InfoVaultDB.importAll(data, 'overwrite');
         this.toast(`已导入 ${count} 条数据`);
-        this.renderView(this.currentView);
+        this.navigateTo(this.currentView);
       } catch (err) {
         this.toast('导入失败: ' + err.message, 'error');
       }
@@ -1757,7 +1662,7 @@ var InfoVaultApp = {
       req.onerror = (e) => reject(e.target.error);
     });
     this.toast('所有数据已清除');
-    this.renderView(this.currentView);
+    this.navigateTo(this.currentView);
   },
 
   // ====== 辅助方法 ======

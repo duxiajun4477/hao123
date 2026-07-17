@@ -555,7 +555,7 @@ var InfoVaultApp = {
         <div class="table-wrap">
           <table id="emailTable">
             <thead><tr><th>邮箱</th><th>用户名</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr>
+            <tbody>${entries.map(e => `<tr style="cursor:pointer;" onclick="InfoVaultApp.openItem('${e.id}')">
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,0.12);color:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.note}</div>
                 <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.email || e.name)}</span>

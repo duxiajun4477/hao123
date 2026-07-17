@@ -251,30 +251,34 @@ var InfoVaultApp = {
   },
 
   async resetMasterPassword() {
-    this._showModal('⚠️ 重置应用', `
-      <div style="text-align:center;padding:12px 0;">
-        <div style="font-size:48px;margin-bottom:16px;">🗑️</div>
-        <h3 style="font-size:18px;font-weight:600;color:var(--color-neutral-900);margin-bottom:8px;">确定要重置所有数据吗？</h3>
-        <p style="font-size:var(--text-sm);color:var(--color-neutral-500);line-height:1.6;margin-bottom:8px;">
-          此操作将永久删除所有本地数据：<br>
-          主密码 · 所有条目 · 同步配置
-        </p>
-        <p style="font-size:var(--text-xs);color:var(--state-warning);">
-          💡 如果配置过 GitHub 同步，重置后重新连接即可恢复数据
-        </p>
+    // 直接在锁屏界面内显示重置确认（不用模态框，避免被锁屏遮挡）
+    const overlay = document.getElementById('unlockOverlay');
+    const dialog = overlay.querySelector('.unlock-dialog');
+    dialog.innerHTML = `
+      <div style="font-size:48px;margin-bottom:16px;">🗑️</div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--color-neutral-900);margin-bottom:12px;">确定要重置所有数据吗？</h2>
+      <p style="font-size:var(--text-sm);color:var(--color-neutral-500);line-height:1.8;margin-bottom:16px;">
+        此操作将永久删除所有本地数据：<br>
+        🔑 主密码 · 📄 所有条目 · ⚙️ 同步配置
+      </p>
+      <p style="font-size:var(--text-xs);color:var(--state-warning);margin-bottom:24px;">
+        💡 如果配置过 GitHub 同步，重置后重新连接即可恢复
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button class="btn btn-secondary" onclick="InfoVaultApp.cancelReset()" style="flex:1;">取消</button>
+        <button class="btn btn-danger" onclick="InfoVaultApp.confirmReset()" style="flex:1;padding:12px;">确认重置</button>
       </div>
-      <div class="form-actions" style="margin-top:20px;">
-        <button class="btn btn-secondary" onclick="InfoVaultApp.closeModal()">取消</button>
-        <button class="btn btn-danger" onclick="InfoVaultApp.confirmReset()">确认重置</button>
-      </div>
-    `);
+    `;
+  },
+
+  cancelReset() {
+    location.reload();
   },
 
   async confirmReset() {
-    this.closeModal();
-    // 显示正在重置的提示
     const overlay = document.getElementById('unlockOverlay');
-    if (overlay) overlay.innerHTML = '<div class="unlock-dialog" style="text-align:center;"><div style="font-size:48px;margin-bottom:16px;">⏳</div><h2 style="font-size:24px;font-weight:700;color:var(--color-neutral-900);">正在重置...</h2></div>';
+    const dialog = overlay.querySelector('.unlock-dialog');
+    dialog.innerHTML = '<div style="font-size:48px;margin-bottom:16px;">⏳</div><h2 style="font-size:22px;font-weight:700;color:var(--color-neutral-900);">正在重置...</h2><p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-top:8px;">请稍候</p>';
     // 清除所有数据
     const db = await InfoVaultDB.open();
     const tx = db.transaction('entries', 'readwrite');

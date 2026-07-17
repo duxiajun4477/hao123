@@ -43,6 +43,9 @@ var InfoVaultApp = {
     image: '图片',
     note: '笔记',
     bookmark: '收藏',
+    email: '邮箱',
+    crypto: '加密货币',
+    file: '文件',
   },
 
   typeColors: {
@@ -52,6 +55,9 @@ var InfoVaultApp = {
     image: '#22c55e',
     note: '#3b82f6',
     bookmark: '#ec4899',
+    email: '#22c55e',
+    crypto: '#f59e0b',
+    file: '#3b82f6',
   },
 
   // ====== 初始化 ======
@@ -180,6 +186,53 @@ var InfoVaultApp = {
 
     // 加载默认视图
     this.navigateTo('dashboard');
+
+    // 安全 & 同步增强
+    this._setupSecurityAndSync();
+  },
+
+  _setupSecurityAndSync() {
+    // 剪贴板30秒后自动清除（劫持copyToClipboard）
+    const origCopy = this.copyToClipboard.bind(this);
+    this.copyToClipboard = (text, msg) => {
+      navigator.clipboard.writeText(text).then(() => {
+        this.toast(msg || '已复制（30秒后自动清除）');
+        if (this._clipboardTimer) clearTimeout(this._clipboardTimer);
+        this._clipboardTimer = setTimeout(() => {
+          navigator.clipboard.writeText('').catch(() => {});
+          this._clipboardTimer = null;
+        }, 30000);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+        this.toast(msg || '已复制');
+      });
+    };
+    // 闲置5分钟自动锁定
+    const resetIdle = () => {
+      if (this._idleTimer) clearTimeout(this._idleTimer);
+      this._idleTimer = setTimeout(() => {
+        InfoVaultDB.getSetting('master_password_hash').then(hash => {
+          if (hash && InfoVaultDB.isEncryptionEnabled()) { this.lock(); this.toast('闲置超时，已自动锁定','info'); }
+        });
+      }, 300000);
+    };
+    ['mousemove','keydown','click','scroll','touchstart'].forEach(e => document.addEventListener(e, resetIdle, {passive:true}));
+    resetIdle();
+    // 页面可见时拉取，隐藏时推送
+    document.addEventListener('visibilitychange', () => {
+      if (!InfoVaultSync.isConfigured()) return;
+      if (document.visibilityState === 'visible') InfoVaultSync.pull();
+      else InfoVaultSync.push();
+    });
+    // 关闭前推送
+    window.addEventListener('beforeunload', () => { if (InfoVaultSync.isConfigured()) InfoVaultSync.push(); });
+    // 多标签页同步
+    try { this._bc = new BroadcastChannel('infovault-sync');
+      this._bc.onmessage = () => this.renderView(this.currentView);
+    } catch(e) {}
   },
 
   lock() {
@@ -205,7 +258,7 @@ var InfoVaultApp = {
     const titles = {
       dashboard: '仪表盘', passwords: '密码管理', wallets: '虚拟钱包',
       identities: '证件管理', notes: '安全笔记', bookmarks: '收藏夹',
-      images: '图片管理', trash: '回收站',
+      images: '图片管理', emails: '邮箱账号', crypto: '加密货币', files: '文件管理', trash: '回收站',
       settings: '设置', help: '帮助与支持'
     };
     document.getElementById('pageTitle').textContent = titles[view] || view;
@@ -223,6 +276,9 @@ var InfoVaultApp = {
       case 'notes': await this.renderNotes(area); break;
       case 'bookmarks': await this.renderBookmarks(area); break;
       case 'images': await this.renderImages(area); break;
+      case 'emails': await this.renderEmails(area); break;
+      case 'crypto': await this.renderCrypto(area); break;
+      case 'files': await this.renderFiles(area); break;
       case 'trash': await this.renderTrash(area); break;
       case 'settings': await this.renderSettings(area); break;
       case 'help': await this.renderHelp(area); break;
@@ -482,7 +538,107 @@ var InfoVaultApp = {
     `;
   },
 
-  // ====== 图片管理 ======
+  // ====== 邮箱账号 ======
+  async renderEmails(area) {
+    const entries = await InfoVaultDB.getAll('email');
+    area.innerHTML = `
+      <div class="toolbar">
+        <div class="search-box" style="width:260px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" placeholder="搜索邮箱..." oninput="InfoVaultApp.filterGeneric(this.value, '#emailTable tbody tr')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" onclick="InfoVaultApp.showAddEmail()" style="background:#22c55e;">${this.icons.plus} 添加邮箱</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        ${entries.length === 0 ? '<div class="empty-state" style="padding:60px 20px;"><h3>还没有邮箱账号</h3><p>添加你的邮箱账号，安全存储邮箱密码和服务器配置</p></div>' : `
+        <div class="table-wrap">
+          <table id="emailTable">
+            <thead><tr><th>邮箱</th><th>用户名</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
+            <tbody>${entries.map(e => `<tr>
+              <td><div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,0.12);color:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.note}</div>
+                <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.email || e.name)}</span>
+              </div></td>
+              <td style="color:var(--color-neutral-600);font-size:var(--text-xs);">${this._escape(e.username || '')}</td>
+              <td><span class="badge badge-green">${this._escape(e.category || '个人')}</span></td>
+              <td style="font-size:var(--text-xs);color:var(--color-neutral-500);font-family:var(--font-mono);">${e.smtpHost ? e.smtpHost + ':' + e.smtpPort : '-'}</td>
+              <td style="font-size:var(--text-xs);color:var(--color-neutral-500);">${this._timeAgo(e.updatedAt)}</td>
+              <td style="text-align:right;"><div style="display:flex;gap:4px;justify-content:flex-end;">
+                <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.editEntry('${e.id}')">${this.icons.edit}</button>
+                <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.deleteEntry('${e.id}')" style="color:#ef4444;">${this.icons.trash}</button>
+              </div></td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>`}
+      </div>
+    `;
+  },
+
+  // ====== 加密货币钱包 ======
+  async renderCrypto(area) {
+    const entries = await InfoVaultDB.getAll('crypto');
+    area.innerHTML = `
+      <div class="toolbar">
+        <div class="search-box" style="width:260px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" placeholder="搜索链/地址..." oninput="InfoVaultApp.filterGeneric(this.value, '#cryptoGrid .crypto-card')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" onclick="InfoVaultApp.showAddCrypto()" style="background:#f59e0b;">${this.icons.plus} 添加钱包</button>
+      </div>
+      ${entries.length === 0 ? '<div class="empty-state"><h3>还没有加密货币钱包</h3><p>安全存储你的私钥、助记词和Keystore</p></div>' : `
+      <div class="stat-grid" id="cryptoGrid">
+        ${entries.map(e => `
+          <div class="stat-card crypto-card" style="cursor:pointer;flex-direction:column;align-items:stretch;" onclick="InfoVaultApp.openItem('${e.id}')">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+              <div class="stat-icon orange" style="width:36px;height:36px;">${this.icons.key}</div>
+              <div style="flex:1;">
+                <div style="font-weight:600;color:var(--color-neutral-900);font-size:var(--text-sm);">${this._escape(e.name)}</div>
+                <span class="badge badge-orange">${this._escape(e.chain || 'ETH')}</span>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--color-neutral-500);font-family:var(--font-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${this._escape(this._maskStr(e.address, 10))}</div>
+            <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--color-neutral-500);">
+              ${e.privateKey ? '<span>🔑 有私钥</span>' : ''}
+              ${e.seedPhrase ? '<span>📝 有助记词</span>' : ''}
+              ${e.keystore ? '<span>📦 有Keystore</span>' : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>`}
+    `;
+  },
+
+  // ====== 文件管理 ======
+  async renderFiles(area) {
+    const entries = await InfoVaultDB.getAll('file');
+    area.innerHTML = `
+      <div class="toolbar">
+        <div class="search-box" style="width:260px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" placeholder="搜索文件名..." oninput="InfoVaultApp.filterGeneric(this.value, '#fileGrid .file-card')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" onclick="InfoVaultApp.uploadFile()">${this.icons.plus} 上传文件</button>
+      </div>
+      ${entries.length === 0 ? '<div class="empty-state"><h3>还没有文件</h3><p>上传文档、PDF、压缩包等任意文件，加密存储</p></div>' : `
+      <div class="stat-grid" id="fileGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
+        ${entries.map(e => `
+          <div class="card file-card" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.1);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.download}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:500;color:var(--color-neutral-900);font-size:var(--text-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(e.name)}</div>
+                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}</div>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--color-neutral-500);margin-top:8px;">${this._timeAgo(e.updatedAt)}</div>
+          </div>
+        `).join('')}
+      </div>`}
+    `;
+  },
   async renderImages(area) {
     const entries = await InfoVaultDB.getAll('image');
     area.innerHTML = `
@@ -651,6 +807,12 @@ var InfoVaultApp = {
       { type: 'bookmark', name: 'InfoVault', url: 'https://github.com', title: 'InfoVault 项目', description: '个人信息管理工具', tags: ['技术', '项目'] },
       { type: 'bookmark', name: 'TailwindCSS', url: 'https://tailwindcss.com', title: 'Tailwind CSS', description: 'Utility-first CSS framework', tags: ['前端', 'CSS'] },
       { type: 'bookmark', name: 'React文档', url: 'https://react.dev', title: 'React', description: '用于构建用户界面的 JavaScript 库', tags: ['前端', '框架'] },
+      // 邮箱
+      { type: 'email', name: 'Gmail', email: 'user@gmail.com', username: 'user', password: 'Gmail@2024!', smtpHost: 'smtp.gmail.com', smtpPort: '587', imapHost: 'imap.gmail.com', imapPort: '993', category: '个人' },
+      { type: 'email', name: '公司邮箱', email: 'zhangsan@company.com', username: 'zhangsan', password: 'Work@2024!', smtpHost: 'smtp.company.com', smtpPort: '465', imapHost: 'imap.company.com', imapPort: '993', category: '工作' },
+      // 加密货币
+      { type: 'crypto', name: '主钱包', chain: 'ETH', address: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18', privateKey: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', seedPhrase: 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about', password: 'Wallet@2024!' },
+      { type: 'crypto', name: 'Solana钱包', chain: 'SOL', address: '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLvBf', privateKey: '5B3X1VqFQgKQjFGhqf...', password: 'Sol@2024!' },
     ];
     for (const demo of demos) {
       await InfoVaultDB.add(demo);
@@ -1076,6 +1238,108 @@ var InfoVaultApp = {
     });
   },
 
+  // ====== 邮箱表单 ======
+  showAddEmail(entry) {
+    const isEdit = !!entry;
+    this._showForm('邮箱', isEdit, `
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">邮箱地址 *</label><input class="form-input" id="f_email" value="${this._escape(entry?.email || '')}" placeholder="user@example.com"></div>
+        <div class="form-group"><label class="form-label">用户名</label><input class="form-input" id="f_username" value="${this._escape(entry?.username || '')}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">密码</label><input class="form-input" id="f_password" type="text" value="${this._escape(entry?.password || '')}" placeholder="邮箱密码" style="font-family:var(--font-mono);"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">SMTP 服务器</label><input class="form-input" id="f_smtpHost" value="${this._escape(entry?.smtpHost || '')}" placeholder="smtp.example.com"></div>
+        <div class="form-group"><label class="form-label">SMTP 端口</label><input class="form-input" id="f_smtpPort" value="${entry?.smtpPort || '465'}" placeholder="465"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">IMAP 服务器</label><input class="form-input" id="f_imapHost" value="${this._escape(entry?.imapHost || '')}" placeholder="imap.example.com"></div>
+        <div class="form-group"><label class="form-label">IMAP 端口</label><input class="form-input" id="f_imapPort" value="${entry?.imapPort || '993'}" placeholder="993"></div>
+      </div>
+      <div class="form-group"><label class="form-label">分类</label><select class="form-select" id="f_category">${InfoVaultDB.CATEGORIES.email.map(c => `<option value="${c}" ${entry?.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+    `, async () => {
+      const data = this._gatherForm(['email', 'username', 'password', 'smtpHost', 'smtpPort', 'imapHost', 'imapPort', 'category']);
+      if (!data.email) { this.toast('请填写邮箱地址', 'error'); return false; }
+      data.name = data.email;
+      if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'email' }); this.toast('邮箱已更新'); }
+      else { await InfoVaultDB.add({ ...data, type: 'email' }); this.toast('邮箱已添加'); }
+      this.closeModal(); this.renderView(this.currentView);
+      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
+      return true;
+    });
+  },
+
+  // ====== 加密货币表单 ======
+  showAddCrypto(entry) {
+    const isEdit = !!entry;
+    this._showForm('加密货币钱包', isEdit, `
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">名称 *</label><input class="form-input" id="f_name" value="${this._escape(entry?.name || '')}" placeholder="我的ETH钱包"></div>
+        <div class="form-group"><label class="form-label">链/网络</label><select class="form-select" id="f_chain"><option value="ETH" ${entry?.chain === 'ETH' ? 'selected' : ''}>以太坊 (ETH)</option><option value="BSC" ${entry?.chain === 'BSC' ? 'selected' : ''}>币安链 (BSC)</option><option value="SOL" ${entry?.chain === 'SOL' ? 'selected' : ''}>Solana (SOL)</option><option value="BTC" ${entry?.chain === 'BTC' ? 'selected' : ''}>比特币 (BTC)</option><option value="TRON" ${entry?.chain === 'TRON' ? 'selected' : ''}>波场 (TRON)</option><option value="其他" ${entry?.chain === '其他' ? 'selected' : ''}>其他</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">钱包地址</label><input class="form-input" id="f_address" value="${this._escape(entry?.address || '')}" placeholder="0x..." style="font-family:var(--font-mono);font-size:12px;"></div>
+      <div class="form-group"><label class="form-label">私钥 (Private Key)</label>
+        <div style="display:flex;gap:8px;">
+          <input class="form-input" id="f_privateKey" type="password" value="${this._escape(entry?.privateKey || '')}" placeholder="0x..." style="flex:1;font-family:var(--font-mono);font-size:12px;">
+          <button class="btn btn-ghost btn-icon" onclick="const el=document.getElementById('f_privateKey');el.type=el.type==='password'?'text':'password'">${this.icons.eye}</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">助记词 (Seed Phrase)</label><textarea class="form-textarea" id="f_seedPhrase" style="font-family:var(--font-mono);font-size:12px;min-height:60px;" placeholder="word1 word2 word3 ...">${this._escape(entry?.seedPhrase || '')}</textarea></div>
+      <div class="form-group"><label class="form-label">Keystore JSON</label><textarea class="form-textarea" id="f_keystore" style="font-family:var(--font-mono);font-size:11px;min-height:80px;" placeholder='{"address":"...","crypto":{...}}'>${this._escape(entry?.keystore || '')}</textarea></div>
+      <div class="form-group"><label class="form-label">密码（钱包密码）</label><input class="form-input" id="f_password" type="text" value="${this._escape(entry?.password || '')}" style="font-family:var(--font-mono);"></div>
+    `, async () => {
+      const data = this._gatherForm(['name', 'chain', 'address', 'privateKey', 'seedPhrase', 'keystore', 'password']);
+      if (!data.name) { this.toast('请填写名称', 'error'); return false; }
+      if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'crypto' }); this.toast('钱包已更新'); }
+      else { await InfoVaultDB.add({ ...data, type: 'crypto' }); this.toast('钱包已添加'); }
+      this.closeModal(); this.renderView(this.currentView);
+      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
+      return true;
+    });
+  },
+
+  // ====== 文件上传/下载 ======
+  async uploadFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.onchange = async (e) => {
+      let count = 0;
+      for (const file of e.target.files) {
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          const dataUrl = ev.target.result;
+          const name = file.name.replace(/\.[^.]+$/, '');
+          await InfoVaultDB.add({
+            type: 'file',
+            name: name,
+            filename: file.name,
+            fileSize: (file.size / 1024).toFixed(1) + ' KB',
+            mimeType: file.type || 'application/octet-stream',
+            fileData: dataUrl
+          });
+          count++;
+        };
+        reader.readAsDataURL(file);
+      }
+      setTimeout(() => {
+        this.toast(`已上传 ${e.target.files.length} 个文件`);
+        this.renderView(this.currentView);
+        if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
+      }, 500);
+    };
+    input.click();
+  },
+
+  async downloadFile(id) {
+    const entry = await InfoVaultDB.get(id);
+    if (!entry || !entry.fileData) { this.toast('文件数据不可用', 'error'); return; }
+    const a = document.createElement('a');
+    a.href = entry.fileData;
+    a.download = entry.filename || entry.name || 'download';
+    a.click();
+    this.toast('已下载');
+  },
+
   // ====== 查看条目详情 ======
   async openItem(id) {
     const entry = await InfoVaultDB.get(id);
@@ -1133,6 +1397,36 @@ var InfoVaultApp = {
           </div>
         </div>`;
         break;
+      case 'email': body = `
+        <div class="detail-section">
+          <div class="detail-section-title">邮箱信息</div>
+          <div class="detail-grid">
+            <div class="detail-label">邮箱地址</div><div class="detail-value" style="font-weight:600;">${this._escape(entry.email)}</div>
+            <div class="detail-label">用户名</div><div class="detail-value mono">${this._escape(entry.username || '')}</div>
+            <div class="detail-label">密码</div><div class="detail-value mono"><span id="detailEmailPw">${'•'.repeat(12)}</span> <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.password)}','密码已复制')">${this.icons.copy}</button>
+              <button class="btn btn-icon btn-ghost" onclick="document.getElementById('detailEmailPw').textContent='${this._escape(entry.password)}'">${this.icons.eye}</button></div>
+            <div class="detail-label">SMTP</div><div class="detail-value mono">${entry.smtpHost || '-'}:${entry.smtpPort || '-'}</div>
+            <div class="detail-label">IMAP</div><div class="detail-value mono">${entry.imapHost || '-'}:${entry.imapPort || '-'}</div>
+            <div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-green">${entry.category || '个人'}</span></div>
+          </div>
+        </div>`;
+        break;
+      case 'crypto': body = `
+        <div class="detail-section">
+          <div class="detail-section-title">钱包信息</div>
+          <div class="detail-grid">
+            <div class="detail-label">名称</div><div class="detail-value" style="font-weight:600;">${this._escape(entry.name)}</div>
+            <div class="detail-label">链/网络</div><div class="detail-value"><span class="badge badge-orange">${entry.chain || 'ETH'}</span></div>
+            <div class="detail-label">地址</div><div class="detail-value mono" style="font-size:11px;word-break:break-all;">${this._escape(entry.address || '-')} <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.address)}','地址已复制')">${this.icons.copy}</button></div>
+            ${entry.privateKey ? `<div class="detail-label">私钥</div><div class="detail-value mono" style="font-size:11px;"><span id="detailPK">${'•'.repeat(32)}</span> <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.privateKey)}','私钥已复制')">${this.icons.copy}</button>
+              <button class="btn btn-icon btn-ghost" onclick="document.getElementById('detailPK').textContent='${this._escape(entry.privateKey)}'">${this.icons.eye}</button></div>` : ''}
+            ${entry.seedPhrase ? `<div class="detail-label">助记词</div><div class="detail-value mono" style="font-size:11px;"><span id="detailSeed">${'•'.repeat(48)}</span> <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.seedPhrase)}','助记词已复制')">${this.icons.copy}</button>
+              <button class="btn btn-icon btn-ghost" onclick="document.getElementById('detailSeed').textContent='${this._escape(entry.seedPhrase)}'">${this.icons.eye}</button></div>` : ''}
+            ${entry.keystore ? `<div class="detail-label">Keystore</div><div class="detail-value" style="font-size:11px;"><button class="btn btn-sm btn-secondary" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.keystore)}','Keystore已复制')">复制 Keystore</button></div>` : ''}
+            <div class="detail-label">钱包密码</div><div class="detail-value mono"><span id="detailCpwd">${'•'.repeat(8)}</span> <button class="btn btn-icon btn-ghost" onclick="document.getElementById('detailCpwd').textContent='${this._escape(entry.password || '')}'">${this.icons.eye}</button></div>
+          </div>
+        </div>`;
+        break;
       default: body = `<pre style="font-size:var(--text-sm);color:var(--color-neutral-800);white-space:pre-wrap;">${JSON.stringify(entry, null, 2)}</pre>`;
     }
 
@@ -1164,6 +1458,8 @@ var InfoVaultApp = {
       case 'identity': this.showAddIdentity(entry); break;
       case 'note': this.showAddNote(entry); break;
       case 'bookmark': this.showAddBookmark(entry); break;
+      case 'email': this.showAddEmail(entry); break;
+      case 'crypto': this.showAddCrypto(entry); break;
       default: this.toast('暂不支持编辑此类型', 'error');
     }
   },

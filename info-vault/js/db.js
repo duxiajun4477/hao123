@@ -27,6 +27,7 @@ const InfoVaultDB = {
     identity: ['身份证', '护照', '驾驶证', '社保卡', '学生证', '其他'],
     email: ['个人', '工作', '学校', '其他'],
     crypto: ['ETH', 'BTC', 'SOL', 'USDT', 'BSC', '其他'],
+    image: ['身份证', '银行卡', '驾驶证', '护照', '截图', '其他'],
   },
 
   _db: null,

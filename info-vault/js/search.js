@@ -47,6 +47,26 @@ const InfoVaultSearch = {
         parts.push(entry.description || '');
         parts.push((entry.tags || []).join(' '));
         break;
+      case 'email':
+        parts.push(entry.email || '');
+        parts.push(entry.username || '');
+        parts.push(entry.smtpHost || '');
+        parts.push(entry.imapHost || '');
+        parts.push(entry.notes || '');
+        break;
+      case 'crypto':
+        parts.push(entry.chain || '');
+        parts.push(entry.address || '');
+        parts.push(entry.privateKey || '');
+        parts.push(entry.seedPhrase || '');
+        parts.push(entry.notes || '');
+        break;
+      case 'file':
+        parts.push(entry.filename || '');
+        parts.push(entry.mimeType || '');
+        parts.push(entry.description || '');
+        parts.push((entry.tags || []).join(' '));
+        break;
     }
     
     // 添加标签

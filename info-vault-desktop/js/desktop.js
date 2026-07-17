@@ -1211,18 +1211,25 @@ var InfoVaultApp = {
       </div>
       <div class="form-group"><label class="form-label">备注</label><textarea class="form-textarea" id="f_notes" placeholder="备注信息...">${this._escape(entry?.notes || '')}</textarea></div>
     `, async () => {
-      const data = this._gatherForm(['name', 'url', 'username', 'password', 'category', 'color', 'notes']);
-      if (!data.name || !data.username) { this.toast('请填写网站名称和用户名', 'error'); return false; }
-      if (isEdit) {
-        await InfoVaultDB.update(entry.id, { ...data, type: 'password' });
-        this.toast('密码已更新');
-      } else {
-        await InfoVaultDB.add({ ...data, type: 'password' });
-        this.toast('密码已添加');
+      try {
+        const data = this._gatherForm(['name', 'url', 'username', 'password', 'category', 'color', 'notes']);
+        if (!data.name || !data.username) { this.toast('请填写网站名称和用户名', 'error'); return false; }
+        if (isEdit) {
+          await InfoVaultDB.update(entry.id, { ...data, type: 'password' });
+        } else {
+          await InfoVaultDB.add({ ...data, type: 'password' });
+        }
+        this.toast(isEdit ? '密码已更新' : '密码已添加');
+        this.closeModal();
+        // 使用 navigateTo 而非 renderView，确保 UI 完全刷新
+        this.navigateTo(this.currentView);
+        if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
+        return true;
+      } catch(e) {
+        this.toast('操作失败: ' + e.message, 'error');
+        console.error('Submit error:', e);
+        return false;
       }
-      this.closeModal(); this.renderView(this.currentView);
-      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-      return true;
     });
     // 密码强度实时监控
     const pwInput = document.getElementById('f_password');
@@ -1814,8 +1821,15 @@ var InfoVaultApp = {
 
   async _submitForm() {
     if (this._currentOnSubmit) {
-      return await this._currentOnSubmit();
+      try {
+        return await this._currentOnSubmit();
+      } catch(e) {
+        this.toast('操作失败: ' + e.message, 'error');
+        console.error('Submit error:', e);
+        return false;
+      }
     }
+    this.toast('表单未就绪，请重试', 'error');
     return false;
   },
 

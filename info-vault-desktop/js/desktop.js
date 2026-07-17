@@ -674,14 +674,14 @@ var InfoVaultApp = {
 
 
   async uploadImage() {
-    var s = (InfoVaultDB.CATEGORIES.image || ['id','card','other']).map(function(c,i){return(i+1)+'.'+c;}).join(' ');
-    var inp = prompt('Choose image category:\n'+s);
+    var s = (InfoVaultDB.CATEGORIES.image || ['身份证','银行卡','其他']).map(function(c,i){return(i+1)+'.'+c;}).join(' ');
+    var inp = prompt('选择图片分类:\n'+s);
     if(inp&&inp.trim()){var n=parseInt(inp);var cat=(n>0&&n<=(InfoVaultDB.CATEGORIES.image||[]).length)?InfoVaultDB.CATEGORIES.image[n-1]:inp.trim();this._doUpload('image',cat,'image/*');}
   },
 
   async uploadFile() {
-    var s = (InfoVaultDB.CATEGORIES.file || ['doc','pdf','other']).map(function(c,i){return(i+1)+'.'+c;}).join(' ');
-    var inp = prompt('Choose file category:\n'+s);
+    var s = (InfoVaultDB.CATEGORIES.file || ['文档','PDF','其他']).map(function(c,i){return(i+1)+'.'+c;}).join(' ');
+    var inp = prompt('选择文件分类:\n'+s);
     if(inp&&inp.trim()){var n=parseInt(inp);var cat=(n>0&&n<=(InfoVaultDB.CATEGORIES.file||[]).length)?InfoVaultDB.CATEGORIES.file[n-1]:inp.trim();this._doUpload('file',cat);}
   },
 
@@ -708,7 +708,7 @@ var InfoVaultApp = {
           ok++;
         }catch(err){console.error('Upload error:',err);}
       }
-      self.toast('OK '+ok+'/'+files.length);
+      self.toast('✓ 上传完成: '+ok+'/'+files.length);
       self.renderView(self.currentView);
       if(InfoVaultSync.isConfigured())InfoVaultSync.push();
     };

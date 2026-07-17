@@ -462,7 +462,7 @@ var InfoVaultApp = {
         <div class="table-wrap">
           <table id="idTable">
             <thead><tr><th>证件类型</th><th>姓名</th><th>证件号码</th><th>发证机关</th><th>有效期</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr>
+            <tbody>${entries.map(e => `<tr style="cursor:pointer;" onclick="InfoVaultApp.openItem('${e.id}')">
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <span class="badge badge-purple">${this._escape(e.identityType || '其他')}</span>
               </div></td>
@@ -732,7 +732,7 @@ var InfoVaultApp = {
     },50);
   },
 
-  async _startUpload(type,category,accept){
+  async _startUpload(type,category,accept,description){
     this.closeModal();
     var input = document.createElement('input');
     input.type = 'file';

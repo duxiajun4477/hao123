@@ -623,14 +623,15 @@ var InfoVaultApp = {
         <button class="btn btn-primary" onclick="InfoVaultApp.uploadFile()">${this.icons.plus} 上传文件</button>
       </div>
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有文件</h3><p>上传文档、PDF、压缩包等任意文件，加密存储</p></div>' : `
+      <div style="margin-bottom:12px;display:flex;gap:4px;flex-wrap:wrap;" id="fileCats"></div>
       <div class="stat-grid" id="fileGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
         ${entries.map(e => `
-          <div class="card file-card" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
+          <div class="card file-card" data-category="${this._escape(e.category || '其他')}" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
             <div style="display:flex;align-items:center;gap:12px;">
               <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.1);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.download}</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-weight:500;color:var(--color-neutral-900);font-size:var(--text-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(e.name)}</div>
-                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}</div>
+                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}${e.category ? ' · ' + this._escape(e.category) : ''}</div>
               </div>
             </div>
             <div style="font-size:10px;color:var(--color-neutral-500);margin-top:8px;">${this._timeAgo(e.updatedAt)}</div>
@@ -638,6 +639,13 @@ var InfoVaultApp = {
         `).join('')}
       </div>`}
     `;
+    // 动态生成分类筛选标签
+    var cats = [...new Set(entries.map(function(e){return e.category||'其他';}))];
+    var container = document.getElementById('fileCats');
+    if(container){
+      container.innerHTML = '<button class="filter-btn active" data-cat="all" onclick="InfoVaultApp.filterByAttr(\'#fileGrid .file-card\',\'all\')">全部</button>' + 
+        cats.map(function(c){return '<button class="filter-btn" data-cat="'+c+'" onclick="InfoVaultApp.filterByAttr(\'#fileGrid .file-card\',\''+c+'\')">'+c+'</button>';}).join('');
+    }
   },
   async renderImages(area) {
     const entries = await InfoVaultDB.getAll('image');
@@ -651,11 +659,13 @@ var InfoVaultApp = {
         <button class="btn btn-primary" onclick="InfoVaultApp.uploadImage()">${this.icons.plus} 上传图片</button>
       </div>
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有图片</h3><p>点击上传按钮添加图片</p></div>' : `
+      <div style="margin-bottom:12px;display:flex;gap:4px;flex-wrap:wrap;" id="imgCats"></div>
       <div class="image-grid" id="imgGrid">
         ${entries.map(e => `
-          <div class="image-card" onclick="InfoVaultApp.openItem('${e.id}')">
-            <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;">
+          <div class="image-card" data-category="${this._escape(e.category || '其他')}" onclick="InfoVaultApp.openItem('${e.id}')">
+            <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;flex-direction:column;">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              ${e.category ? '<span style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:4px;">'+this._escape(e.category)+'</span>' : ''}
             </div>
             <div class="image-card-hover">
               <button class="btn btn-icon" style="background:rgba(255,255,255,0.2);color:white;backdrop-filter:blur(4px);" onclick="event.stopPropagation();InfoVaultApp.downloadImage('${e.id}')">${this.icons.download}</button>
@@ -663,12 +673,35 @@ var InfoVaultApp = {
             </div>
             <div class="image-card-info">
               <div class="image-card-name">${this._escape(e.filename || e.name)}</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.6);">${e.fileSize || ''} ${this._timeAgo(e.updatedAt)}</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.6);">${e.fileSize || ''} ${this._timeAgo(e.updatedAt)}${e.category ? ' · ' + this._escape(e.category) : ''}</div>
             </div>
           </div>
         `).join('')}
       </div>`}
     `;
+    // 动态生成分类筛选标签
+    var cats = [...new Set(entries.map(function(e){return e.category||'其他';}))];
+    var container = document.getElementById('imgCats');
+    if(container){
+      container.innerHTML = '<button class="filter-btn active" data-cat="all" onclick="InfoVaultApp.filterByAttr(\'#imgGrid .image-card\',\'all\')">全部</button>' + 
+        cats.map(function(c){return '<button class="filter-btn" data-cat="'+c+'" onclick="InfoVaultApp.filterByAttr(\'#imgGrid .image-card\',\''+c+'\')">'+c+'</button>';}).join('');
+    }
+  },
+
+  filterByAttr(selector, cat){
+    document.querySelectorAll(selector).forEach(function(el){
+      el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
+    });
+    // 更新分类按钮高亮
+    var grid = document.querySelector(selector);
+    if(grid){
+      var catsDiv = grid.parentNode.previousElementSibling;
+      if(catsDiv && catsDiv.id){
+        catsDiv.querySelectorAll('.filter-btn').forEach(function(b){
+          b.classList.toggle('active', b.dataset.cat === cat);
+        });
+      }
+    }
   },
 
 
@@ -774,7 +807,8 @@ var InfoVaultApp = {
           console.log('IndexedDB 总条目数:', total);
         } catch(e) { console.error('Verify error:', e); }
       }
-      location.reload();
+      // 刷新当前视图，不重新加载整个页面（避免触发锁屏）
+      self.navigateTo(self.currentView);
     };
     input.click();
   },

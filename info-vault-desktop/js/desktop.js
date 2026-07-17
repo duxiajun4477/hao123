@@ -462,7 +462,7 @@ var InfoVaultApp = {
         <div class="table-wrap">
           <table id="idTable">
             <thead><tr><th>证件类型</th><th>姓名</th><th>证件号码</th><th>发证机关</th><th>有效期</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr style="cursor:pointer;" onclick="InfoVaultApp.openItem('${e.id}')">
+            <tbody>${entries.map(e => `<tr>
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <span class="badge badge-purple">${this._escape(e.identityType || '其他')}</span>
               </div></td>
@@ -555,7 +555,7 @@ var InfoVaultApp = {
         <div class="table-wrap">
           <table id="emailTable">
             <thead><tr><th>邮箱</th><th>用户名</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr style="cursor:pointer;" onclick="InfoVaultApp.openItem('${e.id}')">
+            <tbody>${entries.map(e => `<tr>
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,0.12);color:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.note}</div>
                 <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.email || e.name)}</span>
@@ -623,15 +623,14 @@ var InfoVaultApp = {
         <button class="btn btn-primary" onclick="InfoVaultApp.uploadFile()">${this.icons.plus} 上传文件</button>
       </div>
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有文件</h3><p>上传文档、PDF、压缩包等任意文件，加密存储</p></div>' : `
-      <div style="margin-bottom:12px;display:flex;gap:4px;flex-wrap:wrap;" id="fileCats"></div>
       <div class="stat-grid" id="fileGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
         ${entries.map(e => `
-          <div class="card file-card" data-category="${this._escape(e.category || '其他')}" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
+          <div class="card file-card" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
             <div style="display:flex;align-items:center;gap:12px;">
               <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.1);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.download}</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-weight:500;color:var(--color-neutral-900);font-size:var(--text-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(e.name)}</div>
-                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}${e.category ? ' · ' + this._escape(e.category) : ''}</div>
+                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}</div>
               </div>
             </div>
             <div style="font-size:10px;color:var(--color-neutral-500);margin-top:8px;">${this._timeAgo(e.updatedAt)}</div>
@@ -639,13 +638,6 @@ var InfoVaultApp = {
         `).join('')}
       </div>`}
     `;
-    // 动态生成分类筛选标签
-    var cats = [...new Set(entries.map(function(e){return e.category||'其他';}))];
-    var container = document.getElementById('fileCats');
-    if(container){
-      container.innerHTML = '<button class="filter-btn active" data-cat="all" onclick="InfoVaultApp.filterByAttr(\'#fileGrid .file-card\',\'all\')">全部</button>' + 
-        cats.map(function(c){return '<button class="filter-btn" data-cat="'+c+'" onclick="InfoVaultApp.filterByAttr(\'#fileGrid .file-card\',\''+c+'\')">'+c+'</button>';}).join('');
-    }
   },
   async renderImages(area) {
     const entries = await InfoVaultDB.getAll('image');
@@ -659,13 +651,11 @@ var InfoVaultApp = {
         <button class="btn btn-primary" onclick="InfoVaultApp.uploadImage()">${this.icons.plus} 上传图片</button>
       </div>
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有图片</h3><p>点击上传按钮添加图片</p></div>' : `
-      <div style="margin-bottom:12px;display:flex;gap:4px;flex-wrap:wrap;" id="imgCats"></div>
       <div class="image-grid" id="imgGrid">
         ${entries.map(e => `
-          <div class="image-card" data-category="${this._escape(e.category || '其他')}" onclick="InfoVaultApp.openItem('${e.id}')">
-            <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;flex-direction:column;">
+          <div class="image-card" onclick="InfoVaultApp.openItem('${e.id}')">
+            <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-              ${e.category ? '<span style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:4px;">'+this._escape(e.category)+'</span>' : ''}
             </div>
             <div class="image-card-hover">
               <button class="btn btn-icon" style="background:rgba(255,255,255,0.2);color:white;backdrop-filter:blur(4px);" onclick="event.stopPropagation();InfoVaultApp.downloadImage('${e.id}')">${this.icons.download}</button>
@@ -673,146 +663,46 @@ var InfoVaultApp = {
             </div>
             <div class="image-card-info">
               <div class="image-card-name">${this._escape(e.filename || e.name)}</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.6);">${e.fileSize || ''} ${this._timeAgo(e.updatedAt)}${e.category ? ' · ' + this._escape(e.category) : ''}</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.6);">${e.fileSize || ''} ${this._timeAgo(e.updatedAt)}</div>
             </div>
           </div>
         `).join('')}
       </div>`}
     `;
-    // 动态生成分类筛选标签
-    var cats = [...new Set(entries.map(function(e){return e.category||'其他';}))];
-    var container = document.getElementById('imgCats');
-    if(container){
-      container.innerHTML = '<button class="filter-btn active" data-cat="all" onclick="InfoVaultApp.filterByAttr(\'#imgGrid .image-card\',\'all\')">全部</button>' + 
-        cats.map(function(c){return '<button class="filter-btn" data-cat="'+c+'" onclick="InfoVaultApp.filterByAttr(\'#imgGrid .image-card\',\''+c+'\')">'+c+'</button>';}).join('');
-    }
   },
-
-  filterByAttr(selector, cat){
-    document.querySelectorAll(selector).forEach(function(el){
-      el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
-    });
-    // 更新分类按钮高亮
-    var grid = document.querySelector(selector);
-    if(grid){
-      var catsDiv = grid.parentNode.previousElementSibling;
-      if(catsDiv && catsDiv.id){
-        catsDiv.querySelectorAll('.filter-btn').forEach(function(b){
-          b.classList.toggle('active', b.dataset.cat === cat);
-        });
-      }
-    }
-  },
-
-
 
   async uploadImage() {
-    var cats = InfoVaultDB.CATEGORIES.image || ['身份证','银行卡','其他'];
-    this._showModal('选择图片分类', '<p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-bottom:16px;">请选择分类：</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="catBtns">' + cats.map(function(c){return '<button class="btn btn-secondary" data-cat="'+c+'" style="padding:12px;font-size:var(--text-sm);">'+c+'</button>';}).join('') + '</div><button class="btn btn-ghost" style="margin-top:8px;width:100%;" onclick="var c=prompt(\'输入新分类名称:\');if(c&&c.trim()){InfoVaultApp._startUpload(\'image\',c.trim(),\'image/*\');}">+ 自定义分类</button>');
-    var self = this;
-    setTimeout(function(){
-      var btns = document.getElementById('catBtns');
-      if(!btns)return;
-      btns.querySelectorAll('button').forEach(function(b){
-        b.onclick = function(){ self._startUpload('image', b.dataset.cat, 'image/*'); };
-      });
-    },50);
-  },
-
-  async uploadFile() {
-    var cats = InfoVaultDB.CATEGORIES.file || ['文档','PDF','其他'];
-    this._showModal('选择文件分类', '<p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-bottom:16px;">请选择分类：</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="catBtns">' + cats.map(function(c){return '<button class="btn btn-secondary" data-cat="'+c+'" style="padding:12px;font-size:var(--text-sm);">'+c+'</button>';}).join('') + '</div><button class="btn btn-ghost" style="margin-top:8px;width:100%;" onclick="var c=prompt(\'输入新分类名称:\');if(c&&c.trim()){InfoVaultApp._startUpload(\'file\',c.trim());}">+ 自定义分类</button>');
-    var self = this;
-    setTimeout(function(){
-      var btns = document.getElementById('catBtns');
-      if(!btns)return;
-      btns.querySelectorAll('button').forEach(function(b){
-        b.onclick = function(){ self._startUpload('file', b.dataset.cat); };
-      });
-    },50);
-  },
-
-  async _startUpload(type,category,accept,description){
-    this.closeModal();
-    var input = document.createElement('input');
+    const input = document.createElement('input');
     input.type = 'file';
-    if(accept) input.accept = accept;
+    input.accept = 'image/*';
     input.multiple = true;
-    var self = this;
-    input.onchange = async function(e){
-      self.toast('正在上传 ' + e.target.files.length + ' 个文件...');
-      var files = Array.from(e.target.files);
-      var ok = 0;
-      for(var i = 0; i < files.length; i++){
-        try {
-          var dataUrl = await new Promise(function(res,rej){
-            var r = new FileReader();
-            r.onload = function(){ res(r.result); };
-            r.onerror = function(){ rej(r.error); };
-            r.readAsDataURL(files[i]);
+    input.onchange = async (e) => {
+      for (const file of e.target.files) {
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          const dataUrl = ev.target.result;
+          const name = file.name.replace(/\.[^.]+$/, '');
+          await InfoVaultDB.add({
+            type: 'image',
+            name: name,
+            filename: file.name,
+            fileSize: (file.size / 1024).toFixed(1) + ' KB',
+            mimeType: file.type,
+            dataUrl: dataUrl,
+            gradient: this._randomGradient()
           });
-          var now = new Date().toISOString();
-          var uid = 'f_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substr(2,6);
-          // 直接构造存储对象，不依赖 _prepareForStore
-          var stored = {
-            id: uid,
-            type: type,
-            name: files[i].name.replace(/\.[^.]+$/, ''),
-            filename: files[i].name,
-            fileSize: (files[i].size/1024).toFixed(1) + ' KB',
-            mimeType: files[i].type || 'application/octet-stream',
-            category: category,
-            createdAt: now,
-            updatedAt: now,
-            deletedAt: null,
-            favorite: false
-          };
-          if(type === 'image'){
-            stored.dataUrl = dataUrl;
-            stored.gradient = self._randomGradient();
-          } else {
-            stored.fileData = dataUrl;
-          }
-          // 直接用 IndexedDB 的 put
-          var db = await InfoVaultDB.open();
-          var tx = db.transaction('entries', 'readwrite');
-          var store = tx.objectStore('entries');
-          await new Promise(function(res, rej){
-            var req = store.put(stored);
-            req.onsuccess = function(){ res(); };
-            req.onerror = function(){ rej(req.error); };
-          });
-          ok++;
-        } catch(err) {
-          console.error('Upload file error:', err, err.message);
-        }
+        };
+        reader.readAsDataURL(file);
       }
-      self.toast('✅ 上传完成: ' + ok + '/' + files.length);
-      if(ok > 0){
-        // 验证写入
-        try {
-          var db2 = await InfoVaultDB.open();
-          var tx2 = db2.transaction('entries', 'readonly');
-          var s2 = tx2.objectStore('entries');
-          var total = await new Promise(function(res, rej){
-            var c = 0;
-            var req = s2.openCursor();
-            req.onsuccess = function(e){
-              var cur = e.target.result;
-              if(cur){ c++; cur.continue(); }
-              else res(c);
-            };
-            req.onerror = function(){ rej(0); };
-          });
-          console.log('IndexedDB 总条目数:', total);
-        } catch(e) { console.error('Verify error:', e); }
-      }
-      // 刷新当前视图，不重新加载整个页面（避免触发锁屏）
-      self.navigateTo(self.currentView);
+      // 等待所有文件处理完成
+      setTimeout(() => {
+        this.toast(`已上传 ${e.target.files.length} 张图片`);
+        this.renderView(this.currentView);
+        if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
+      }, 500);
     };
     input.click();
   },
-
 
   _randomGradient() {
     const gradients = [
@@ -1407,7 +1297,38 @@ var InfoVaultApp = {
     });
   },
 
-  // ====== 文件上传/下载 ======,
+  // ====== 文件上传/下载 ======
+  async uploadFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.onchange = async (e) => {
+      let count = 0;
+      for (const file of e.target.files) {
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          const dataUrl = ev.target.result;
+          const name = file.name.replace(/\.[^.]+$/, '');
+          await InfoVaultDB.add({
+            type: 'file',
+            name: name,
+            filename: file.name,
+            fileSize: (file.size / 1024).toFixed(1) + ' KB',
+            mimeType: file.type || 'application/octet-stream',
+            fileData: dataUrl
+          });
+          count++;
+        };
+        reader.readAsDataURL(file);
+      }
+      setTimeout(() => {
+        this.toast(`已上传 ${e.target.files.length} 个文件`);
+        this.renderView(this.currentView);
+        if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
+      }, 500);
+    };
+    input.click();
+  },
 
   async downloadFile(id) {
     const entry = await InfoVaultDB.get(id);
@@ -1506,66 +1427,6 @@ var InfoVaultApp = {
           </div>
         </div>`;
         break;
-      case 'note': body = `
-        <div class="detail-section">
-          <div class="detail-section-title">📝 笔记内容</div>
-          <div style="font-size:var(--text-sm);color:var(--color-neutral-800);line-height:1.8;white-space:pre-wrap;background:rgba(26,32,53,0.4);padding:16px;border-radius:10px;border:1px solid rgba(45,54,80,0.3);margin-bottom:12px;">${this._escape(entry.content || '')}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-sm btn-secondary" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.content)}','笔记内容已复制')">${this.icons.copy} 复制全部</button>
-            ${entry.tags?.length ? entry.tags.map(t => `<span class="badge badge-gray">#${this._escape(t)}</span>`).join('') : ''}
-          </div>
-        </div>
-        <div class="detail-section"><div class="detail-section-title">时间</div><div class="detail-grid">
-          <div class="detail-label">创建时间</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.createdAt).toLocaleString()}</div>
-          <div class="detail-label">更新时间</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.updatedAt).toLocaleString()}</div>
-        </div></div>`;
-        break;
-      case 'bookmark': body = `
-        <div class="detail-section">
-          <div class="detail-section-title">🔖 收藏信息</div>
-          <div class="detail-grid">
-            <div class="detail-label">标题</div><div class="detail-value" style="font-weight:600;font-size:var(--text-base);">${this._escape(entry.title || entry.name)}</div>
-            <div class="detail-label">URL</div><div class="detail-value mono" style="font-size:12px;">${entry.url ? `<a href="${this._escape(entry.url)}" target="_blank" style="color:var(--color-primary-500);">${this._escape(entry.url)}</a>` : '-'}</div>
-            <div class="detail-label">操作</div><div class="detail-value" style="display:flex;gap:8px;">
-              ${entry.url ? `<button class="btn btn-sm btn-primary" onclick="window.open('${this._escape(entry.url)}','_blank')">${this.icons.link} 打开</button>` : ''}
-              ${entry.url ? `<button class="btn btn-sm btn-secondary" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.url)}','链接已复制')">${this.icons.copy} 复制链接</button>` : ''}
-            </div>
-            <div class="detail-label">描述</div><div class="detail-value" style="font-size:var(--text-sm);color:var(--color-neutral-700);">${this._escape(entry.description || '-')}</div>
-            ${entry.tags?.length ? `<div class="detail-label">标签</div><div class="detail-value"><div style="display:flex;gap:4px;flex-wrap:wrap;">${entry.tags.map(t => `<span class="badge badge-gray">#${this._escape(t)}</span>`).join('')}</div></div>` : ''}
-          </div>
-        </div>`;
-        break;
-      case 'image': body = `
-        <div class="detail-section">
-          <div class="detail-section-title">🖼️ 图片信息</div>
-          <div class="detail-grid">
-            <div class="detail-label">文件名</div><div class="detail-value">${this._escape(entry.filename || entry.name)}</div>
-            <div class="detail-label">大小</div><div class="detail-value">${entry.fileSize || '未知'}</div>
-            <div class="detail-label">类型</div><div class="detail-value">${entry.mimeType || '未知'}</div>
-            <div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-green">${this._escape(entry.category || '未分类')}</span></div>
-          </div>
-          ${entry.dataUrl ? `<div style="margin-top:16px;border-radius:12px;overflow:hidden;border:1px solid rgba(45,54,80,0.3);cursor:pointer;position:relative;" onclick="InfoVaultApp.viewImage('${entry.id}')">
-            <img src="${entry.dataUrl}" style="width:100%;max-height:300px;object-fit:contain;background:rgba(0,0,0,0.3);" alt="${this._escape(entry.name)}">
-            <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);color:white;padding:4px 10px;border-radius:6px;font-size:11px;">点击放大</div>
-          </div>` : ''}
-        </div>`;
-        break;
-      case 'file': body = `
-        <div class="detail-section">
-          <div class="detail-section-title">📄 文件信息</div>
-          <div class="detail-grid">
-            <div class="detail-label">文件名</div><div class="detail-value" style="font-weight:600;">${this._escape(entry.filename || entry.name)}</div>
-            <div class="detail-label">大小</div><div class="detail-value">${entry.fileSize || '未知'}</div>
-            <div class="detail-label">类型</div><div class="detail-value">${entry.mimeType || '未知'}</div>
-            <div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-blue">${this._escape(entry.category || '未分类')}</span></div>
-            <div class="detail-label">上传时间</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.createdAt).toLocaleString()}</div>
-          </div>
-          <div style="margin-top:16px;display:flex;gap:8px;">
-            <button class="btn btn-primary" onclick="InfoVaultApp.downloadFile('${entry.id}')">${this.icons.download} 下载文件</button>
-            <button class="btn btn-secondary" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.filename || entry.name)}','文件名已复制')">${this.icons.copy} 复制文件名</button>
-          </div>
-        </div>`;
-        break;
       default: body = `<pre style="font-size:var(--text-sm);color:var(--color-neutral-800);white-space:pre-wrap;">${JSON.stringify(entry, null, 2)}</pre>`;
     }
 
@@ -1585,28 +1446,6 @@ var InfoVaultApp = {
     const pw = el.dataset.pw || '';
     const copyIcon = this.icons.copy;
     el.innerHTML = `${pw} <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard(document.getElementById('detailPw').dataset.pw,'密码已复制')">${copyIcon}</button>`;
-  },
-
-  viewImage(id){
-    var entry = this._currentDetailEntry;
-    if(!entry||!entry.dataUrl)return;
-    this.closeModal();
-    var ov = document.createElement('div');
-    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
-    ov.onclick = function(e){if(e.target===ov)document.body.removeChild(ov);};
-    var img = document.createElement('img');
-    img.src = entry.dataUrl;
-    img.style.cssText = 'max-width:92vw;max-height:88vh;object-fit:contain;border-radius:10px;box-shadow:0 0 80px rgba(0,0,0,0.6);transition:transform 0.1s;';
-    var scale = 1;
-    ov.onwheel = function(e){e.preventDefault();scale+=e.deltaY>0?-0.15:0.15;scale=Math.max(0.3,Math.min(4,scale));img.style.transform='scale('+scale+')';};
-    ov.appendChild(img);
-    var bar = document.createElement('div');
-    bar.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10000;';
-    bar.innerHTML = '<button style="padding:8px 18px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;font-size:13px;" onclick="this.parentElement.previousElementSibling.style.transform=\'scale(1)\'">🔄 重置</button>' +
-      '<button style="padding:8px 18px;background:rgba(59,110,246,0.3);color:#fff;border:1px solid rgba(59,110,246,0.4);border-radius:8px;cursor:pointer;font-size:13px;" onclick="InfoVaultApp.downloadImage(\''+id+'\')">⬇ 下载</button>' +
-      '<button style="padding:8px 18px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;font-size:13px;" onclick="document.body.removeChild(this.parentElement.parentElement)">✕ 关闭</button>';
-    ov.appendChild(bar);
-    document.body.appendChild(ov);
   },
 
   // ====== 编辑/删除 ======

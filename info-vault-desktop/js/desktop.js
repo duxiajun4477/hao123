@@ -321,7 +321,7 @@ var InfoVaultApp = {
         ${recent.length === 0 ? '<div class="empty-state" style="padding: 40px 20px;"><p>还没有数据，点击左侧菜单开始添加</p></div>' : `
         <div style="display: flex; flex-direction: column; gap: 4px;">
           ${recent.map(item => `
-            <div class="sidebar-nav-item" style="cursor: pointer;" onclick="InfoVaultApp.openItem('${item.id}')">
+            <div class="sidebar-nav-item" style="cursor: pointer;" onclick="InfoVaultApp.viewImageDirect('${item.id}')">
               <span style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: ${this.typeColors[item.type]}20; color: ${this.typeColors[item.type]}; flex-shrink: 0;">
                 ${this.icons[item.type === 'bookmark' ? 'bookmark' : item.type === 'password' ? 'key' : item.type]}
               </span>
@@ -1362,7 +1362,40 @@ var InfoVaultApp = {
               <div class="detail-label">URL</div><div class="detail-value mono">${entry.url ? `<a href="${this._escape(entry.url)}" target="_blank" style="color:var(--color-primary-500);">${this._escape(entry.url)}</a>` : '-'}</div>
               <div class="detail-label">用户名</div><div class="detail-value mono">${this._escape(entry.username)} <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.username)}','用户名已复制')">${this.icons.copy}</button></div>
               <div class="detail-label">密码</div><div class="detail-value mono" id="detailPw" data-pw="${pwEnc}">${'•'.repeat(16)} <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard(document.getElementById('detailPw').dataset.pw,'密码已复制')">${this.icons.copy}</button>
-                <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.showDetailPassword()">${this.icons.eye}</button></div>
+                <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.
+
+  async viewImageDirect(id){
+    try{
+      var entry=await InfoVaultDB.get(id);
+      if(!entry||!entry.dataUrl){this.openItem(id);return;}
+      this._showImageViewer(entry.dataUrl,id);
+    }catch(e){this.toast('加载失败','error');}
+  },
+
+  viewImageFromDetail(id){
+    var entry=this._currentDetailEntry;
+    if(!entry||!entry.dataUrl)return;
+    this.closeModal();
+    this._showImageViewer(entry.dataUrl,id);
+  },
+
+  _showImageViewer(dataUrl,id){
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    ov.onclick=function(e){if(e.target===ov)document.body.removeChild(ov);};
+    var img=document.createElement('img');
+    img.src=dataUrl;
+    img.style.cssText='max-width:95vw;max-height:90vh;object-fit:contain;border-radius:8px;box-shadow:0 0 60px rgba(0,0,0,0.5);transition:transform 0.1s;';
+    var scale=1;
+    ov.onwheel=function(e){e.preventDefault();scale+=e.deltaY>0?-0.15:0.15;scale=Math.max(0.3,Math.min(4,scale));img.style.transform='scale('+scale+')';};
+    ov.appendChild(img);
+    var bar=document.createElement('div');
+    bar.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10000;';
+    bar.innerHTML='<button style="padding:8px 16px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;" onclick="this.parentElement.previousElementSibling.style.transform=\\'scale(1)\\'">↻ 重置</button><button style="padding:8px 16px;background:rgba(59,110,246,0.3);color:#fff;border:1px solid rgba(59,110,246,0.4);border-radius:8px;cursor:pointer;" onclick="InfoVaultApp.downloadImage(\\''+id+'\\')">⬇ 下载</button><button style="padding:8px 16px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;" onclick="document.body.removeChild(this.parentElement.parentElement)">✕ 关闭</button>';
+    ov.appendChild(bar);
+    document.body.appendChild(ov);
+  },
+showDetailPassword()">${this.icons.eye}</button></div>
               <div class="detail-label">安全等级</div><div class="detail-value"><span style="color:${strength.color};font-weight:600;">${strength.label} (${strength.score}/100)</span></div>
               <div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-blue">${entry.category || '未分类'}</span></div>
             </div>
@@ -1428,7 +1461,10 @@ var InfoVaultApp = {
           </div>
         </div>`;
         break;
-      default: body = `<pre style="font-size:var(--text-sm);color:var(--color-neutral-800);white-space:pre-wrap;">${JSON.stringify(entry, null, 2)}</pre>`;
+      case 'file': body = `<div class="detail-section"><div class="detail-section-title">📄 文件信息</div><div class="detail-grid"><div class="detail-label">文件名</div><div class="detail-value" style="font-weight:600;">${this._escape(entry.filename||entry.name)}</div><div class="detail-label">大小</div><div class="detail-value">${entry.fileSize||'未知'}</div><div class="detail-label">类型</div><div class="detail-value">${entry.mimeType||'未知'}</div><div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-blue">${this._escape(entry.category||'未分类')}</span></div>${entry.description?'<div class="detail-label">介绍</div><div class="detail-value" style="font-size:var(--text-sm);color:var(--color-neutral-700);background:rgba(26,32,53,0.3);padding:8px 12px;border-radius:6px;">'+this._escape(entry.description)+'</div>':''}<div class="detail-label">上传时间</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.createdAt).toLocaleString()}</div></div><div style="margin-top:16px;display:flex;gap:8px;"><button class="btn btn-primary" onclick="InfoVaultApp.downloadFile(\''+entry.id+'\')">⬇ 下载文件</button><button class="btn btn-secondary" onclick="InfoVaultApp.copyToClipboard(\''+this._escape(entry.filename||entry.name)+'\',\'文件名已复制\')">📋 复制文件名</button></div></div>`;break;
+      case 'image': body = `<div class="detail-section"><div class="detail-section-title">🖼 图片信息</div><div class="detail-grid"><div class="detail-label">文件名</div><div class="detail-value">${this._escape(entry.filename||entry.name)}</div><div class="detail-label">大小</div><div class="detail-value">${entry.fileSize||'未知'}</div><div class="detail-label">分类</div><div class="detail-value"><span class="badge badge-green">${this._escape(entry.category||'未分类')}</span></div></div>${entry.dataUrl?'<div style="margin-top:16px;border-radius:12px;overflow:hidden;border:1px solid rgba(45,54,80,0.3);cursor:pointer;" onclick="InfoVaultApp.viewImageFromDetail(\''+this._escape(entry.id)+'\')"><img src="'+entry.dataUrl+'" style="width:100%;max-height:300px;object-fit:contain;background:rgba(0,0,0,0.3);"><div style="text-align:center;padding:6px;font-size:11px;color:var(--color-neutral-500);background:rgba(0,0,0,0.2);">点击放大</div></div>':''}</div>`;break;
+      case 'bookmark': body = `<div class="detail-section"><div class="detail-section-title">🔖 收藏信息</div><div class="detail-grid"><div class="detail-label">标题</div><div class="detail-value" style="font-weight:600;font-size:var(--text-base);">${this._escape(entry.title||entry.name)}</div><div class="detail-label">URL</div><div class="detail-value mono" style="font-size:12px;">${entry.url?'<a href="'+this._escape(entry.url)+'" target="_blank" style="color:var(--color-primary-500);">'+this._escape(entry.url)+'</a>':'-'}</div><div class="detail-label">操作</div><div class="detail-value" style="display:flex;gap:8px;">${entry.url?'<button class="btn btn-sm btn-primary" onclick="window.open(\''+this._escape(entry.url)+'\',\'_blank\')">🔗 打开</button><button class="btn btn-sm btn-secondary" onclick="InfoVaultApp.copyToClipboard(\''+this._escape(entry.url)+'\',\'链接已复制\')">📋 复制</button>':''}</div><div class="detail-label">描述</div><div class="detail-value" style="font-size:var(--text-sm);color:var(--color-neutral-700);">${this._escape(entry.description||'-')}</div>${entry.tags?.length?'<div class="detail-label">标签</div><div class="detail-value"><div style="display:flex;gap:4px;flex-wrap:wrap;">'+entry.tags.map(t=>'<span class="badge badge-gray">#'+this._escape(t)+'</span>').join('')+'</div></div>':''}</div></div>`;break;
+      case 'note': body = `<div class="detail-section"><div class="detail-section-title">📝 笔记内容</div><div style="font-size:var(--text-sm);color:var(--color-neutral-800);line-height:1.8;white-space:pre-wrap;background:rgba(26,32,53,0.4);padding:16px;border-radius:10px;border:1px solid rgba(45,54,80,0.3);margin-bottom:12px;">${this._escape(entry.content||'')}</div><button class="btn btn-sm btn-secondary" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.content)}','笔记已复制')">${this.icons.copy} 复制全部</button>${entry.tags?.length?entry.tags.map(t=>'<span class="badge badge-gray">#'+this._escape(t)+'</span>').join(''):''}</div><div class="detail-section"><div class="detail-section-title">时间</div><div class="detail-grid"><div class="detail-label">创建</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.createdAt).toLocaleString()}</div><div class="detail-label">更新</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.updatedAt).toLocaleString()}</div></div></div>`;break;
     }
 
     this._showModal(entry.name, `

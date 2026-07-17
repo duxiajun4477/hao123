@@ -202,88 +202,13 @@ const InfoVaultDB = {
     return this.update(id, { deletedAt: null });
   },
 
-  async getAll(type, includeDeleted = false) {
-    await this.open();
-    const tx = this._db.transaction('entries', 'readonly');
-    const store = tx.objectStore('entries');
-    
-    // 先尝试用 type_deleted 复合索引查询
-    let rawResults = [];
-    try {
-      const index = store.index('type_deleted');
-      const range = IDBKeyRange.bound([type], [type + '\uffff']);
-      rawResults = await new Promise((resolve, reject) => {
-        const results = [];
-        const req = index.openCursor(range);
-        req.onsuccess = (e) => {
-          const cursor = e.target.result;
-          if (cursor) {
-            if (includeDeleted || !cursor.value.deletedAt) results.push(cursor.value);
-            cursor.continue();
-          } else { resolve(results); }
-        };
-        req.onerror = (e) => reject(e.target.error);
-      });
-    } catch(e) {
-      // 复合索引失败，回退到 type 索引
-      console.warn('type_deleted index failed, falling back to type:', e);
-    }
-    
-    // 如果复合索引返回空，用 type 索引再试
-    if (rawResults.length === 0) {
-      try {
-        const index = store.index('type');
-        const range = IDBKeyRange.only(type);
-        rawResults = await new Promise((resolve, reject) => {
-          const results = [];
-          const req = index.openCursor(range);
-          req.onsuccess = (e) => {
-            const cursor = e.target.result;
-            if (cursor) {
-              if (includeDeleted || !cursor.value.deletedAt) results.push(cursor.value);
-              cursor.continue();
-            } else { resolve(results); }
-          };
-          req.onerror = (e) => reject(e.target.error);
-        });
-      } catch(e) {
-        console.warn('type index also failed:', e);
-      }
-    }
-    
-    // 最后手段：全表扫描按 type 过滤
-    if (rawResults.length === 0) {
-      try {
-        rawResults = await new Promise((resolve, reject) => {
-          const results = [];
-          const req = store.openCursor();
-          req.onsuccess = (e) => {
-            const cursor = e.target.result;
-            if (cursor) {
-              if (cursor.value.type === type && (includeDeleted || !cursor.value.deletedAt)) {
-                results.push(cursor.value);
-              }
-              cursor.continue();
-            } else { resolve(results); }
-          };
-          req.onerror = (e) => reject(e.target.error);
-        });
-      } catch(e) {
-        console.warn('full scan failed:', e);
-      }
-    }
-    
-    // 批量解密
-    const finalResults = [];
-    for (const stored of rawResults) {
-      const restored = await this._restoreFromStore(stored);
-      if (restored) finalResults.push(restored);
-    }
-    return finalResults;
+    async getAll(type, includeDeleted = false) {
+    // 使用 exportAll + JS 过滤，绕过 IndexedDB 索引可能存在的问题
+    const all = await this.exportAll();
+    return all.filter(e => e.type === type && (includeDeleted || !e.deletedAt));
   },
 
-  // 获取所有非删除条目（用于搜索）
-  async getAllActive() {
+async getAllActive() {
     await this.open();
     const tx = this._db.transaction('entries', 'readonly');
     const store = tx.objectStore('entries');

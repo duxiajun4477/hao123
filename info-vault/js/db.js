@@ -251,6 +251,28 @@ const InfoVaultDB = {
       }
     }
     
+    // 最后手段：全表扫描按 type 过滤
+    if (rawResults.length === 0) {
+      try {
+        rawResults = await new Promise((resolve, reject) => {
+          const results = [];
+          const req = store.openCursor();
+          req.onsuccess = (e) => {
+            const cursor = e.target.result;
+            if (cursor) {
+              if (cursor.value.type === type && (includeDeleted || !cursor.value.deletedAt)) {
+                results.push(cursor.value);
+              }
+              cursor.continue();
+            } else { resolve(results); }
+          };
+          req.onerror = (e) => reject(e.target.error);
+        });
+      } catch(e) {
+        console.warn('full scan failed:', e);
+      }
+    }
+    
     // 批量解密
     const finalResults = [];
     for (const stored of rawResults) {

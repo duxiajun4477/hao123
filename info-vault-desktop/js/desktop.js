@@ -864,6 +864,12 @@ var InfoVaultApp = {
       // 加密货币
       { type: 'crypto', name: '主钱包', chain: 'ETH', address: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18', privateKey: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', seedPhrase: 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about', password: 'Wallet@2024!' },
       { type: 'crypto', name: 'Solana钱包', chain: 'SOL', address: '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLvBf', privateKey: '5B3X1VqFQgKQjFGhqf...', password: 'Sol@2024!' },
+      // 图片
+      { type: 'image', name: '项目截图', filename: 'screenshot.png', fileSize: '1.2 MB', mimeType: 'image/png', gradient: 'linear-gradient(135deg, #3b6ef6, #8db1ff)' },
+      { type: 'image', name: '设计稿', filename: 'design_v2.png', fileSize: '3.5 MB', mimeType: 'image/png', gradient: 'linear-gradient(135deg, #a855f7, #c084fc)' },
+      // 文件
+      { type: 'file', name: '项目文档.pdf', filename: 'document.pdf', fileSize: '2.1 MB', mimeType: 'application/pdf' },
+      { type: 'file', name: '备份文件.zip', filename: 'backup.zip', fileSize: '15.6 MB', mimeType: 'application/zip' },
     ];
     for (const demo of demos) {
       await InfoVaultDB.add(demo);
@@ -1478,6 +1484,50 @@ var InfoVaultApp = {
           </div>
         </div>`;
         break;
+      case 'note': body = `
+        <div class="detail-section">
+          <div class="detail-section-title">笔记内容</div>
+          <div style="font-size:var(--text-sm);color:var(--color-neutral-800);line-height:1.8;white-space:pre-wrap;background:rgba(26,32,53,0.4);padding:16px;border-radius:10px;border:1px solid rgba(45,54,80,0.3);">${this._escape(entry.content || '')}</div>
+          ${entry.tags?.length ? `<div style="display:flex;gap:4px;margin-top:12px;flex-wrap:wrap;">${entry.tags.map(t => `<span class="badge badge-gray">#${this._escape(t)}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="detail-section"><div class="detail-section-title">时间</div><div class="detail-grid">
+          <div class="detail-label">创建时间</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.createdAt).toLocaleString()}</div>
+          <div class="detail-label">更新时间</div><div class="detail-value" style="font-size:var(--text-xs);">${new Date(entry.updatedAt).toLocaleString()}</div>
+        </div></div>`;
+        break;
+      case 'bookmark': body = `
+        <div class="detail-section">
+          <div class="detail-section-title">收藏信息</div>
+          <div class="detail-grid">
+            <div class="detail-label">标题</div><div class="detail-value" style="font-weight:600;">${this._escape(entry.title || entry.name)}</div>
+            <div class="detail-label">URL</div><div class="detail-value mono">${entry.url ? `<a href="${this._escape(entry.url)}" target="_blank" style="color:var(--color-primary-500);">${this._escape(entry.url)}</a> <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboard('${this._escape(entry.url)}','链接已复制')">${this.icons.copy}</button>` : '-'}</div>
+            <div class="detail-label">描述</div><div class="detail-value">${this._escape(entry.description || '-')}</div>
+            ${entry.tags?.length ? `<div class="detail-label">标签</div><div class="detail-value"><div style="display:flex;gap:4px;flex-wrap:wrap;">${entry.tags.map(t => `<span class="badge badge-gray">#${this._escape(t)}</span>`).join('')}</div></div>` : ''}
+          </div>
+        </div>`;
+        break;
+      case 'image': body = `
+        <div class="detail-section">
+          <div class="detail-section-title">图片信息</div>
+          <div class="detail-grid">
+            <div class="detail-label">文件名</div><div class="detail-value">${this._escape(entry.filename || entry.name)}</div>
+            <div class="detail-label">大小</div><div class="detail-value">${entry.fileSize || '未知'}</div>
+            <div class="detail-label">类型</div><div class="detail-value">${entry.mimeType || '未知'}</div>
+          </div>
+          ${entry.dataUrl ? `<div style="margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid rgba(45,54,80,0.3);"><img src="${entry.dataUrl}" style="width:100%;max-height:300px;object-fit:contain;background:rgba(0,0,0,0.3);" alt="${this._escape(entry.name)}"></div>` : ''}
+        </div>`;
+        break;
+      case 'file': body = `
+        <div class="detail-section">
+          <div class="detail-section-title">文件信息</div>
+          <div class="detail-grid">
+            <div class="detail-label">文件名</div><div class="detail-value">${this._escape(entry.filename || entry.name)}</div>
+            <div class="detail-label">大小</div><div class="detail-value">${entry.fileSize || '未知'}</div>
+            <div class="detail-label">类型</div><div class="detail-value">${entry.mimeType || '未知'}</div>
+          </div>
+          <div style="margin-top:16px;"><button class="btn btn-primary" onclick="InfoVaultApp.downloadFile('${entry.id}')">${this.icons.download} 下载文件</button></div>
+        </div>`;
+        break;
       default: body = `<pre style="font-size:var(--text-sm);color:var(--color-neutral-800);white-space:pre-wrap;">${JSON.stringify(entry, null, 2)}</pre>`;
     }
 
@@ -1511,6 +1561,8 @@ var InfoVaultApp = {
       case 'bookmark': this.showAddBookmark(entry); break;
       case 'email': this.showAddEmail(entry); break;
       case 'crypto': this.showAddCrypto(entry); break;
+      case 'image': this.toast('图片暂不支持编辑', 'info'); break;
+      case 'file': this.toast('文件暂不支持编辑', 'info'); break;
       default: this.toast('暂不支持编辑此类型', 'error');
     }
   },
@@ -1835,7 +1887,7 @@ var InfoVaultApp = {
   },
 
   _badgeClass(type) {
-    const map = { password: 'badge-blue', wallet: 'badge-orange', identity: 'badge-purple', note: 'badge-green', bookmark: 'badge-red', image: 'badge-green' };
+    const map = { password: 'badge-blue', wallet: 'badge-orange', identity: 'badge-purple', note: 'badge-green', bookmark: 'badge-red', image: 'badge-green', email: 'badge-green', crypto: 'badge-orange', file: 'badge-blue' };
     return map[type] || 'badge-gray';
   },
 

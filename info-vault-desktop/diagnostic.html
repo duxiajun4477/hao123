@@ -33,6 +33,7 @@ pre { font-size: 12px; color: #9aa3b4; overflow: auto; max-height: 200px; margin
   <h2>📋 手动操作</h2>
   <button class="btn btn-primary" onclick="addTestData()">➕ 添加测试数据</button>
   <button class="btn btn-primary" onclick="readAllData()">📖 读取全部数据</button>
+  <button class="btn btn-primary" onclick="testIndexes()">🔍 测试索引</button>
   <button class="btn btn-danger" onclick="clearAll()">🗑️ 清除全部</button>
   <div id="manualResult"></div>
 </div>
@@ -92,6 +93,49 @@ async function run() {
     setStep('step1', '❌ 第1步：打开失败', 'fail');
     setStep('step2', '❌ ' + e.message, 'fail');
   }
+}
+
+async function testIndexes() {
+  const db = await InfoVaultDB.open();
+  const tx = db.transaction('entries', 'readonly');
+  const store = tx.objectStore('entries');
+  let html = '<div class="result">';
+  
+  // 全表扫描
+  try {
+    const all = await new Promise((res, rej) => {
+      const r = []; const req = store.openCursor();
+      req.onsuccess = e => { const c = e.target.result; if (c) { r.push(c.value); c.continue(); } else res(r); };
+      req.onerror = e => rej(e.target.error);
+    });
+    html += '<div>📊 全表扫描: ' + all.length + ' 条</div>';
+    for (const item of all) html += '<div style="font-size:11px;color:#9aa3b4;margin-left:12px;">type=' + item.type + ', name=' + item.name + '</div>';
+  } catch(e) { html += '<div>❌ 全表扫描失败: ' + e.message + '</div>'; }
+  
+  // type 索引
+  try {
+    const idx = store.index('type');
+    const r = await new Promise((res, rej) => {
+      const results = []; const req = idx.openCursor(IDBKeyRange.only('password'));
+      req.onsuccess = e => { const c = e.target.result; if (c) { results.push(c.value); c.continue(); } else res(results); };
+      req.onerror = e => rej(e.target.error);
+    });
+    html += '<div>🔍 type索引(password): ' + r.length + ' 条</div>';
+  } catch(e) { html += '<div>❌ type索引失败: ' + e.message + '</div>'; }
+  
+  // type_deleted 索引
+  try {
+    const idx = store.index('type_deleted');
+    const r = await new Promise((res, rej) => {
+      const results = []; const req = idx.openCursor(IDBKeyRange.bound(['password'], ['password\uffff']));
+      req.onsuccess = e => { const c = e.target.result; if (c) { results.push(c.value); c.continue(); } else res(results); };
+      req.onerror = e => rej(e.target.error);
+    });
+    html += '<div>🔍 type_deleted索引(password): ' + r.length + ' 条</div>';
+  } catch(e) { html += '<div>❌ type_deleted索引失败: ' + e.message + '</div>'; }
+  
+  html += '</div>';
+  el('manualResult').innerHTML = html;
 }
 
 async function addTestData() {

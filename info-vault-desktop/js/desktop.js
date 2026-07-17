@@ -1,7 +1,7 @@
 /**
  * InfoVault Desktop - Main Application
  */
-const InfoVaultApp = {
+var InfoVaultApp = {
   currentView: 'dashboard',
   currentItem: null,
   searchTimeout: null,

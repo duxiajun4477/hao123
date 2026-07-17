@@ -563,11 +563,17 @@ var InfoVaultApp = {
   // ====== 邮箱账号 ======
   async renderEmails(area) {
     const entries = await InfoVaultDB.getAll('email');
+    const categories = InfoVaultDB.CATEGORIES.email || ['Gmail', 'QQ邮箱', '其他'];
     area.innerHTML = `
       <div class="toolbar">
         <div class="search-box" style="width:260px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" placeholder="搜索邮箱..." oninput="InfoVaultApp.filterGeneric(this.value, '#emailTable tbody tr')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
+        </div>
+        <div class="filter-group" id="emailFilterGroup">
+          <button class="filter-btn active" data-filter="all" onclick="InfoVaultApp.filterEmails('all')">全部</button>
+          ${categories.map(c => `<button class="filter-btn" data-filter="${c}" onclick="InfoVaultApp.filterEmails('${c}')">${c}</button>`).join('')}
+          <button class="filter-btn" onclick="InfoVaultApp.addEmailCategory()">+</button>
         </div>
         <div style="flex:1"></div>
         <button class="btn btn-primary" onclick="InfoVaultApp.showAddEmail()" style="background:#22c55e;">${this.icons.plus} 添加邮箱</button>
@@ -577,13 +583,13 @@ var InfoVaultApp = {
         <div class="table-wrap">
           <table id="emailTable">
             <thead><tr><th>邮箱</th><th>用户名</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr>
+            <tbody>${entries.map(e => `<tr data-category="${e.category || '其他'}">
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,0.12);color:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.note}</div>
                 <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.email || e.name)}</span>
               </div></td>
               <td style="color:var(--color-neutral-600);font-size:var(--text-xs);">${this._escape(e.username || '')}</td>
-              <td><span class="badge badge-green">${this._escape(e.category || '个人')}</span></td>
+              <td><span class="badge badge-green">${this._escape(e.category || '其他')}</span></td>
               <td style="font-size:var(--text-xs);color:var(--color-neutral-500);font-family:var(--font-mono);">${e.smtpHost ? e.smtpHost + ':' + e.smtpPort : '-'}</td>
               <td style="font-size:var(--text-xs);color:var(--color-neutral-500);">${this._timeAgo(e.updatedAt)}</td>
               <td style="text-align:right;"><div style="display:flex;gap:4px;justify-content:flex-end;">
@@ -635,11 +641,17 @@ var InfoVaultApp = {
   // ====== 文件管理 ======
   async renderFiles(area) {
     const entries = await InfoVaultDB.getAll('file');
+    const categories = InfoVaultDB.CATEGORIES.file || ['文档', 'PDF', '其他'];
     area.innerHTML = `
       <div class="toolbar">
         <div class="search-box" style="width:260px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" placeholder="搜索文件名..." oninput="InfoVaultApp.filterGeneric(this.value, '#fileGrid .file-card')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
+        </div>
+        <div class="filter-group" id="fileFilterGroup">
+          <button class="filter-btn active" data-filter="all" onclick="InfoVaultApp.filterFiles('all')">全部</button>
+          ${categories.map(c => `<button class="filter-btn" data-filter="${c}" onclick="InfoVaultApp.filterFiles('${c}')">${c}</button>`).join('')}
+          <button class="filter-btn" onclick="InfoVaultApp.addFileCategory()">+</button>
         </div>
         <div style="flex:1"></div>
         <button class="btn btn-primary" onclick="InfoVaultApp.uploadFile()">${this.icons.plus} 上传文件</button>
@@ -647,12 +659,12 @@ var InfoVaultApp = {
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有文件</h3><p>上传文档、PDF、压缩包等任意文件，加密存储</p></div>' : `
       <div class="stat-grid" id="fileGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
         ${entries.map(e => `
-          <div class="card file-card" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
+          <div class="card file-card" data-category="${e.category || '其他'}" style="cursor:pointer;" onclick="InfoVaultApp.downloadFile('${e.id}')">
             <div style="display:flex;align-items:center;gap:12px;">
               <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.1);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.download}</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-weight:500;color:var(--color-neutral-900);font-size:var(--text-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(e.name)}</div>
-                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}</div>
+                <div style="font-size:11px;color:var(--color-neutral-500);">${e.fileSize || ''} · ${e.mimeType || '未知类型'}${e.category ? ' · ' + e.category : ''}</div>
               </div>
             </div>
             <div style="font-size:10px;color:var(--color-neutral-500);margin-top:8px;">${this._timeAgo(e.updatedAt)}</div>
@@ -660,6 +672,21 @@ var InfoVaultApp = {
         `).join('')}
       </div>`}
     `;
+  },
+
+  filterFiles(cat) {
+    document.querySelectorAll('#fileFilterGroup .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === cat));
+    document.querySelectorAll('#fileGrid .file-card').forEach(el => {
+      el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
+    });
+  },
+
+  addFileCategory() {
+    const c = prompt('输入新文件分类名称：');
+    if (c && c.trim()) {
+      const cats = InfoVaultDB.CATEGORIES.file || ['文档', 'PDF', '其他'];
+      if (!cats.includes(c.trim())) { cats.push(c.trim()); this.renderView(this.currentView); }
+    }
   },
   async renderImages(area) {
     const entries = await InfoVaultDB.getAll('image');
@@ -707,14 +734,29 @@ var InfoVaultApp = {
     });
   },
 
+  filterEmails(cat) {
+    document.querySelectorAll('#emailFilterGroup .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === cat));
+    document.querySelectorAll('#emailTable tbody tr').forEach(el => {
+      el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
+    });
+  },
+
   addImageCategory() {
-    const custom = prompt('输入新分类名称：');
+    const custom = prompt('输入新图片分类名称：');
     if (custom && custom.trim()) {
       const cats = InfoVaultDB.CATEGORIES.image || ['身份证', '银行卡', '其他'];
       if (!cats.includes(custom.trim())) {
         cats.push(custom.trim());
         this.renderView(this.currentView);
       }
+    }
+  },
+
+  addEmailCategory() {
+    const c = prompt('输入新邮箱分类名称：');
+    if (c && c.trim()) {
+      const cats = InfoVaultDB.CATEGORIES.email || ['Gmail', 'QQ邮箱', '其他'];
+      if (!cats.includes(c.trim())) { cats.push(c.trim()); this.renderView(this.currentView); }
     }
   },
 
@@ -1361,30 +1403,38 @@ var InfoVaultApp = {
 
   // ====== 文件上传/下载 ======
   async uploadFile() {
+    const cats = InfoVaultDB.CATEGORIES.file || ['文档', 'PDF', '其他'];
+    this._showModal('选择文件分类', `
+      <p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-bottom:16px;">为要上传的文件选择分类：</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${cats.map(c => `<button class="btn btn-secondary" onclick="InfoVaultApp.doUploadFile('${c}')" style="padding:12px;">${c}</button>`).join('')}
+      </div>
+      <button class="btn btn-ghost" style="margin-top:8px;width:100%;" onclick="InfoVaultApp.addFileCategory()">+ 自定义分类</button>
+    `);
+  },
+
+  async doUploadFile(category) {
+    this.closeModal();
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = true;
     input.onchange = async (e) => {
-      let count = 0;
       for (const file of e.target.files) {
         const reader = new FileReader();
         reader.onload = async (ev) => {
           const dataUrl = ev.target.result;
           const name = file.name.replace(/\.[^.]+$/, '');
           await InfoVaultDB.add({
-            type: 'file',
-            name: name,
-            filename: file.name,
+            type: 'file', name, filename: file.name,
             fileSize: (file.size / 1024).toFixed(1) + ' KB',
             mimeType: file.type || 'application/octet-stream',
-            fileData: dataUrl
+            fileData: dataUrl, category
           });
-          count++;
         };
         reader.readAsDataURL(file);
       }
       setTimeout(() => {
-        this.toast(`已上传 ${e.target.files.length} 个文件`);
+        this.toast(`已上传 ${e.target.files.length} 个文件到「${category}」`);
         this.renderView(this.currentView);
         if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       }, 500);

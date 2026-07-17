@@ -1133,24 +1133,18 @@ var InfoVaultApp = {
       </div>
       <div class="form-group"><label class="form-label">备注</label><textarea class="form-textarea" id="f_notes" placeholder="备注信息...">${this._escape(entry?.notes || '')}</textarea></div>
     `, async () => {
-      try {
-        const data = this._gatherForm(['name', 'url', 'username', 'password', 'category', 'color', 'notes']);
-        if (!data.name || !data.username) { this.toast('请填写网站名称和用户名', 'error'); return false; }
-        if (isEdit) {
-          await InfoVaultDB.update(entry.id, { ...data, type: 'password' });
-          this.toast('密码已更新');
-        } else {
-          await InfoVaultDB.add({ ...data, type: 'password' });
-          this.toast('✅ 密码已添加');
-        }
-        this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 100);
-        if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
-        return true;
-      } catch(e) {
-        this.toast('❌ 操作失败: ' + e.message, 'error');
-        console.error('Submit error:', e);
-        return false;
+      const data = this._gatherForm(['name', 'url', 'username', 'password', 'category', 'color', 'notes']);
+      if (!data.name || !data.username) { this.toast('请填写网站名称和用户名', 'error'); return false; }
+      if (isEdit) {
+        await InfoVaultDB.update(entry.id, { ...data, type: 'password' });
+        this.toast('密码已更新');
+      } else {
+        await InfoVaultDB.add({ ...data, type: 'password' });
+        this.toast('密码已添加');
       }
+      this.closeModal(); this.renderView(this.currentView);
+      if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
+      return true;
     });
     // 密码强度实时监控
     const pwInput = document.getElementById('f_password');
@@ -1176,7 +1170,7 @@ var InfoVaultApp = {
       if (!data.name) { this.toast('请填写名称', 'error'); return false; }
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'wallet' }); this.toast('钱包已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'wallet' }); this.toast('钱包已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 100);
+      this.closeModal(); this.renderView(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1200,7 +1194,7 @@ var InfoVaultApp = {
       if (!data.realName || !data.idNumber) { this.toast('请填写姓名和证件号码', 'error'); return false; }
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'identity' }); this.toast('证件已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'identity' }); this.toast('证件已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 100);
+      this.closeModal(); this.renderView(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1218,7 +1212,7 @@ var InfoVaultApp = {
       data.tags = data.tags ? data.tags.split(/[,，]/).map(t => t.trim()).filter(Boolean) : [];
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, name: data.title || '无标题', type: 'note' }); this.toast('笔记已更新'); }
       else { await InfoVaultDB.add({ ...data, name: data.title || '无标题', type: 'note' }); this.toast('笔记已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 100);
+      this.closeModal(); this.renderView(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1238,7 +1232,7 @@ var InfoVaultApp = {
       data.name = data.title || data.url;
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'bookmark' }); this.toast('收藏已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'bookmark' }); this.toast('收藏已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 100);
+      this.closeModal(); this.renderView(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1268,7 +1262,7 @@ var InfoVaultApp = {
       data.name = data.email;
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'email' }); this.toast('邮箱已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'email' }); this.toast('邮箱已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 100);
+      this.closeModal(); this.renderView(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1297,7 +1291,7 @@ var InfoVaultApp = {
       if (!data.name) { this.toast('请填写名称', 'error'); return false; }
       if (isEdit) { await InfoVaultDB.update(entry.id, { ...data, type: 'crypto' }); this.toast('钱包已更新'); }
       else { await InfoVaultDB.add({ ...data, type: 'crypto' }); this.toast('钱包已添加'); }
-      this.closeModal(); setTimeout(() => this.navigateTo(this.currentView), 100);
+      this.closeModal(); this.renderView(this.currentView);
       if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       return true;
     });
@@ -1817,4 +1811,4 @@ var InfoVaultApp = {
 };
 
 // 启动应用
-document.addEventListener('DOMContentLoaded', () => InfoVaultApp.init());
+document.addEventListener('DOMContentLoaded', async () => { try { await InfoVaultApp.init(); } catch(e) { document.body.innerHTML = `<!DOCTYPE html><html><body style="background:#0a0e1a;color:#ef4444;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;"><div style="text-align:center;max-width:500px;"><h2 style="font-size:20px;">⚠️ 加载失败</h2><p style="color:#9aa3b4;font-size:14px;word-break:break-all;">${e.message}</p><button onclick="location.reload()" style="margin-top:16px;padding:10px 24px;background:#3b6ef6;color:white;border:none;border-radius:8px;cursor:pointer;">重新加载</button></div></body></html>`; throw e; } });

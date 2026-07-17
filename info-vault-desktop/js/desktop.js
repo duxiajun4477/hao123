@@ -733,7 +733,17 @@ var InfoVaultApp = {
         } catch(err) { console.error('Upload error:', err); }
       }
       self.toast('✅ 上传完成: ' + ok + '/' + files.length);
-      // 强制刷新页面确保数据可见
+      // 验证数据是否真的写入了
+      var check = await InfoVaultDB.exportAll();
+      var found = check.filter(function(e){ return e.type === type; });
+      if (found.length > 0) {
+        console.log('验证通过，找到 ' + found.length + ' 条 ' + type + ' 类型数据');
+      } else {
+        console.error('警告：exportAll 没找到刚写入的数据！');
+        // 尝试用 getAll 再查一次
+        var check2 = await InfoVaultDB.getAll(type);
+        console.error('getAll 结果:', check2 ? check2.length : 'null');
+      }
       location.reload();
     };
     input.click();

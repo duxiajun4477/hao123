@@ -670,8 +670,51 @@ var InfoVaultApp = {
       </div>`}
     `;
   },
+
 
-  
+
+  async uploadImage() {
+    var s = (InfoVaultDB.CATEGORIES.image || ['id','card','other']).map(function(c,i){return(i+1)+'.'+c;}).join(' ');
+    var inp = prompt('Choose image category:\n'+s);
+    if(inp&&inp.trim()){var n=parseInt(inp);var cat=(n>0&&n<=(InfoVaultDB.CATEGORIES.image||[]).length)?InfoVaultDB.CATEGORIES.image[n-1]:inp.trim();this._doUpload('image',cat,'image/*');}
+  },
+
+  async uploadFile() {
+    var s = (InfoVaultDB.CATEGORIES.file || ['doc','pdf','other']).map(function(c,i){return(i+1)+'.'+c;}).join(' ');
+    var inp = prompt('Choose file category:\n'+s);
+    if(inp&&inp.trim()){var n=parseInt(inp);var cat=(n>0&&n<=(InfoVaultDB.CATEGORIES.file||[]).length)?InfoVaultDB.CATEGORIES.file[n-1]:inp.trim();this._doUpload('file',cat);}
+  },
+
+  async _doUpload(type,category,accept){
+    var input=document.createElement('input');
+    input.type='file';
+    if(accept)input.accept=accept;
+    input.multiple=true;
+    var self=this;
+    input.onchange=async function(e){
+      var files=Array.from(e.target.files);
+      var ok=0;
+      for(var i=0;i<files.length;i++){
+        try{
+          var dataUrl=await new Promise(function(res,rej){
+            var r=new FileReader();
+            r.onload=function(){res(r.result);};
+            r.onerror=function(){rej(r.error);};
+            r.readAsDataURL(files[i]);
+          });
+          var entry={type:type,name:files[i].name.replace(/.[^.]+$/,''),filename:files[i].name,fileSize:(files[i].size/1024).toFixed(1)+' KB',mimeType:files[i].type||'application/octet-stream',category:category};
+          if(type==='image'){entry.dataUrl=dataUrl;entry.gradient=self._randomGradient();}else{entry.fileData=dataUrl;}
+          await InfoVaultDB.add(entry);
+          ok++;
+        }catch(err){console.error('Upload error:',err);}
+      }
+      self.toast('OK '+ok+'/'+files.length);
+      self.renderView(self.currentView);
+      if(InfoVaultSync.isConfigured())InfoVaultSync.push();
+    };
+    input.click();
+  },
+
 
   _randomGradient() {
     const gradients = [
@@ -1266,8 +1309,7 @@ var InfoVaultApp = {
     });
   },
 
-  // ====== 文件上传/下载 ======
-  
+  // ====== 文件上传/下载 ======,
 
   async downloadFile(id) {
     const entry = await InfoVaultDB.get(id);

@@ -390,18 +390,19 @@ var InfoVaultApp = {
   _passwordRow(e) {
     const strength = InfoVaultCrypto.evaluateStrength(e.password);
     const pwEnc = this._escape(e.password);
-    return `<tr class="hover:bg-muted/30 transition-colors group" data-pwid="${e.id}">
+    const unEnc = this._escape(e.username);
+    return `<tr class="hover:bg-muted/30 transition-colors group" data-pwid="${e.id}" style="cursor:pointer;" ondblclick="InfoVaultApp.copyToClipboard('${pwEnc}','密码已复制')">
       <td style="width:30px"><input type="checkbox" class="pw-checkbox" data-id="${e.id}" onchange="InfoVaultApp._updateBatchDeleteBtn()" style="accent-color:var(--color-primary-500);"></td>
       <td><div style="display:flex;align-items:center;gap:10px;">
         <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${e.color || '#3b6ef6'};color:white;font-size:12px;font-weight:700;flex-shrink:0;">${(e.name||'?')[0].toUpperCase()}</div>
         <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.name)}</span>
         <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.toggleFavorite('${e.id}')" title="${e.favorite ? '取消收藏' : '收藏'}" style="color:${e.favorite ? '#f59e0b' : 'var(--color-neutral-400)'};">${e.favorite ? '★' : '☆'}</button>
       </div></td>
-      <td style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-neutral-500);">${this._escape(this._maskStr(e.username, 6))}</td>
-      <td><div style="display:flex;align-items:center;gap:6px;">
+      <td style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-neutral-500);cursor:pointer;" ondblclick="InfoVaultApp.copyToClipboard('${unEnc}','用户名已复制')" title="双击复制用户名">${this._escape(this._maskStr(e.username, 6))} <button class="btn btn-icon btn-ghost" onclick="event.stopPropagation();InfoVaultApp.copyToClipboard('${unEnc}','用户名已复制')" title="复制用户名" style="opacity:0.6;display:inline-flex;">${this.icons.copy}</button></td>
+      <td><div style="display:flex;align-items:center;gap:4px;">
         <span class="pw-dots" data-pw="${pwEnc}" data-pwlen="${Math.min(12, Math.max(6, (e.password||'').length))}" data-showing="false" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-neutral-500);letter-spacing:2px;">${'•'.repeat(Math.min(12, Math.max(6, (e.password||'').length)))}</span>
-        <button class="btn btn-icon btn-ghost" onclick="InfoVaultApp.copyToClipboardFromAttr(this)" data-copy="${pwEnc}" title="复制密码">${this.icons.copy}</button>
-        <button class="btn btn-icon btn-ghost toggle-pw" onclick="InfoVaultApp.togglePassword(this)" title="显示密码">${this.icons.eye}</button>
+        <button class="btn btn-icon" onclick="InfoVaultApp.copyToClipboardFromAttr(this)" data-copy="${pwEnc}" title="复制密码" style="background:rgba(59,110,246,0.1);color:var(--color-primary-500);width:28px;height:28px;">${this.icons.copy}</button>
+        <button class="btn btn-icon btn-ghost toggle-pw" onclick="InfoVaultApp.togglePassword(this)" title="显示密码" style="width:28px;height:28px;">${this.icons.eye}</button>
       </div></td>
       <td><span class="badge ${this._badgeClass(e.category)}">${e.category || '未分类'}</span></td>
       <td><div style="display:flex;align-items:center;gap:6px;">
@@ -662,11 +663,17 @@ var InfoVaultApp = {
   },
   async renderImages(area) {
     const entries = await InfoVaultDB.getAll('image');
+    const categories = InfoVaultDB.CATEGORIES.image || ['身份证', '银行卡', '其他'];
     area.innerHTML = `
       <div class="toolbar">
         <div class="search-box" style="width:260px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--color-neutral-500);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" placeholder="搜索图片名称..." oninput="InfoVaultApp.filterGeneric(this.value, '#imgGrid .image-card')" style="flex:1;background:transparent;border:none;outline:none;color:var(--color-neutral-900);font-size:var(--text-sm);">
+        </div>
+        <div class="filter-group" id="imgFilterGroup">
+          <button class="filter-btn active" data-filter="all" onclick="InfoVaultApp.filterImages('all')">全部</button>
+          ${categories.map(c => `<button class="filter-btn" data-filter="${c}" onclick="InfoVaultApp.filterImages('${c}')">${c}</button>`).join('')}
+          <button class="filter-btn" onclick="InfoVaultApp.addImageCategory()">+</button>
         </div>
         <div style="flex:1"></div>
         <button class="btn btn-primary" onclick="InfoVaultApp.uploadImage()">${this.icons.plus} 上传图片</button>
@@ -674,9 +681,10 @@ var InfoVaultApp = {
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有图片</h3><p>点击上传按钮添加图片</p></div>' : `
       <div class="image-grid" id="imgGrid">
         ${entries.map(e => `
-          <div class="image-card" onclick="InfoVaultApp.openItem('${e.id}')">
-            <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;">
+          <div class="image-card" data-category="${e.category || '其他'}" onclick="InfoVaultApp.openItem('${e.id}')">
+            <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;flex-direction:column;">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              ${e.category ? `<span style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:4px;">${e.category}</span>` : ''}
             </div>
             <div class="image-card-hover">
               <button class="btn btn-icon" style="background:rgba(255,255,255,0.2);color:white;backdrop-filter:blur(4px);" onclick="event.stopPropagation();InfoVaultApp.downloadImage('${e.id}')">${this.icons.download}</button>
@@ -692,12 +700,44 @@ var InfoVaultApp = {
     `;
   },
 
+  filterImages(cat) {
+    document.querySelectorAll('#imgFilterGroup .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === cat));
+    document.querySelectorAll('#imgGrid .image-card').forEach(el => {
+      el.style.display = (cat === 'all' || el.dataset.category === cat) ? '' : 'none';
+    });
+  },
+
+  addImageCategory() {
+    const custom = prompt('输入新分类名称：');
+    if (custom && custom.trim()) {
+      const cats = InfoVaultDB.CATEGORIES.image || ['身份证', '银行卡', '其他'];
+      if (!cats.includes(custom.trim())) {
+        cats.push(custom.trim());
+        this.renderView(this.currentView);
+      }
+    }
+  },
+
   async uploadImage() {
+    // 先让用户选择分类
+    const cats = InfoVaultDB.CATEGORIES.image || ['身份证', '银行卡', '其他'];
+    this._showModal('选择分类', `
+      <p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-bottom:16px;">为要上传的图片选择分类：</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${cats.map(c => `<button class="btn btn-secondary" onclick="InfoVaultApp.doUploadImage('${c}')" style="padding:12px;">${c}</button>`).join('')}
+      </div>
+      <button class="btn btn-ghost" style="margin-top:8px;width:100%;" onclick="InfoVaultApp.addImageCategory()">+ 自定义分类</button>
+    `);
+  },
+
+  async doUploadImage(category) {
+    this.closeModal();
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.multiple = true;
     input.onchange = async (e) => {
+      let count = 0;
       for (const file of e.target.files) {
         const reader = new FileReader();
         reader.onload = async (ev) => {
@@ -710,14 +750,15 @@ var InfoVaultApp = {
             fileSize: (file.size / 1024).toFixed(1) + ' KB',
             mimeType: file.type,
             dataUrl: dataUrl,
-            gradient: this._randomGradient()
+            gradient: this._randomGradient(),
+            category: category
           });
+          count++;
         };
         reader.readAsDataURL(file);
       }
-      // 等待所有文件处理完成
       setTimeout(() => {
-        this.toast(`已上传 ${e.target.files.length} 张图片`);
+        this.toast(`已上传 ${e.target.files.length} 张图片到「${category}」`);
         this.renderView(this.currentView);
         if (InfoVaultSync.isConfigured()) InfoVaultSync.push();
       }, 500);

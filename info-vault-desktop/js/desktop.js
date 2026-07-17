@@ -247,6 +247,30 @@ var InfoVaultApp = {
     document.getElementById('contentArea').innerHTML = '';
   },
 
+  async resetMasterPassword() {
+    if (!confirm('⚠️ 确定要重置应用吗？\n\n这将清除所有本地数据（包括主密码和所有存储的条目）。\n\n如果配置过 GitHub 同步，可以从其他已同步的设备恢复数据。')) return;
+    if (!confirm('再次确认：所有数据将被永久删除！')) return;
+    // 清除所有数据
+    const db = await InfoVaultDB.open();
+    const tx = db.transaction('entries', 'readwrite');
+    const store = tx.objectStore('entries');
+    await new Promise((resolve, reject) => {
+      const req = store.clear();
+      req.onsuccess = () => resolve();
+      req.onerror = (e) => reject(e.target.error);
+    });
+    // 清除主密码和同步设置
+    await InfoVaultDB.setSetting('master_password_hash', '');
+    await InfoVaultDB.setSetting('github_token', '');
+    await InfoVaultDB.setSetting('github_repo', '');
+    await InfoVaultDB.setSetting('last_sync_time', '');
+    // 清除加密密钥
+    InfoVaultDB.setEncryptionKey(null);
+    // 重新加载页面
+    this.toast('已重置，即将刷新页面');
+    setTimeout(() => location.reload(), 1000);
+  },
+
   // ====== 导航 ======
   navigateTo(view) {
     this.currentView = view;

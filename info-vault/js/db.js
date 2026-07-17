@@ -209,15 +209,15 @@ const InfoVaultDB = {
     const index = store.index('type_deleted');
     
     const range = IDBKeyRange.bound([type], [type + '\uffff']);
-    return new Promise((resolve, reject) => {
+    // 先同步读取所有原始数据（避免异步导致事务关闭）
+    const rawResults = await new Promise((resolve, reject) => {
       const results = [];
       const req = index.openCursor(range);
-      req.onsuccess = async (e) => {
+      req.onsuccess = (e) => {
         const cursor = e.target.result;
         if (cursor) {
           if (includeDeleted || !cursor.value.deletedAt) {
-            const restored = await this._restoreFromStore(cursor.value);
-            if (restored) results.push(restored);
+            results.push(cursor.value);
           }
           cursor.continue();
         } else {
@@ -226,6 +226,13 @@ const InfoVaultDB = {
       };
       req.onerror = (e) => reject(e.target.error);
     });
+    // 批量解密
+    const finalResults = [];
+    for (const stored of rawResults) {
+      const restored = await this._restoreFromStore(stored);
+      if (restored) finalResults.push(restored);
+    }
+    return finalResults;
   },
 
   // 获取所有非删除条目（用于搜索）
@@ -233,15 +240,15 @@ const InfoVaultDB = {
     await this.open();
     const tx = this._db.transaction('entries', 'readonly');
     const store = tx.objectStore('entries');
-    return new Promise((resolve, reject) => {
+    // 先同步读取所有原始数据
+    const rawResults = await new Promise((resolve, reject) => {
       const results = [];
       const req = store.openCursor();
-      req.onsuccess = async (e) => {
+      req.onsuccess = (e) => {
         const cursor = e.target.result;
         if (cursor) {
           if (!cursor.value.deletedAt) {
-            const restored = await this._restoreFromStore(cursor.value);
-            if (restored) results.push(restored);
+            results.push(cursor.value);
           }
           cursor.continue();
         } else {
@@ -250,6 +257,13 @@ const InfoVaultDB = {
       };
       req.onerror = (e) => reject(e.target.error);
     });
+    // 批量解密
+    const finalResults = [];
+    for (const stored of rawResults) {
+      const restored = await this._restoreFromStore(stored);
+      if (restored) finalResults.push(restored);
+    }
+    return finalResults;
   },
 
   // ====== 统计 ======
@@ -321,14 +335,14 @@ const InfoVaultDB = {
     await this.open();
     const tx = this._db.transaction('entries', 'readonly');
     const store = tx.objectStore('entries');
-    return new Promise((resolve, reject) => {
+    // 先同步读取所有原始数据
+    const rawResults = await new Promise((resolve, reject) => {
       const results = [];
       const req = store.openCursor();
-      req.onsuccess = async (e) => {
+      req.onsuccess = (e) => {
         const cursor = e.target.result;
         if (cursor) {
-          const restored = await this._restoreFromStore(cursor.value);
-          if (restored) results.push(restored);
+          results.push(cursor.value);
           cursor.continue();
         } else {
           resolve(results);
@@ -336,6 +350,13 @@ const InfoVaultDB = {
       };
       req.onerror = (e) => reject(e.target.error);
     });
+    // 批量解密
+    const finalResults = [];
+    for (const stored of rawResults) {
+      const restored = await this._restoreFromStore(stored);
+      if (restored) finalResults.push(restored);
+    }
+    return finalResults;
   },
 
   async importAll(data, mergeStrategy = 'skip') {

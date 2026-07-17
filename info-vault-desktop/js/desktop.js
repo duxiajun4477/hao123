@@ -842,6 +842,10 @@ var InfoVaultApp = {
     if (existing.length > 0) {
       if (!confirm('已有数据，确定添加演示数据吗？')) return;
     }
+    // 先清空再添加，确保演示数据可展示
+    if (existing.length === 0) {
+      this.toast('正在加载演示数据...', 'info');
+    }
     const demos = [
       { type: 'password', name: 'GitHub', url: 'https://github.com', username: 'developer@example.com', password: 'Gh@2024Secure!', category: '工作', color: '#24292e', notes: '个人 GitHub 账号' },
       { type: 'password', name: '微信', username: 'wx_user_001', password: 'WeChat@2024!', category: '社交', color: '#07c160', notes: '个人微信' },
@@ -1772,16 +1776,24 @@ var InfoVaultApp = {
   // ====== 辅助方法 ======
 
   _showForm(title, isEdit, fields, onSubmit) {
+    const formId = 'modalForm_' + Date.now();
     this._showModal(
       isEdit ? `编辑${title}` : `添加${title}`,
-      `<form id="modalForm" onsubmit="return false">${fields}
+      `<form id="${formId}" onsubmit="return false">${fields}
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="InfoVaultApp.closeModal()">取消</button>
-          <button type="submit" class="btn btn-primary" onclick="return InfoVaultApp._submitForm('${isEdit ? 'update' : 'add'}')">${isEdit ? '保存' : '添加'}</button>
+          <button type="button" class="btn btn-primary" id="submitBtn">${isEdit ? '保存' : '添加'}</button>
         </div>
       </form>`
     );
     this._currentOnSubmit = onSubmit;
+    // 用 addEventListener 绑定提交按钮
+    setTimeout(() => {
+      const btn = document.getElementById('submitBtn');
+      if (btn) {
+        btn.onclick = () => { this._submitForm(); };
+      }
+    }, 50);
   },
 
   _currentOnSubmit: null,

@@ -73,7 +73,13 @@ const InfoVaultDB = {
     const combined = new Uint8Array(iv.length + ciphertext.byteLength);
     combined.set(iv, 0);
     combined.set(new Uint8Array(ciphertext), iv.length);
-    return btoa(String.fromCharCode(...combined));
+    // 分块转换避免栈溢出（大文件场景）
+    var binary = '';
+    var chunkSize = 8192;
+    for (var i = 0; i < combined.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(null, combined.subarray(i, Math.min(i + chunkSize, combined.length)));
+    }
+    return btoa(binary);
   },
 
   // 解密数据（读取时）

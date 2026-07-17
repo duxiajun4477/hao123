@@ -661,6 +661,9 @@ var InfoVaultApp = {
   async renderSettings(area) {
     const syncStatus = InfoVaultSync.getStatus();
     const githubRepo = await InfoVaultDB.getSetting('github_repo') || 'duxiajun4477/hao123';
+    // 缓存到实例供导航切换使用
+    this._cachedSyncStatus = syncStatus;
+    this._cachedRepo = githubRepo;
     
     let activeSection = 'account';
     const renderSection = () => {
@@ -787,6 +790,9 @@ var InfoVaultApp = {
   },
 
   _settingsSync(syncStatus, repo) {
+    // 如果没传参（导航切换时），从缓存或实时获取
+    if (!syncStatus) syncStatus = this._cachedSyncStatus || InfoVaultSync.getStatus();
+    if (!repo) repo = this._cachedRepo || (InfoVaultSync.getStatus().repo) || 'duxiajun4477/hao123';
     return `
       <div class="settings-section">
         <h3 class="settings-section-title">GitHub 同步</h3>

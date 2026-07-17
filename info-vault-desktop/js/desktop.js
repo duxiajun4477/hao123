@@ -674,43 +674,67 @@ var InfoVaultApp = {
 
 
   async uploadImage() {
-    var s = (InfoVaultDB.CATEGORIES.image || ['身份证','银行卡','其他']).map(function(c,i){return(i+1)+'.'+c;}).join(' ');
-    var inp = prompt('选择图片分类:\n'+s);
-    if(inp&&inp.trim()){var n=parseInt(inp);var cat=(n>0&&n<=(InfoVaultDB.CATEGORIES.image||[]).length)?InfoVaultDB.CATEGORIES.image[n-1]:inp.trim();this._doUpload('image',cat,'image/*');}
+    var cats = InfoVaultDB.CATEGORIES.image || ['身份证','银行卡','其他'];
+    this._showModal('选择图片分类', '<p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-bottom:16px;">请选择分类：</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="catBtns">' + cats.map(function(c){return '<button class="btn btn-secondary" data-cat="'+c+'" style="padding:12px;font-size:var(--text-sm);">'+c+'</button>';}).join('') + '</div><button class="btn btn-ghost" style="margin-top:8px;width:100%;" onclick="var c=prompt(\'输入新分类名称:\');if(c&&c.trim()){InfoVaultApp._startUpload(\'image\',c.trim(),\'image/*\');}">+ 自定义分类</button>');
+    var self = this;
+    setTimeout(function(){
+      var btns = document.getElementById('catBtns');
+      if(!btns)return;
+      btns.querySelectorAll('button').forEach(function(b){
+        b.onclick = function(){ self._startUpload('image', b.dataset.cat, 'image/*'); };
+      });
+    },50);
   },
 
   async uploadFile() {
-    var s = (InfoVaultDB.CATEGORIES.file || ['文档','PDF','其他']).map(function(c,i){return(i+1)+'.'+c;}).join(' ');
-    var inp = prompt('选择文件分类:\n'+s);
-    if(inp&&inp.trim()){var n=parseInt(inp);var cat=(n>0&&n<=(InfoVaultDB.CATEGORIES.file||[]).length)?InfoVaultDB.CATEGORIES.file[n-1]:inp.trim();this._doUpload('file',cat);}
+    var cats = InfoVaultDB.CATEGORIES.file || ['文档','PDF','其他'];
+    this._showModal('选择文件分类', '<p style="font-size:var(--text-sm);color:var(--color-neutral-500);margin-bottom:16px;">请选择分类：</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="catBtns">' + cats.map(function(c){return '<button class="btn btn-secondary" data-cat="'+c+'" style="padding:12px;font-size:var(--text-sm);">'+c+'</button>';}).join('') + '</div><button class="btn btn-ghost" style="margin-top:8px;width:100%;" onclick="var c=prompt(\'输入新分类名称:\');if(c&&c.trim()){InfoVaultApp._startUpload(\'file\',c.trim());}">+ 自定义分类</button>');
+    var self = this;
+    setTimeout(function(){
+      var btns = document.getElementById('catBtns');
+      if(!btns)return;
+      btns.querySelectorAll('button').forEach(function(b){
+        b.onclick = function(){ self._startUpload('file', b.dataset.cat); };
+      });
+    },50);
   },
 
-  async _doUpload(type,category,accept){
-    var input=document.createElement('input');
-    input.type='file';
-    if(accept)input.accept=accept;
-    input.multiple=true;
-    var self=this;
-    input.onchange=async function(e){
-      var files=Array.from(e.target.files);
-      var ok=0;
-      for(var i=0;i<files.length;i++){
-        try{
-          var dataUrl=await new Promise(function(res,rej){
-            var r=new FileReader();
-            r.onload=function(){res(r.result);};
-            r.onerror=function(){rej(r.error);};
+  async _startUpload(type,category,accept){
+    this.closeModal();
+    var input = document.createElement('input');
+    input.type = 'file';
+    if(accept) input.accept = accept;
+    input.multiple = true;
+    var self = this;
+    input.onchange = async function(e){
+      self.toast('正在上传 ' + e.target.files.length + ' 个文件...');
+      var files = Array.from(e.target.files);
+      var ok = 0;
+      for(var i = 0; i < files.length; i++){
+        try {
+          var dataUrl = await new Promise(function(res,rej){
+            var r = new FileReader();
+            r.onload = function(){ res(r.result); };
+            r.onerror = function(){ rej(r.error); };
             r.readAsDataURL(files[i]);
           });
-          var entry={type:type,name:files[i].name.replace(/.[^.]+$/,''),filename:files[i].name,fileSize:(files[i].size/1024).toFixed(1)+' KB',mimeType:files[i].type||'application/octet-stream',category:category};
-          if(type==='image'){entry.dataUrl=dataUrl;entry.gradient=self._randomGradient();}else{entry.fileData=dataUrl;}
+          var entry = {
+            type: type,
+            name: files[i].name.replace(/\.[^.]+$/, ''),
+            filename: files[i].name,
+            fileSize: (files[i].size/1024).toFixed(1) + ' KB',
+            mimeType: files[i].type || 'application/octet-stream',
+            category: category
+          };
+          if(type === 'image'){ entry.dataUrl = dataUrl; entry.gradient = self._randomGradient(); }
+          else { entry.fileData = dataUrl; }
           await InfoVaultDB.add(entry);
           ok++;
-        }catch(err){console.error('Upload error:',err);}
+        } catch(err) { console.error('Upload error:', err); }
       }
-      self.toast('✓ 上传完成: '+ok+'/'+files.length);
-      self.renderView(self.currentView);
-      if(InfoVaultSync.isConfigured())InfoVaultSync.push();
+      self.toast('✅ 上传完成: ' + ok + '/' + files.length);
+      // 强制刷新页面确保数据可见
+      location.reload();
     };
     input.click();
   },

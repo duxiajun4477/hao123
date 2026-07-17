@@ -462,7 +462,7 @@ var InfoVaultApp = {
         <div class="table-wrap">
           <table id="idTable">
             <thead><tr><th>证件类型</th><th>姓名</th><th>证件号码</th><th>发证机关</th><th>有效期</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr>
+            <tbody>${entries.map(e => `<tr style="cursor:pointer;" onclick="InfoVaultApp.openItem('${e.id}')">
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <span class="badge badge-purple">${this._escape(e.identityType || '其他')}</span>
               </div></td>
@@ -554,8 +554,8 @@ var InfoVaultApp = {
         ${entries.length === 0 ? '<div class="empty-state" style="padding:60px 20px;"><h3>还没有邮箱账号</h3><p>添加你的邮箱账号，安全存储邮箱密码和服务器配置</p></div>' : `
         <div class="table-wrap">
           <table id="emailTable">
-            <thead><tr><th>邮箱</th><th>用户名</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
-            <tbody>${entries.map(e => `<tr>
+            <thead><tr><th>邮箱</th><th>用户名</th><th>密码</th><th>分类</th><th>SMTP</th><th>更新时间</th><th style="text-align:right">操作</th></tr></thead>
+            <tbody>${entries.map(e => `<tr style="cursor:pointer;" onclick="InfoVaultApp.openItem('${e.id}')">
               <td><div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,0.12);color:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${this.icons.note}</div>
                 <span style="font-weight:500;color:var(--color-neutral-900);">${this._escape(e.email || e.name)}</span>
@@ -653,7 +653,7 @@ var InfoVaultApp = {
       ${entries.length === 0 ? '<div class="empty-state"><h3>还没有图片</h3><p>点击上传按钮添加图片</p></div>' : `
       <div class="image-grid" id="imgGrid">
         ${entries.map(e => `
-          <div class="image-card" onclick="InfoVaultApp.openItem('${e.id}')">
+          <div class="image-card" onclick="InfoVaultApp.viewImageDirect('${e.id}')">
             <div class="image-card-bg" style="background:${e.gradient || 'linear-gradient(135deg, #3b6ef6, #8db1ff)'}; display:flex; align-items:center; justify-content:center;">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
             </div>

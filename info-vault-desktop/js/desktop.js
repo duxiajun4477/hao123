@@ -403,7 +403,7 @@ var InfoVaultApp = {
         <button class="btn btn-primary" onclick="InfoVaultApp.showAddPassword()">${this.icons.plus} 添加密码</button>
       </div>
       <div class="card" style="padding:0; overflow:hidden;">
-        ${entries.length === 0 ? '<div class="empty-state" style="padding:60px 20px;"><h3>还没有密码</h3><p>点击上方"添加密码"按钮开始添加</p></div>' : `
+        ${entries.length === 0 ? '<div class="empty-state" style="padding:60px 20px;"><h3>还没有密码</h3><p>点击上方"添加密码"按钮开始添加</p><button class="btn btn-secondary" style="margin-top:12px;" onclick="InfoVaultApp.renderView(InfoVaultApp.currentView)">🔄 刷新页面</button></div>' : `
         <div class="table-wrap">
           <table id="pwTable">
             <thead><tr>
@@ -1154,7 +1154,16 @@ var InfoVaultApp = {
 
   // ====== 帮助页 ======
   renderHelp(area) {
-    area.innerHTML = `
+    // 异步获取诊断信息
+    Promise.all([
+      InfoVaultDB.exportAll(),
+      InfoVaultDB.getSetting('master_password_hash')
+    ]).then(([allEntries, masterHash]) => {
+      const total = allEntries.length;
+      const active = allEntries.filter(e => !e.deletedAt).length;
+      const deleted = allEntries.filter(e => e.deletedAt).length;
+      const hasMasterPwd = !!masterHash;
+      area.innerHTML = `
       <div class="card" style="max-width:600px;margin:0 auto;">
         <h2 style="font-size:20px;font-weight:700;color:var(--color-neutral-900);margin-bottom:20px;">使用帮助</h2>
         <div style="display:flex;flex-direction:column;gap:16px;">
@@ -1162,17 +1171,22 @@ var InfoVaultApp = {
             <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">Ctrl+K / ⌘K — 全局搜索</p>
           </div>
           <div><h3 style="font-weight:600;color:var(--color-neutral-900);margin-bottom:4px;">🔐 数据安全</h3>
-            <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">所有数据使用 AES-256-GCM 加密存储在浏览器 IndexedDB 中。同步到 GitHub 时同样加密。</p>
+            <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">所有数据使用 AES-256-GCM 加密存储在浏览器 IndexedDB 中。</p>
           </div>
-          <div><h3 style="font-weight:600;color:var(--color-neutral-900);margin-bottom:4px;">🔄 多设备同步</h3>
-            <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">在设置中配置 GitHub Personal Access Token 和仓库地址，数据将自动同步到所有设备。</p>
-          </div>
-          <div><h3 style="font-weight:600;color:var(--color-neutral-900);margin-bottom:4px;">📱 移动端</h3>
-            <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">在手机上打开 info-vault-mobile/index.html 即可使用移动端版本，数据通过 GitHub 同步。</p>
+          <div><h3 style="font-weight:600;color:var(--color-neutral-900);margin-bottom:4px;">📊 数据库诊断</h3>
+            <div style="font-size:var(--text-sm);color:var(--color-neutral-500);background:rgba(26,32,53,0.4);padding:12px;border-radius:8px;line-height:1.8;">
+              <div>总条目: ${total} | 活跃: ${active} | 回收站: ${deleted}</div>
+              <div>主密码: ${hasMasterPwd ? '✅ 已设置' : '❌ 未设置'}</div>
+              <div>本地存储加密: ${InfoVaultDB.isEncryptionEnabled() ? '✅ 已激活' : '❌ 未激活'}</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="InfoVaultApp.renderView('help')">🔄 刷新诊断</button>
           </div>
         </div>
       </div>
     `;
+    }).catch(() => {
+      area.innerHTML = '<div class="empty-state"><h3>加载诊断信息失败</h3></div>';
+    });
   },
 
   // ====== 添加/编辑弹窗 ======
